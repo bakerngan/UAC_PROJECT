@@ -1,0 +1,539 @@
+   1              		.file	"UAC_MAIN.c"
+   9              	.Ltext0:
+  10              		.section	.text.SRAMInit,"ax",%progbits
+  11              		.align	2
+  12              		.global	SRAMInit
+  14              	SRAMInit:
+  15              	.LFB8:
+  16              		.file 1 "UAC_MAIN.c"
+   1:UAC_MAIN.c    **** /*---------------------------------------------------------------*/
+   2:UAC_MAIN.c    **** /* FAT file system module test program R0.05   (C)ChaN, 2007     */
+   3:UAC_MAIN.c    **** /* Extended for LPC23xx/24xx MCI Test          (C)Martin Thomas  */
+   4:UAC_MAIN.c    **** /*---------------------------------------------------------------*/
+   5:UAC_MAIN.c    **** 
+   6:UAC_MAIN.c    **** #include "LPC24xx.h"
+   7:UAC_MAIN.c    **** #include "irq.h"
+   8:UAC_MAIN.c    **** #include "monitor.h"
+   9:UAC_MAIN.c    **** #include "sysinit.h"
+  10:UAC_MAIN.c    **** 
+  11:UAC_MAIN.c    **** #include "uart.h"		//Uart interface
+  12:UAC_MAIN.c    **** #include "spi.h"		//SPI Camera
+  13:UAC_MAIN.c    **** #include "extint.h"		//external interrupt
+  14:UAC_MAIN.c    **** #include "FAT.h"		//SDCard
+  15:UAC_MAIN.c    **** 
+  16:UAC_MAIN.c    **** //This is for the UART
+  17:UAC_MAIN.c    **** #define IO0DIR (*(volatile unsigned long *)0xE0028008)
+  18:UAC_MAIN.c    **** #define IO0PIN (*(volatile unsigned long *)0xE0028000)
+  19:UAC_MAIN.c    **** //Global flags that are set by the external interrupt
+  20:UAC_MAIN.c    **** int takeSnapshot=0;
+  21:UAC_MAIN.c    **** int startRecording=0;
+  22:UAC_MAIN.c    **** int stopRecording=0;
+  23:UAC_MAIN.c    **** 
+  24:UAC_MAIN.c    **** void SRAMInit(){
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              		.loc 1 25 0
+  25:UAC_MAIN.c    **** 	  PINSEL6 = 0x55555555;
+  20              	v	r2, #21760
+  21 0000 552CA0E3 		add	r2, r2, #85
+  22 0004 552082E2 		mov	r1, #-536870912
+  23 0008 0E12A0E3 		add	r1, r1, #180224
+  24 000c 0B1981E2 		orr	r2, r2, r2, asl #16
+  25 0010 022882E1 		str	r2, [r1, #24]
+  26 0014 182081E5 		.loc 1 24 0
+  27              		mov	ip, sp
+  28 0018 0DC0A0E1 	.LCFI0:
+  29              		stmfd	sp!, {fp, ip, lr, pc}
+  30 001c 00D82DE9 	.LCFI1:
+  31              		sub	fp, ip, #4
+  32 0020 04B04CE2 	.LCFI2:
+  33              		.loc 1 26 0
+  26:UAC_MAIN.c    **** 	  PINSEL8 = PINSEL8 & 0x00000000;
+  34              	dr	r3, [r1, #32]
+  35 0024 00C0A0E3 		str	ip, [r1, #32]
+  36 0028 203091E5 		.loc 1 27 0
+  37 002c 20C081E5 		ldr	r3, [r1, #32]
+  27:UAC_MAIN.c    **** 	  PINSEL8 = PINSEL8 | 0x55555555; 	  //Set all 32:0 pins to 01 for address P4[0] - P4[15]
+  38              		r3, r3, r2
+  39 0030 203091E5 		str	r3, [r1, #32]
+  40 0034 023083E1 		.loc 1 29 0
+  41 0038 203081E5 		mov	r3, #251658240
+  28:UAC_MAIN.c    **** 
+  29:UAC_MAIN.c    **** 	  PINSEL9 = PINSEL9 & 0x0F00FF00;	  //Set 7:0 pins to 01 for address P4[16] - P4[19]
+  42              		r2, [r1, #36]
+  43 003c 0F34A0E3 		add	r3, r3, #65280
+  44 0040 242091E5 		and	r2, r2, r3
+  45 0044 FF3C83E2 		str	r2, [r1, #36]
+  46 0048 032002E0 		.loc 1 30 0
+  47 004c 242081E5 		mov	r3, #1342177280
+  30:UAC_MAIN.c    **** 	  PINSEL9 = PINSEL9 | 0x50550055;
+  48              	0, [r1, #36]
+  49 0050 0532A0E3 		add	r3, r3, #5570560
+  50 0054 240091E5 		add	r3, r3, #85
+  51 0058 553883E2 		orr	r0, r0, r3
+  52 005c 553083E2 		.loc 1 32 0
+  53 0060 030080E1 		mov	r2, #36864
+  31:UAC_MAIN.c    **** 
+  32:UAC_MAIN.c    **** 	  EMC_CTRL &= ~2;					// select normal memory map (enables CS0 operation)
+  54              	1 30 0
+  55 0064 092AA0E3 		str	r0, [r1, #36]
+  56              		.loc 1 32 0
+  57 0068 240081E5 		sub	r2, r2, #1
+  58              		orr	r2, r2, r2, asl #21
+  59 006c 012042E2 		ldr	r3, [r2, #-4095]
+  60 0070 822A82E1 		bic	r3, r3, #2
+  61 0074 FF3F12E5 		str	r3, [r2, #-4095]
+  62 0078 0230C3E3 		.loc 1 37 0
+  63 007c FF3F02E5 		mov	r0, #2
+  33:UAC_MAIN.c    **** 	  EMC_STA_CFG0 = 0x81;
+  34:UAC_MAIN.c    **** 	  EMC_STA_WAITWEN0 = 0x0;			// Keil had 2
+  35:UAC_MAIN.c    **** 	  EMC_STA_WAITOEN0 = 0x0;			//          3
+  36:UAC_MAIN.c    **** 	  EMC_STA_WAITRD0 = 0x1;			//          2
+  37:UAC_MAIN.c    **** 	  EMC_STA_WAITPAGE0 = 0x2;
+  64              	 0
+  65 0080 0200A0E3 		mov	r1, #129
+  66              		.loc 1 36 0
+  67 0084 8110A0E3 		mov	r3, #1
+  68              		.loc 1 33 0
+  69 0088 0130A0E3 		str	r1, [r2, #-3583]
+  70              		.loc 1 34 0
+  71 008c FF1D02E5 		str	ip, [r2, #-3579]
+  72              		.loc 1 35 0
+  73 0090 FBCD02E5 		str	ip, [r2, #-3575]
+  74              		.loc 1 36 0
+  75 0094 F7CD02E5 		str	r3, [r2, #-3571]
+  76              		.loc 1 37 0
+  77 0098 F33D02E5 		str	r0, [r2, #-3567]
+  78              		.loc 1 38 0
+  79 009c EF0D02E5 		str	ip, [r2, #-3563]
+  38:UAC_MAIN.c    **** 	  EMC_STA_WAITWR0 = 0x0;			//          2
+  80              	r	r0, [r2, #-3559]
+  81 00a0 EBCD02E5 		.loc 1 40 0
+  39:UAC_MAIN.c    **** 	  EMC_STA_WAITTURN0 = 0x2;
+  82              	dmfd	sp, {fp, sp, pc}
+  83 00a4 E70D02E5 	.LFE8:
+  40:UAC_MAIN.c    **** }
+  84              	size	SRAMInit, .-SRAMInit
+  85 00a8 00A89DE8 		.section	.rodata.str1.4,"aMS",%progbits,1
+  86              		.align	2
+  87              	.LC0:
+  88              		.ascii	"HelloWorld\015\012\000"
+  89              		.align	2
+  90              	.LC1:
+  91 0000 48656C6C 		.ascii	"\012take snapshot\015\000"
+  91      6F576F72 
+  91      6C640D0A 
+  91      00
+  92 000d 000000   		.align	2
+  93              	.LC2:
+  94 0010 0A74616B 		.ascii	"\012size: %d\015\000"
+  94      6520736E 
+  94      61707368 
+  94      6F740D00 
+  95              		.align	2
+  96              	.LC3:
+  97 0020 0A73697A 		.ascii	"\012end\015\012\000"
+  97      653A2025 
+  97      640D00
+  98 002b 00       		.align	2
+  99              	.LC4:
+ 100 002c 0A656E64 		.ascii	"\012startRecording\015\000"
+ 100      0D0A00
+ 101 0033 00       		.align	2
+ 102              	.LC5:
+ 103 0034 0A737461 		.ascii	"\012images stored=%d\015\012\000"
+ 103      72745265 
+ 103      636F7264 
+ 103      696E670D 
+ 103      00
+ 104 0045 000000   		.section	.text.main,"ax",%progbits
+ 105              		.align	2
+ 106 0048 0A696D61 		.global	main
+ 106      67657320 
+ 106      73746F72 
+ 106      65643D25 
+ 106      640D0A00 
+ 108              	main:
+ 109              	.LFB10:
+ 110              		.loc 1 58 0
+ 111              		@ args = 0, pretend = 0, frame = 0
+ 112              		@ frame_needed = 1, uses_anonymous_args = 0
+  41:UAC_MAIN.c    **** 
+  42:UAC_MAIN.c    **** 
+  43:UAC_MAIN.c    **** static
+  44:UAC_MAIN.c    **** void IoInit (void)
+  45:UAC_MAIN.c    **** {
+  46:UAC_MAIN.c    **** 	systemInit();
+  47:UAC_MAIN.c    **** 	uart0Init(B115200 ,UART_8N1 , UART_FIFO_8);
+  48:UAC_MAIN.c    **** 	SPIInit();		/* initialize SPI 0 */
+  49:UAC_MAIN.c    **** 	setupCamera();
+  50:UAC_MAIN.c    **** 	init_VIC();
+  51:UAC_MAIN.c    **** 	EINTInit();
+  52:UAC_MAIN.c    **** 	SRAMInit();
+  53:UAC_MAIN.c    **** 	enable_interrupt();
+  54:UAC_MAIN.c    **** 	initSDCard();
+  55:UAC_MAIN.c    **** }
+  56:UAC_MAIN.c    **** 
+  57:UAC_MAIN.c    **** int main (void)
+  58:UAC_MAIN.c    **** {
+ 113              	!, {r4, r5, r6, r7, r8, r9, sl, fp, ip, lr, pc}
+ 114              	.LCFI4:
+ 115              		sub	fp, ip, #4
+ 116 0000 0DC0A0E1 	.LCFI5:
+ 117              	.LBB20:
+ 118 0004 F0DF2DE9 	.LBB21:
+ 119              		.loc 1 46 0
+ 120 0008 04B04CE2 		bl	systemInit
+ 121              		.loc 1 47 0
+ 122              		mov	r1, #3
+ 123              		mov	r2, #129
+ 124              		mov	r0, #10
+ 125 000c FEFFFFEB 		bl	uart0Init
+ 126              		.loc 1 48 0
+ 127 0010 0310A0E3 		bl	SPIInit
+ 128 0014 8120A0E3 		.loc 1 49 0
+ 129 0018 0A00A0E3 		bl	setupCamera
+ 130 001c FEFFFFEB 		.loc 1 50 0
+ 131              		bl	init_VIC
+ 132 0020 FEFFFFEB 		.loc 1 51 0
+ 133              		bl	EINTInit
+ 134 0024 FEFFFFEB 		.loc 1 52 0
+ 135              		bl	SRAMInit
+ 136 0028 FEFFFFEB 	.LBB22:
+ 137              	.LBB23:
+ 138 002c FEFFFFEB 	.LBB24:
+ 139              	.LBB25:
+ 140 0030 FEFFFFEB 		.file 2 "common_nxp/inc/irq.h"
+ 141              		.loc 2 99 0
+ 142              	@ 99 "common_nxp/inc/irq.h" 1
+ 143              		mrs r3,CPSR
+ 144              	@ 0 "" 2
+ 145              	.LVL0:
+   1:common_nxp/inc/irq.h **** /******************************************************************************
+   2:common_nxp/inc/irq.h ****  *   irq.h:  Interrupt related Header file for NXP LPC23xx/24xx Family 
+   3:common_nxp/inc/irq.h ****  *   Microprocessors
+   4:common_nxp/inc/irq.h ****  *
+   5:common_nxp/inc/irq.h ****  *   Copyright(C) 2006, NXP Semiconductor
+   6:common_nxp/inc/irq.h ****  *   All rights reserved.
+   7:common_nxp/inc/irq.h ****  *
+   8:common_nxp/inc/irq.h ****  *   History
+   9:common_nxp/inc/irq.h ****  *   2006.09.01  ver 1.00    Prelimnary version, first Release
+  10:common_nxp/inc/irq.h ****  *   2011.05.03  ver 2.00    Edits and additions for use with Eclipse/GCC
+  11:common_nxp/inc/irq.h ****  *
+  12:common_nxp/inc/irq.h **** ******************************************************************************/
+  13:common_nxp/inc/irq.h **** #ifndef __IRQ_H 
+  14:common_nxp/inc/irq.h **** #define __IRQ_H
+  15:common_nxp/inc/irq.h **** #include "type.h"
+  16:common_nxp/inc/irq.h **** 
+  17:common_nxp/inc/irq.h **** #define I_Bit			0x80
+  18:common_nxp/inc/irq.h **** #define F_Bit			0x40
+  19:common_nxp/inc/irq.h **** 
+  20:common_nxp/inc/irq.h **** #define SYS32Mode		0x1F
+  21:common_nxp/inc/irq.h **** #define IRQ32Mode		0x12
+  22:common_nxp/inc/irq.h **** #define FIQ32Mode		0x11
+  23:common_nxp/inc/irq.h **** 
+  24:common_nxp/inc/irq.h **** /* To use FIQ, set below to 1;  otherwise, it's 0 */
+  25:common_nxp/inc/irq.h **** #define FIQ				0
+  26:common_nxp/inc/irq.h **** 
+  27:common_nxp/inc/irq.h **** #define HIGHEST_PRIORITY	0x01
+  28:common_nxp/inc/irq.h **** #define MID_PRIORITY		0x04
+  29:common_nxp/inc/irq.h **** #define LOWEST_PRIORITY		0x0F
+  30:common_nxp/inc/irq.h **** 
+  31:common_nxp/inc/irq.h **** #define	WDT_INT			0
+  32:common_nxp/inc/irq.h **** #define SWI_INT			1
+  33:common_nxp/inc/irq.h **** #define ARM_CORE0_INT	2
+  34:common_nxp/inc/irq.h **** #define	ARM_CORE1_INT	3
+  35:common_nxp/inc/irq.h **** #define	TIMER0_INT		4
+  36:common_nxp/inc/irq.h **** #define TIMER1_INT		5
+  37:common_nxp/inc/irq.h **** #define UART0_INT		6
+  38:common_nxp/inc/irq.h **** #define	UART1_INT		7
+  39:common_nxp/inc/irq.h **** #define	PWM0_1_INT		8
+  40:common_nxp/inc/irq.h **** #define I2C0_INT		9
+  41:common_nxp/inc/irq.h **** #define SPI0_INT		10		/* SPI and SSP0 share VIC slot */
+  42:common_nxp/inc/irq.h **** #define SSP0_INT		10
+  43:common_nxp/inc/irq.h **** #define	SSP1_INT		11
+  44:common_nxp/inc/irq.h **** #define	PLL_INT			12
+  45:common_nxp/inc/irq.h **** #define RTC_INT			13
+  46:common_nxp/inc/irq.h **** #define EINT0_INT		14
+  47:common_nxp/inc/irq.h **** #define EINT1_INT		15
+  48:common_nxp/inc/irq.h **** #define EINT2_INT		16
+  49:common_nxp/inc/irq.h **** #define LCD_INT			16
+  50:common_nxp/inc/irq.h **** #define EINT3_INT		17
+  51:common_nxp/inc/irq.h **** #define	ADC0_INT		18
+  52:common_nxp/inc/irq.h **** #define I2C1_INT		19
+  53:common_nxp/inc/irq.h **** #define BOD_INT			20
+  54:common_nxp/inc/irq.h **** #define EMAC_INT		21
+  55:common_nxp/inc/irq.h **** #define USB_INT			22
+  56:common_nxp/inc/irq.h **** #define CAN_INT			23
+  57:common_nxp/inc/irq.h **** #define MCI_INT			24
+  58:common_nxp/inc/irq.h **** #define GPDMA_INT		25
+  59:common_nxp/inc/irq.h **** #define TIMER2_INT		26
+  60:common_nxp/inc/irq.h **** #define TIMER3_INT		27
+  61:common_nxp/inc/irq.h **** #define UART2_INT		28
+  62:common_nxp/inc/irq.h **** #define UART3_INT		29
+  63:common_nxp/inc/irq.h **** #define I2C2_INT		30
+  64:common_nxp/inc/irq.h **** #define I2S_INT			31
+  65:common_nxp/inc/irq.h **** 
+  66:common_nxp/inc/irq.h **** #define VIC_SIZE		32
+  67:common_nxp/inc/irq.h **** 
+  68:common_nxp/inc/irq.h **** #define VECT_ADDR_INDEX	0x100
+  69:common_nxp/inc/irq.h **** #define VECT_PRIO_INDEX 0x200
+  70:common_nxp/inc/irq.h **** 
+  71:common_nxp/inc/irq.h **** extern void FIQ_Handler( void )  __attribute__ ((interrupt ("FIQ"))) ;    // __irq;
+  72:common_nxp/inc/irq.h **** void init_VIC( void );
+  73:common_nxp/inc/irq.h **** DWORD install_irq( DWORD IntNumber, void *HandlerAddr, DWORD Priority );
+  74:common_nxp/inc/irq.h **** 
+  75:common_nxp/inc/irq.h **** /* Be aware that, from compiler to compiler, nested interrupt will have to
+  76:common_nxp/inc/irq.h ****    be handled differently. More details can be found in Philips LPC2000
+  77:common_nxp/inc/irq.h ****    family app-note AN10381 */
+  78:common_nxp/inc/irq.h ****  
+  79:common_nxp/inc/irq.h **** /* unlike Keil CARM Compiler, in ARM's RealView compiler, don't save and 
+  80:common_nxp/inc/irq.h ****    restore registers into the stack in RVD as the compiler does that for you.
+  81:common_nxp/inc/irq.h ****    See RVD ARM compiler Inline and embedded assemblers, "Rules for
+  82:common_nxp/inc/irq.h ****    using __asm and asm keywords. */
+  83:common_nxp/inc/irq.h **** 
+  84:common_nxp/inc/irq.h **** #if 0       // below 3 lines are for Keil compilers only
+  85:common_nxp/inc/irq.h **** static DWORD sysreg;		/* used as LR register */
+  86:common_nxp/inc/irq.h **** #define IENABLE __asm { MRS sysreg, SPSR; MSR CPSR_c, #SYS32Mode }
+  87:common_nxp/inc/irq.h **** #define IDISABLE __asm { MSR CPSR_c, #(IRQ32Mode|I_Bit); MSR SPSR_cxsf, sysreg }
+  88:common_nxp/inc/irq.h **** 
+  89:common_nxp/inc/irq.h **** #else	// for Eclipse/GCC use enable_interrupt() and disable_interrupt() below
+  90:common_nxp/inc/irq.h **** 
+  91:common_nxp/inc/irq.h **** // -------------- Additions to be used with Eclipse/GCC --------
+  92:common_nxp/inc/irq.h **** #include <stdint.h>
+  93:common_nxp/inc/irq.h **** //#include "inttypes.h"
+  94:common_nxp/inc/irq.h **** 
+  95:common_nxp/inc/irq.h **** #ifndef __thumb
+  96:common_nxp/inc/irq.h **** static inline uint32_t __get_CPSR(void)
+  97:common_nxp/inc/irq.h **** {
+  98:common_nxp/inc/irq.h **** 	uint32_t temp;
+  99:common_nxp/inc/irq.h **** 	asm volatile ("mrs %0,CPSR":"=r" (temp):) ;
+ 146              	.loc 2 105 0
+ 147              		bic	r3, r3, #192
+ 148 0034 00300FE1 	.LVL1:
+ 149              	@ 105 "common_nxp/inc/irq.h" 1
+ 150              		 msr CPSR_cxsf,r3
+ 151              	@ 0 "" 2
+ 152              	.LBE27:
+ 153              	.LBE26:
+ 154              	.LBE23:
+ 100:common_nxp/inc/irq.h **** 	return temp;
+ 101:common_nxp/inc/irq.h **** }
+ 102:common_nxp/inc/irq.h **** 
+ 103:common_nxp/inc/irq.h **** static inline void __set_CPSR(uint32_t save_cpsr)
+ 104:common_nxp/inc/irq.h **** {
+ 105:common_nxp/inc/irq.h **** 	asm volatile (" msr CPSR_cxsf,%0"::"r"(save_cpsr) );
+ 155              	.loc 1 54 0
+ 156 0038 C030C3E3 		bl	initSDCard
+ 157              	.LBE21:
+ 158              	.LBE20:
+ 159 003c 03F02FE1 		.loc 1 60 0
+ 160              		ldr	r0, .L18
+ 161              		bl	xprintf
+ 162              		ldr	sl, .L18+4
+ 163              		mov	r5, #0
+ 164              	.LVL2:
+ 165              		ldr	r6, .L18+8
+ 166 0040 FEFFFFEB 		ldr	r7, .L18+12
+ 167              		.loc 1 65 0
+ 168              		mov	r9, sl
+  59:UAC_MAIN.c    **** 	IoInit();
+  60:UAC_MAIN.c    **** 	xprintf("HelloWorld\r\n");
+ 169              	mov	r8, r5
+ 170 0044 F0009FE5 	.LVL3:
+ 171 0048 FEFFFFEB 	.L14:
+ 172 004c ECA09FE5 		.loc 1 65 0
+ 173 0050 0050A0E3 		ldr	r3, [sl, #0]
+ 174              		cmp	r3, #0
+ 175 0054 E8609FE5 		bne	.L16
+ 176 0058 E8709FE5 	.L4:
+  61:UAC_MAIN.c    **** 	int size=10000;
+  62:UAC_MAIN.c    **** 	int i=0;
+  63:UAC_MAIN.c    **** 	while(1)
+  64:UAC_MAIN.c    **** 	{
+  65:UAC_MAIN.c    **** 		if(takeSnapshot)
+ 177              	77 0
+ 178 005c 0A90A0E1 		ldr	r3, [r7, #0]
+  66:UAC_MAIN.c    **** 		{
+  67:UAC_MAIN.c    **** 			xprintf("\ntake snapshot\r");
+  68:UAC_MAIN.c    **** 			SDOpenSnapshot();
+  69:UAC_MAIN.c    **** 			getSnapshot();
+  70:UAC_MAIN.c    **** 			size=getPic();
+  71:UAC_MAIN.c    **** 			xprintf("\nsize: %d\r",size);
+  72:UAC_MAIN.c    **** 			writeToSDCard(size);
+  73:UAC_MAIN.c    **** 			closeFile();
+  74:UAC_MAIN.c    **** 			takeSnapshot=0;
+ 179              	mp	r3, #0
+ 180 0060 0580A0E1 		bne	.L17
+ 181              	.L5:
+ 182              		.loc 1 93 0
+ 183              		ldr	r3, [r6, #0]
+ 184 0064 00309AE5 		cmp	r3, #0
+ 185 0068 000053E3 		.loc 1 94 0
+ 186 006c 0900001A 		ldrne	r3, .L18+8
+ 187              		strne	r8, [r3, #0]
+  75:UAC_MAIN.c    **** 			xprintf("\nend\r\n");
+  76:UAC_MAIN.c    **** 		}
+  77:UAC_MAIN.c    **** 		if(startRecording)
+ 188              	5 0
+ 189 0070 003097E5 		ldr	r3, [sl, #0]
+ 190 0074 000053E3 		cmp	r3, #0
+ 191 0078 1800001A 		beq	.L4
+ 192              	.L16:
+  78:UAC_MAIN.c    **** 		{
+  79:UAC_MAIN.c    **** 			xprintf("\nstartRecording\r");
+  80:UAC_MAIN.c    **** 			SDOpenVideo();
+  81:UAC_MAIN.c    **** 			while(stopRecording!=1)
+  82:UAC_MAIN.c    **** 			{
+  83:UAC_MAIN.c    **** 				getSnapshot();
+  84:UAC_MAIN.c    **** 				size=getPic();
+  85:UAC_MAIN.c    **** 				writeToSDCard(size);
+  86:UAC_MAIN.c    **** 				i++;
+  87:UAC_MAIN.c    **** 			}
+  88:UAC_MAIN.c    **** 			closeFile();
+  89:UAC_MAIN.c    **** 			startRecording=0;
+  90:UAC_MAIN.c    **** 			stopRecording=0;
+  91:UAC_MAIN.c    **** 			xprintf("\nimages stored=%d\r\n",i);
+  92:UAC_MAIN.c    **** 		}
+  93:UAC_MAIN.c    **** 		if(startRecording==0 && stopRecording)
+ 193              	 1 67 0
+ 194 007c 003096E5 		ldr	r0, .L18+16
+ 195 0080 000053E3 		bl	xprintf
+  94:UAC_MAIN.c    **** 			stopRecording=0;
+ 196              	oc 1 68 0
+ 197 0084 B8309F15 		bl	SDOpenSnapshot
+ 198 0088 00808315 		.loc 1 69 0
+ 199              		bl	getSnapshot
+ 200 008c 00309AE5 		.loc 1 70 0
+ 201 0090 000053E3 		bl	getPic
+ 202 0094 F5FFFF0A 		.loc 1 71 0
+ 203              		mov	r1, r0
+ 204              		.loc 1 70 0
+ 205 0098 AC009FE5 		mov	r4, r0
+ 206 009c FEFFFFEB 		.loc 1 71 0
+ 207              		ldr	r0, .L18+20
+ 208 00a0 FEFFFFEB 		bl	xprintf
+ 209              		.loc 1 72 0
+ 210 00a4 FEFFFFEB 		mov	r0, r4
+ 211              		bl	writeToSDCard
+ 212 00a8 FEFFFFEB 		.loc 1 73 0
+ 213              		bl	closeFile
+ 214 00ac 0010A0E1 		.loc 1 75 0
+ 215              		ldr	r0, .L18+24
+ 216 00b0 0040A0E1 		.loc 1 74 0
+ 217              		str	r8, [r9, #0]
+ 218 00b4 94009FE5 		.loc 1 75 0
+ 219 00b8 FEFFFFEB 		bl	xprintf
+ 220              		.loc 1 77 0
+ 221 00bc 0400A0E1 		ldr	r3, [r7, #0]
+ 222 00c0 FEFFFFEB 		cmp	r3, #0
+ 223              		beq	.L5
+ 224 00c4 FEFFFFEB 	.L17:
+ 225              		.loc 1 79 0
+ 226 00c8 84009FE5 		ldr	r0, .L18+28
+ 227              		bl	xprintf
+ 228 00cc 008089E5 		.loc 1 80 0
+ 229              		bl	SDOpenVideo
+ 230 00d0 FEFFFFEB 		.loc 1 81 0
+ 231              		ldr	r3, [r6, #0]
+ 232 00d4 003097E5 		cmp	r3, #1
+ 233 00d8 000053E3 		beq	.L6
+ 234 00dc E6FFFF0A 	.L11:
+ 235              		.loc 1 83 0
+ 236              		bl	getSnapshot
+ 237 00e0 70009FE5 		.loc 1 84 0
+ 238 00e4 FEFFFFEB 		bl	getPic
+ 239              		.loc 1 85 0
+ 240 00e8 FEFFFFEB 		bl	writeToSDCard
+ 241              		.loc 1 81 0
+ 242 00ec 003096E5 		ldr	r3, [r6, #0]
+ 243 00f0 010053E3 		cmp	r3, #1
+ 244 00f4 0600000A 		.loc 1 86 0
+ 245              		add	r5, r5, #1
+ 246              		.loc 1 81 0
+ 247 00f8 FEFFFFEB 		bne	.L11
+ 248              	.L6:
+ 249 00fc FEFFFFEB 		.loc 1 88 0
+ 250              		bl	closeFile
+ 251 0100 FEFFFFEB 		.loc 1 91 0
+ 252              		ldr	r0, .L18+32
+ 253 0104 003096E5 		mov	r1, r5
+ 254 0108 010053E3 		.loc 1 89 0
+ 255              		str	r8, [r7, #0]
+ 256 010c 015085E2 		.loc 1 90 0
+ 257              		str	r8, [r6, #0]
+ 258 0110 F8FFFF1A 		.loc 1 91 0
+ 259              		bl	xprintf
+ 260              		.loc 1 93 0
+ 261 0114 FEFFFFEB 		ldr	r3, [r7, #0]
+ 262              		cmp	r3, #0
+ 263 0118 3C009FE5 		bne	.L14
+ 264 011c 0510A0E1 		b	.L5
+ 265              	.L19:
+ 266 0120 008087E5 		.align	2
+ 267              	.L18:
+ 268 0124 008086E5 		.word	.LC0
+ 269              		.word	takeSnapshot
+ 270 0128 FEFFFFEB 		.word	stopRecording
+ 271              		.word	startRecording
+ 272 012c 003097E5 		.word	.LC1
+ 273 0130 000053E3 		.word	.LC2
+ 274 0134 CAFFFF1A 		.word	.LC3
+ 275 0138 CFFFFFEA 		.word	.LC4
+ 276              		.word	.LC5
+ 277              	.LFE10:
+ 279 013c 00000000 		.global	takeSnapshot
+ 280 0140 00000000 		.section	.bss.takeSnapshot,"aw",%nobits
+ 281 0144 00000000 		.align	2
+ 284 0150 20000000 	takeSnapshot:
+ 285 0154 2C000000 		.space	4
+ 286 0158 34000000 		.global	startRecording
+ 287 015c 48000000 		.section	.bss.startRecording,"aw",%nobits
+ 288              		.align	2
+ 291              	startRecording:
+ 292              		.space	4
+ 293              		.global	stopRecording
+ 294              		.section	.bss.stopRecording,"aw",%nobits
+ 295              		.align	2
+ 298              	stopRecording:
+ 299              		.space	4
+ 300              		.section	.debug_frame,"",%progbits
+ 301              	.Lframe0:
+ 302              		.4byte	.LECIE0-.LSCIE0
+ 303 0000 00000000 	.LSCIE0:
+ 304              		.4byte	0xffffffff
+ 305              		.byte	0x1
+ 306              		.ascii	"\000"
+ 307              		.uleb128 0x1
+ 308              		.sleb128 -4
+ 309              		.byte	0xe
+ 310 0000 00000000 		.byte	0xc
+ 391              		.byte	0x5c
+DEFINED SYMBOLS
+                            *ABS*:00000000 UAC_MAIN.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:14     .text.SRAMInit:00000000 SRAMInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:21     .text.SRAMInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:111    .text.main:00000000 main
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:116    .text.main:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:279    .text.main:0000013c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:295    .bss.takeSnapshot:00000000 takeSnapshot
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:309    .bss.stopRecording:00000000 stopRecording
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:302    .bss.startRecording:00000000 startRecording
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:313    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccWJgogS.s:395    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+systemInit
+uart0Init
+SPIInit
+setupCamera
+init_VIC
+EINTInit
+initSDCard
+xprintf
+SDOpenSnapshot
+getSnapshot
+getPic
+writeToSDCard
+closeFile
+SDOpenVideo

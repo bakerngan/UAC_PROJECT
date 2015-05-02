@@ -1,0 +1,223 @@
+   1              		.file	"irq.c"
+   9              	.Ltext0:
+  10              		.section	.text.FIQ_Handler,"ax",%progbits
+  11              		.align	2
+  12              		.global	FIQ_Handler
+  14              	FIQ_Handler:
+  15              	.LFB8:
+  16              		.file 1 "common_nxp/src/irq.c"
+   1:common_nxp/src/irq.c **** /*****************************************************************************
+   2:common_nxp/src/irq.c ****  *   irq.c: Interrupt handler C file for NXP LPC23xx/24xx Family Microprocessors
+   3:common_nxp/src/irq.c ****  *
+   4:common_nxp/src/irq.c ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:common_nxp/src/irq.c ****  *   All rights reserved.
+   6:common_nxp/src/irq.c ****  *
+   7:common_nxp/src/irq.c ****  *   History
+   8:common_nxp/src/irq.c ****  *   2006.07.13  ver 1.00    Prelimnary version, first Release
+   9:common_nxp/src/irq.c ****  *
+  10:common_nxp/src/irq.c **** ******************************************************************************/
+  11:common_nxp/src/irq.c **** #include "LPC24xx.h"			/* LPC23XX/24xx Peripheral Registers */
+  12:common_nxp/src/irq.c **** #include "type.h"
+  13:common_nxp/src/irq.c **** #include "irq.h"
+  14:common_nxp/src/irq.c **** #if FIQ
+  15:common_nxp/src/irq.c **** #include "timer.h"
+  16:common_nxp/src/irq.c **** #endif
+  17:common_nxp/src/irq.c **** 
+  18:common_nxp/src/irq.c **** /******************************************************************************
+  19:common_nxp/src/irq.c **** ** Function name:		FIQ_Handler
+  20:common_nxp/src/irq.c **** **
+  21:common_nxp/src/irq.c **** ** Descriptions:		FIQ interrupt handler called in startup
+  22:common_nxp/src/irq.c **** ** parameters:
+  23:common_nxp/src/irq.c **** **
+  24:common_nxp/src/irq.c **** ** Returned value:
+  25:common_nxp/src/irq.c **** **
+  26:common_nxp/src/irq.c **** ******************************************************************************/
+  27:common_nxp/src/irq.c **** void FIQ_Handler( void ) // __attribute__((interrupt ("FIQ")))   	// _irq
+  28:common_nxp/src/irq.c **** {
+  17              	Fast Interrupt Service Routine.
+  18              		@ args = 0, pretend = 0, frame = 0
+  19              		@ frame_needed = 1, uses_anonymous_args = 0
+  20              		str	ip, [sp, #-4]!
+  21 0000 04C02DE5 		mov	ip, sp
+  22 0004 0DC0A0E1 	.LCFI0:
+  23              		stmfd	sp!, {fp, ip, lr, pc}
+  24 0008 00D82DE9 	.LCFI1:
+  25              		sub	fp, ip, #4
+  26 000c 04B04CE2 	.LCFI2:
+  27              		.loc 1 40 0
+  29:common_nxp/src/irq.c **** #if FIQ
+  30:common_nxp/src/irq.c ****   if ( VICFIQStatus & (0x1<<4) && VICIntEnable & (0x1<<4) )
+  31:common_nxp/src/irq.c ****   {
+  32:common_nxp/src/irq.c **** 	Timer0FIQHandler();
+  33:common_nxp/src/irq.c ****   }
+  34:common_nxp/src/irq.c ****   if ( VICFIQStatus & (0x1<<5) && VICIntEnable & (0x1<<5) )
+  35:common_nxp/src/irq.c ****   {
+  36:common_nxp/src/irq.c **** 	Timer1FIQHandler();
+  37:common_nxp/src/irq.c ****   }
+  38:common_nxp/src/irq.c ****   return;
+  39:common_nxp/src/irq.c **** #endif
+  40:common_nxp/src/irq.c **** }
+  28              	, #12
+  29 0010 0CD04BE2 		ldmfd	sp, {fp, sp, lr}
+  30 0014 00689DE8 		ldmfd	sp!, {ip}
+  31 0018 0010BDE8 		subs	pc, lr, #4
+  32 001c 04F05EE2 	.LFE8:
+  34              		.section	.text.init_VIC,"ax",%progbits
+  35              		.align	2
+  36              		.global	init_VIC
+  38              	init_VIC:
+  39              	.LFB9:
+  40              		.loc 1 52 0
+  41:common_nxp/src/irq.c **** 
+  42:common_nxp/src/irq.c **** /* Initialize the interrupt controller */
+  43:common_nxp/src/irq.c **** /******************************************************************************
+  44:common_nxp/src/irq.c **** ** Function name:		init_VIC
+  45:common_nxp/src/irq.c **** **
+  46:common_nxp/src/irq.c **** ** Descriptions:		Initialize VIC interrupt controller.
+  47:common_nxp/src/irq.c **** ** parameters:			None
+  48:common_nxp/src/irq.c **** ** Returned value:		None
+  49:common_nxp/src/irq.c **** ** 
+  50:common_nxp/src/irq.c **** ******************************************************************************/
+  51:common_nxp/src/irq.c **** void init_VIC(void) 
+  52:common_nxp/src/irq.c **** {
+  41              	pretend = 0, frame = 0
+  42              		@ frame_needed = 1, uses_anonymous_args = 0
+  43              		.loc 1 57 0
+  53:common_nxp/src/irq.c ****     DWORD i = 0;
+  54:common_nxp/src/irq.c ****     DWORD *vect_addr, *vect_prio;
+  55:common_nxp/src/irq.c ****    	
+  56:common_nxp/src/irq.c ****     /* initialize VIC*/
+  57:common_nxp/src/irq.c ****     VICIntEnClr = 0xffffffff;
+  44              	n	r3, #0
+  45 0000 0030E0E3 		.loc 1 58 0
+  58:common_nxp/src/irq.c ****     VICVectAddr = 0;
+  46              	ov	r2, #0
+  47 0004 0020A0E3 		.loc 1 57 0
+  48              		str	r3, [r3, #-4075]
+  49 0008 EB3F03E5 		.loc 1 52 0
+  50              		mov	ip, sp
+  51 000c 0DC0A0E1 	.LCFI3:
+  52              		.loc 1 58 0
+  53              		str	r2, [r3, #-255]
+  54 0010 FF2003E5 		.loc 1 59 0
+  59:common_nxp/src/irq.c ****     VICIntSelect = 0;
+  55              	[r3, #-4083]
+  56 0014 F32F03E5 		add	r3, r3, #-2013265919
+  57 0018 623383E2 		.loc 1 52 0
+  58              		stmfd	sp!, {fp, ip, lr, pc}
+  59 001c 00D82DE9 	.LCFI4:
+  60              		.loc 1 59 0
+  61              		mov	r3, r3, asr #19
+  62 0020 C339A0E1 		.loc 1 52 0
+  63              		sub	fp, ip, #4
+  64 0024 04B04CE2 	.LCFI5:
+  65              		.loc 1 67 0
+  60:common_nxp/src/irq.c **** 
+  61:common_nxp/src/irq.c ****     /* set all the vector and vector control register to 0 */
+  62:common_nxp/src/irq.c ****     for ( i = 0; i < VIC_SIZE; i++ )
+  63:common_nxp/src/irq.c ****     {
+  64:common_nxp/src/irq.c **** 		vect_addr = (DWORD *)(VIC_BASE_ADDR + VECT_ADDR_INDEX + i*4);
+  65:common_nxp/src/irq.c **** 		vect_prio = (DWORD *)(VIC_BASE_ADDR + VECT_PRIO_INDEX + i*4);
+  66:common_nxp/src/irq.c **** 		*vect_addr = 0x0;	
+  67:common_nxp/src/irq.c **** 		*vect_prio = 0xF;
+  66              	5
+  67 0028 0F10A0E3 	.L4:
+  68              		.loc 1 66 0
+  69              		str	r2, [r3, #0]
+  70 002c 002083E5 		.loc 1 67 0
+  71              		str	r1, [r3, #256]
+  72 0030 001183E5 		add	r3, r3, #4
+  73 0034 043083E2 		.loc 1 62 0
+  74              		cmn	r3, #3712
+  75 0038 3A0D73E3 		bne	.L4
+  76 003c FAFFFF1A 		.loc 1 70 0
+  68:common_nxp/src/irq.c ****     }
+  69:common_nxp/src/irq.c ****     return;
+  70:common_nxp/src/irq.c **** }
+  77              	{fp, sp, pc}
+  78 0040 00A89DE8 	.LFE9:
+  80              		.section	.text.install_irq,"ax",%progbits
+  81              		.align	2
+  82              		.global	install_irq
+  84              	install_irq:
+  85              	.LFB10:
+  86              		.loc 1 82 0
+  71:common_nxp/src/irq.c **** 
+  72:common_nxp/src/irq.c **** /******************************************************************************
+  73:common_nxp/src/irq.c **** ** Function name:		install_irq
+  74:common_nxp/src/irq.c **** **
+  75:common_nxp/src/irq.c **** ** Descriptions:		Install interrupt handler
+  76:common_nxp/src/irq.c **** ** parameters:			Interrupt number, interrupt handler address, 
+  77:common_nxp/src/irq.c **** **						interrupt priority
+  78:common_nxp/src/irq.c **** ** Returned value:		true or false, return false if IntNum is out of range
+  79:common_nxp/src/irq.c **** ** 
+  80:common_nxp/src/irq.c **** ******************************************************************************/
+  81:common_nxp/src/irq.c **** DWORD install_irq( DWORD IntNumber, void *HandlerAddr, DWORD Priority )
+  82:common_nxp/src/irq.c **** {
+  87              	0, pretend = 0, frame = 0
+  88              		@ frame_needed = 1, uses_anonymous_args = 0
+  89              	.LVL0:
+  90              		mov	ip, sp
+  91 0000 0DC0A0E1 	.LCFI6:
+  92              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+  93 0004 30D82DE9 	.LCFI7:
+  94              		.loc 1 86 0
+  83:common_nxp/src/irq.c ****     DWORD *vect_addr;
+  84:common_nxp/src/irq.c ****     DWORD *vect_prio;
+  85:common_nxp/src/irq.c ****       
+  86:common_nxp/src/irq.c ****     VICIntEnClr = 1 << IntNumber;	/* Disable Interrupt */
+  95              	 #1
+  96 0008 0150A0E3 		.loc 1 82 0
+  97              		sub	fp, ip, #4
+  98 000c 04B04CE2 	.LCFI8:
+  99              		.loc 1 86 0
+ 100              		mov	ip, r5, asl r0
+ 101 0010 15C0A0E1 		.loc 1 87 0
+  87:common_nxp/src/irq.c ****     if ( IntNumber >= VIC_SIZE )
+ 102              	, #31
+ 103 0014 1F0050E3 		.loc 1 94 0
+  88:common_nxp/src/irq.c ****     {
+  89:common_nxp/src/irq.c **** 		return ( FALSE );
+  90:common_nxp/src/irq.c ****     }
+  91:common_nxp/src/irq.c ****     else
+  92:common_nxp/src/irq.c ****     {
+  93:common_nxp/src/irq.c **** 		/* find first un-assigned VIC address for the handler */
+  94:common_nxp/src/irq.c **** 		vect_addr = (DWORD *)(VIC_BASE_ADDR + VECT_ADDR_INDEX + IntNumber*4);
+ 104              	ovls	r3, r0, asl #2
+ 105 0018 0031A091 		.loc 1 86 0
+ 106              		mvn	r4, #0
+ 107 001c 0040E0E3 		str	ip, [r4, #-4075]
+ 108 0020 EBCF04E5 		.loc 1 87 0
+ 109              		movhi	r0, #0
+ 110 0024 0000A083 	.LVL1:
+ 111              		.loc 1 97 0
+  95:common_nxp/src/irq.c **** 		vect_prio = (DWORD *)(VIC_BASE_ADDR + VECT_PRIO_INDEX + IntNumber*4);
+  96:common_nxp/src/irq.c **** 		*vect_addr = (DWORD)HandlerAddr;	/* set interrupt vector */
+  97:common_nxp/src/irq.c **** 		*vect_prio = Priority;
+ 112              	2, [r3, #-3584]
+ 113 0028 002E0395 		.loc 1 96 0
+ 114              		strls	r1, [r3, #-3840]
+ 115 002c 001F0395 		.loc 1 98 0
+  98:common_nxp/src/irq.c **** 		VICIntEnable = 1 << IntNumber;	/* Enable Interrupt */
+ 116              	ls	r0, r5
+ 117 0030 0500A091 		strls	ip, [r4, #-4079]
+ 118 0034 EFCF0495 		.loc 1 101 0
+  99:common_nxp/src/irq.c **** 		return( TRUE );
+ 100:common_nxp/src/irq.c ****     }
+ 101:common_nxp/src/irq.c **** }
+ 119              	mfd	sp, {r4, r5, fp, sp, pc}
+ 120 0038 30A89DE8 	.LFE10:
+ 122              		.section	.debug_frame,"",%progbits
+ 218              		.section	.debug_loc,"",%progbits
+DEFINED SYMBOLS
+                            *ABS*:00000000 irq.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:14     .text.FIQ_Handler:00000000 FIQ_Handler
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:21     .text.FIQ_Handler:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:39     .text.init_VIC:00000000 init_VIC
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:45     .text.init_VIC:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:85     .text.install_irq:00000000 install_irq
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:91     .text.install_irq:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:125    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccIvA6HU.s:222    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

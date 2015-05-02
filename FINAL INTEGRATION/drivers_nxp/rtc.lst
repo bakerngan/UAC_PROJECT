@@ -1,0 +1,765 @@
+   1              		.file	"rtc.c"
+   9              	.Ltext0:
+  10              		.section	.text.RTCHandler,"ax",%progbits
+  11              		.align	2
+  12              		.global	RTCHandler
+  14              	RTCHandler:
+  15              	.LFB8:
+  16              		.file 1 "drivers_nxp/rtc.c"
+   1:drivers_nxp/rtc.c **** /*****************************************************************************
+   2:drivers_nxp/rtc.c ****  *   rtc.c:  Realtime clock C file for NXP LPC23xx/34xx Family Microprocessors
+   3:drivers_nxp/rtc.c ****  *
+   4:drivers_nxp/rtc.c ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:drivers_nxp/rtc.c ****  *   All rights reserved.
+   6:drivers_nxp/rtc.c ****  *
+   7:drivers_nxp/rtc.c ****  *   History
+   8:drivers_nxp/rtc.c ****  *   2006.07.12  ver 1.00    Prelimnary version, first Release
+   9:drivers_nxp/rtc.c ****  *
+  10:drivers_nxp/rtc.c ****  * Modified by Martin Thomas:
+  11:drivers_nxp/rtc.c ****  * - getcurrenttime: avoid local struct
+  12:drivers_nxp/rtc.c **** *****************************************************************************/
+  13:drivers_nxp/rtc.c **** #include "LPC23xx.H"                        /* LPC23xx/24xx definitions */
+  14:drivers_nxp/rtc.c **** #include "type.h"
+  15:drivers_nxp/rtc.c **** #include "irq.h"
+  16:drivers_nxp/rtc.c **** #include "rtc.h"
+  17:drivers_nxp/rtc.c **** 
+  18:drivers_nxp/rtc.c **** volatile DWORD alarm_on = 0;
+  19:drivers_nxp/rtc.c **** 
+  20:drivers_nxp/rtc.c **** /*****************************************************************************
+  21:drivers_nxp/rtc.c **** ** Function name:		RTCHandler
+  22:drivers_nxp/rtc.c **** **
+  23:drivers_nxp/rtc.c **** ** Descriptions:		RTC interrupt handler, it executes based on the
+  24:drivers_nxp/rtc.c **** **				the alarm setting
+  25:drivers_nxp/rtc.c **** **
+  26:drivers_nxp/rtc.c **** ** parameters:			None
+  27:drivers_nxp/rtc.c **** ** Returned value:		None
+  28:drivers_nxp/rtc.c **** ** 
+  29:drivers_nxp/rtc.c **** *****************************************************************************/
+  30:drivers_nxp/rtc.c **** void RTCHandler (void)
+  31:drivers_nxp/rtc.c **** {  
+  17              	Interrupt Service Routine.
+  18              		@ args = 0, pretend = 0, frame = 0
+  19              		@ frame_needed = 1, uses_anonymous_args = 0
+  20              		str	ip, [sp, #-4]!
+  21 0000 04C02DE5 		mov	ip, sp
+  22 0004 0DC0A0E1 	.LCFI0:
+  23              		stmfd	sp!, {r1, r2, r3, fp, ip, lr, pc}
+  24 0008 0ED82DE9 	.LCFI1:
+  25              		.loc 1 32 0
+  32:drivers_nxp/rtc.c ****   RTC_ILR |= ILR_RTCCIF;		/* clear interrupt flag */
+  26              	#-536870912
+  27 000c 0E12A0E3 		add	r1, r1, #147456
+  28 0010 091981E2 		ldr	r3, [r1, #0]
+  29 0014 003091E5 		orr	r3, r3, #1
+  30 0018 013083E3 		.loc 1 31 0
+  31              		sub	fp, ip, #4
+  32 001c 04B04CE2 	.LCFI2:
+  33              		.loc 1 32 0
+  34              		str	r3, [r1, #0]
+  35 0020 003081E5 	.LBB22:
+  36              	.LBB23:
+  37              	.LBB24:
+  38              	.LBB25:
+  39              		.file 2 "common_nxp/inc/irq.h"
+  40              		.loc 2 99 0
+   1:common_nxp/inc/irq.h **** /******************************************************************************
+   2:common_nxp/inc/irq.h ****  *   irq.h:  Interrupt related Header file for NXP LPC23xx/24xx Family 
+   3:common_nxp/inc/irq.h ****  *   Microprocessors
+   4:common_nxp/inc/irq.h ****  *
+   5:common_nxp/inc/irq.h ****  *   Copyright(C) 2006, NXP Semiconductor
+   6:common_nxp/inc/irq.h ****  *   All rights reserved.
+   7:common_nxp/inc/irq.h ****  *
+   8:common_nxp/inc/irq.h ****  *   History
+   9:common_nxp/inc/irq.h ****  *   2006.09.01  ver 1.00    Prelimnary version, first Release
+  10:common_nxp/inc/irq.h ****  *   2011.05.03  ver 2.00    Edits and additions for use with Eclipse/GCC
+  11:common_nxp/inc/irq.h ****  *
+  12:common_nxp/inc/irq.h **** ******************************************************************************/
+  13:common_nxp/inc/irq.h **** #ifndef __IRQ_H 
+  14:common_nxp/inc/irq.h **** #define __IRQ_H
+  15:common_nxp/inc/irq.h **** #include "type.h"
+  16:common_nxp/inc/irq.h **** 
+  17:common_nxp/inc/irq.h **** #define I_Bit			0x80
+  18:common_nxp/inc/irq.h **** #define F_Bit			0x40
+  19:common_nxp/inc/irq.h **** 
+  20:common_nxp/inc/irq.h **** #define SYS32Mode		0x1F
+  21:common_nxp/inc/irq.h **** #define IRQ32Mode		0x12
+  22:common_nxp/inc/irq.h **** #define FIQ32Mode		0x11
+  23:common_nxp/inc/irq.h **** 
+  24:common_nxp/inc/irq.h **** /* To use FIQ, set below to 1;  otherwise, it's 0 */
+  25:common_nxp/inc/irq.h **** #define FIQ				0
+  26:common_nxp/inc/irq.h **** 
+  27:common_nxp/inc/irq.h **** #define HIGHEST_PRIORITY	0x01
+  28:common_nxp/inc/irq.h **** #define MID_PRIORITY		0x04
+  29:common_nxp/inc/irq.h **** #define LOWEST_PRIORITY		0x0F
+  30:common_nxp/inc/irq.h **** 
+  31:common_nxp/inc/irq.h **** #define	WDT_INT			0
+  32:common_nxp/inc/irq.h **** #define SWI_INT			1
+  33:common_nxp/inc/irq.h **** #define ARM_CORE0_INT	2
+  34:common_nxp/inc/irq.h **** #define	ARM_CORE1_INT	3
+  35:common_nxp/inc/irq.h **** #define	TIMER0_INT		4
+  36:common_nxp/inc/irq.h **** #define TIMER1_INT		5
+  37:common_nxp/inc/irq.h **** #define UART0_INT		6
+  38:common_nxp/inc/irq.h **** #define	UART1_INT		7
+  39:common_nxp/inc/irq.h **** #define	PWM0_1_INT		8
+  40:common_nxp/inc/irq.h **** #define I2C0_INT		9
+  41:common_nxp/inc/irq.h **** #define SPI0_INT		10		/* SPI and SSP0 share VIC slot */
+  42:common_nxp/inc/irq.h **** #define SSP0_INT		10
+  43:common_nxp/inc/irq.h **** #define	SSP1_INT		11
+  44:common_nxp/inc/irq.h **** #define	PLL_INT			12
+  45:common_nxp/inc/irq.h **** #define RTC_INT			13
+  46:common_nxp/inc/irq.h **** #define EINT0_INT		14
+  47:common_nxp/inc/irq.h **** #define EINT1_INT		15
+  48:common_nxp/inc/irq.h **** #define EINT2_INT		16
+  49:common_nxp/inc/irq.h **** #define LCD_INT			16
+  50:common_nxp/inc/irq.h **** #define EINT3_INT		17
+  51:common_nxp/inc/irq.h **** #define	ADC0_INT		18
+  52:common_nxp/inc/irq.h **** #define I2C1_INT		19
+  53:common_nxp/inc/irq.h **** #define BOD_INT			20
+  54:common_nxp/inc/irq.h **** #define EMAC_INT		21
+  55:common_nxp/inc/irq.h **** #define USB_INT			22
+  56:common_nxp/inc/irq.h **** #define CAN_INT			23
+  57:common_nxp/inc/irq.h **** #define MCI_INT			24
+  58:common_nxp/inc/irq.h **** #define GPDMA_INT		25
+  59:common_nxp/inc/irq.h **** #define TIMER2_INT		26
+  60:common_nxp/inc/irq.h **** #define TIMER3_INT		27
+  61:common_nxp/inc/irq.h **** #define UART2_INT		28
+  62:common_nxp/inc/irq.h **** #define UART3_INT		29
+  63:common_nxp/inc/irq.h **** #define I2C2_INT		30
+  64:common_nxp/inc/irq.h **** #define I2S_INT			31
+  65:common_nxp/inc/irq.h **** 
+  66:common_nxp/inc/irq.h **** #define VIC_SIZE		32
+  67:common_nxp/inc/irq.h **** 
+  68:common_nxp/inc/irq.h **** #define VECT_ADDR_INDEX	0x100
+  69:common_nxp/inc/irq.h **** #define VECT_PRIO_INDEX 0x200
+  70:common_nxp/inc/irq.h **** 
+  71:common_nxp/inc/irq.h **** extern void FIQ_Handler( void )  __attribute__ ((interrupt ("FIQ"))) ;    // __irq;
+  72:common_nxp/inc/irq.h **** void init_VIC( void );
+  73:common_nxp/inc/irq.h **** DWORD install_irq( DWORD IntNumber, void *HandlerAddr, DWORD Priority );
+  74:common_nxp/inc/irq.h **** 
+  75:common_nxp/inc/irq.h **** /* Be aware that, from compiler to compiler, nested interrupt will have to
+  76:common_nxp/inc/irq.h ****    be handled differently. More details can be found in Philips LPC2000
+  77:common_nxp/inc/irq.h ****    family app-note AN10381 */
+  78:common_nxp/inc/irq.h ****  
+  79:common_nxp/inc/irq.h **** /* unlike Keil CARM Compiler, in ARM's RealView compiler, don't save and 
+  80:common_nxp/inc/irq.h ****    restore registers into the stack in RVD as the compiler does that for you.
+  81:common_nxp/inc/irq.h ****    See RVD ARM compiler Inline and embedded assemblers, "Rules for
+  82:common_nxp/inc/irq.h ****    using __asm and asm keywords. */
+  83:common_nxp/inc/irq.h **** 
+  84:common_nxp/inc/irq.h **** #if 0       // below 3 lines are for Keil compilers only
+  85:common_nxp/inc/irq.h **** static DWORD sysreg;		/* used as LR register */
+  86:common_nxp/inc/irq.h **** #define IENABLE __asm { MRS sysreg, SPSR; MSR CPSR_c, #SYS32Mode }
+  87:common_nxp/inc/irq.h **** #define IDISABLE __asm { MSR CPSR_c, #(IRQ32Mode|I_Bit); MSR SPSR_cxsf, sysreg }
+  88:common_nxp/inc/irq.h **** 
+  89:common_nxp/inc/irq.h **** #else	// for Eclipse/GCC use enable_interrupt() and disable_interrupt() below
+  90:common_nxp/inc/irq.h **** 
+  91:common_nxp/inc/irq.h **** // -------------- Additions to be used with Eclipse/GCC --------
+  92:common_nxp/inc/irq.h **** #include <stdint.h>
+  93:common_nxp/inc/irq.h **** //#include "inttypes.h"
+  94:common_nxp/inc/irq.h **** 
+  95:common_nxp/inc/irq.h **** #ifndef __thumb
+  96:common_nxp/inc/irq.h **** static inline uint32_t __get_CPSR(void)
+  97:common_nxp/inc/irq.h **** {
+  98:common_nxp/inc/irq.h **** 	uint32_t temp;
+  99:common_nxp/inc/irq.h **** 	asm volatile ("mrs %0,CPSR":"=r" (temp):) ;
+  41              	p/inc/irq.h" 1
+  42              		mrs r2,CPSR
+  43 0024 00200FE1 	@ 0 "" 2
+  44              	.LVL0:
+  45              	.LBE25:
+  46              	.LBE24:
+  47              	.LBB26:
+  48              	.LBB27:
+  49              		.loc 2 105 0
+ 100:common_nxp/inc/irq.h **** 	return temp;
+ 101:common_nxp/inc/irq.h **** }
+ 102:common_nxp/inc/irq.h **** 
+ 103:common_nxp/inc/irq.h **** static inline void __set_CPSR(uint32_t save_cpsr)
+ 104:common_nxp/inc/irq.h **** {
+ 105:common_nxp/inc/irq.h **** 	asm volatile (" msr CPSR_cxsf,%0"::"r"(save_cpsr) );
+  50              	r2, #192
+  51 0028 C020C2E3 	.LVL1:
+  52              	@ 105 "common_nxp/inc/irq.h" 1
+  53              		 msr CPSR_cxsf,r2
+  54 002c 02F02FE1 	@ 0 "" 2
+  55              	.LBE27:
+  56              	.LBE26:
+  57              	.LBE23:
+  58              	.LBE22:
+  59              		.loc 1 35 0
+  33:drivers_nxp/rtc.c ****   enable_interrupt();			/* handles nested interrupt */
+  34:drivers_nxp/rtc.c **** 
+  35:drivers_nxp/rtc.c ****   alarm_on = 1;
+  60              	L3
+  61 0030 2C209FE5 		mov	r1, #1
+  62 0034 0110A0E3 		str	r1, [r2, #0]
+  63 0038 001082E5 	.LBB28:
+  64              	.LBB29:
+  65              	.LBB30:
+  66              	.LBB31:
+  67              		.loc 2 99 0
+  68              	@ 99 "common_nxp/inc/irq.h" 1
+  69              		mrs r3,CPSR
+  70 003c 00300FE1 	@ 0 "" 2
+  71              	.LVL2:
+  72              	.LBE31:
+  73              	.LBE30:
+  74              	.LBB32:
+  75              	.LBB33:
+  76              		.loc 2 105 0
+  77              		orr	r3, r3, #192
+  78 0040 C03083E3 	.LVL3:
+  79              	@ 105 "common_nxp/inc/irq.h" 1
+  80              		 msr CPSR_cxsf,r3
+  81 0044 03F02FE1 	@ 0 "" 2
+  82              	.LBE33:
+  83              	.LBE32:
+  84              	.LBE29:
+  85              	.LBE28:
+  86              		.loc 1 38 0
+  36:drivers_nxp/rtc.c **** 
+  37:drivers_nxp/rtc.c ****   disable_interrupt();;
+  38:drivers_nxp/rtc.c ****   VICVectAddr = 0;		/* Acknowledge Interrupt */
+  87              	r	r2, [r3, #-255]
+  88 0048 0020A0E3 		.loc 1 39 0
+  89 004c 0030E0E3 		sub	sp, fp, #24
+  90 0050 FF2003E5 		ldmfd	sp, {r1, r2, r3, fp, sp, lr}
+  39:drivers_nxp/rtc.c **** }
+  91              	fd	sp!, {ip}
+  92 0054 18D04BE2 		subs	pc, lr, #4
+  93 0058 0E689DE8 	.L4:
+  94 005c 0010BDE8 		.align	2
+  95 0060 04F05EE2 	.L3:
+  96              		.word	alarm_on
+  97              	.LFE8:
+  99 0064 00000000 		.section	.text.RTCInit,"ax",%progbits
+ 100              		.align	2
+ 101              		.global	RTCInit
+ 103              	RTCInit:
+ 104              	.LFB9:
+ 105              		.loc 1 51 0
+ 106              		@ args = 0, pretend = 0, frame = 0
+ 107              		@ frame_needed = 1, uses_anonymous_args = 0
+  40:drivers_nxp/rtc.c **** 
+  41:drivers_nxp/rtc.c **** /*****************************************************************************
+  42:drivers_nxp/rtc.c **** ** Function name:		RTCInit
+  43:drivers_nxp/rtc.c **** **
+  44:drivers_nxp/rtc.c **** ** Descriptions:		Initialize RTC timer
+  45:drivers_nxp/rtc.c **** **
+  46:drivers_nxp/rtc.c **** ** parameters:			None
+  47:drivers_nxp/rtc.c **** ** Returned value:		None
+  48:drivers_nxp/rtc.c **** ** 
+  49:drivers_nxp/rtc.c **** *****************************************************************************/
+  50:drivers_nxp/rtc.c **** void RTCInit( void )
+  51:drivers_nxp/rtc.c **** {
+ 108              		r1, .L7
+ 109              		.loc 1 55 0
+ 110              		mov	r2, #-536870912
+  52:drivers_nxp/rtc.c ****   alarm_on = 0;
+ 111              	d	r2, r2, #147456
+ 112 0000 3C109FE5 		.loc 1 52 0
+  53:drivers_nxp/rtc.c **** 
+  54:drivers_nxp/rtc.c ****   /*--- Initialize registers ---*/    
+  55:drivers_nxp/rtc.c ****   RTC_AMR = 0;
+ 113              	ov	r3, #0
+ 114 0004 0E22A0E3 		str	r3, [r1, #0]
+ 115 0008 092982E2 		.loc 1 55 0
+ 116              		str	r3, [r2, #16]
+ 117 000c 0030A0E3 		.loc 1 56 0
+ 118 0010 003081E5 		str	r3, [r2, #12]
+ 119              		.loc 1 57 0
+ 120 0014 103082E5 		str	r3, [r2, #8]
+  56:drivers_nxp/rtc.c ****   RTC_CIIR = 0;
+ 121              	59 0
+ 122 0018 0C3082E5 		add	r3, r3, #24832
+  57:drivers_nxp/rtc.c ****   RTC_CCR = 0;
+ 123              	loc 1 51 0
+ 124 001c 083082E5 		mov	ip, sp
+  58:drivers_nxp/rtc.c ****   RTC_PREINT = PREINT_RTC;
+  59:drivers_nxp/rtc.c ****   RTC_PREFRAC = PREFRAC_RTC;
+ 125              	CFI3:
+ 126 0020 613C83E2 		.loc 1 58 0
+ 127              		mov	r1, #456
+ 128 0024 0DC0A0E1 		.loc 1 59 0
+ 129              		add	r3, r3, #192
+ 130              		.loc 1 51 0
+ 131 0028 721FA0E3 		stmfd	sp!, {fp, ip, lr, pc}
+ 132              	.LCFI4:
+ 133 002c C03083E2 		.loc 1 58 0
+ 134              		str	r1, [r2, #128]
+ 135 0030 00D82DE9 		.loc 1 51 0
+ 136              		sub	fp, ip, #4
+ 137              	.LCFI5:
+ 138 0034 801082E5 		.loc 1 59 0
+ 139              		str	r3, [r2, #132]
+ 140 0038 04B04CE2 		.loc 1 61 0
+ 141              		ldmfd	sp, {fp, sp, pc}
+ 142              	.L8:
+ 143 003c 843082E5 		.align	2
+  60:drivers_nxp/rtc.c ****   return;
+  61:drivers_nxp/rtc.c **** }
+ 144              	n
+ 145 0040 00A89DE8 	.LFE9:
+ 147              		.section	.text.RTCStart,"ax",%progbits
+ 148              		.align	2
+ 149 0044 00000000 		.global	RTCStart
+ 151              	RTCStart:
+ 152              	.LFB10:
+ 153              		.loc 1 73 0
+ 154              		@ args = 0, pretend = 0, frame = 0
+ 155              		@ frame_needed = 1, uses_anonymous_args = 0
+ 156              		.loc 1 75 0
+ 157              		mov	r3, #-536870912
+  62:drivers_nxp/rtc.c **** 
+  63:drivers_nxp/rtc.c **** /*****************************************************************************
+  64:drivers_nxp/rtc.c **** ** Function name:		RTCStart
+  65:drivers_nxp/rtc.c **** **
+  66:drivers_nxp/rtc.c **** ** Descriptions:		Start RTC timer
+  67:drivers_nxp/rtc.c **** **
+  68:drivers_nxp/rtc.c **** ** parameters:			None
+  69:drivers_nxp/rtc.c **** ** Returned value:		None
+  70:drivers_nxp/rtc.c **** ** 
+  71:drivers_nxp/rtc.c **** *****************************************************************************/
+  72:drivers_nxp/rtc.c **** void RTCStart( void ) 
+  73:drivers_nxp/rtc.c **** {
+ 158              	147456
+ 159              		ldr	r2, [r3, #8]
+ 160              		.loc 1 73 0
+  74:drivers_nxp/rtc.c ****   /*--- Start RTC counters ---*/
+  75:drivers_nxp/rtc.c ****   RTC_CCR |= CCR_CLKEN;
+ 161              	v	ip, sp
+ 162 0000 0E32A0E3 	.LCFI6:
+ 163 0004 093983E2 		.loc 1 75 0
+ 164 0008 082093E5 		orr	r2, r2, #1
+ 165              		.loc 1 76 0
+ 166 000c 0DC0A0E1 		mov	r1, #1
+ 167              		.loc 1 73 0
+ 168              		stmfd	sp!, {fp, ip, lr, pc}
+ 169 0010 012082E3 	.LCFI7:
+  76:drivers_nxp/rtc.c ****   RTC_ILR = ILR_RTCCIF;
+ 170              	5 0
+ 171 0014 0110A0E3 		str	r2, [r3, #8]
+ 172              		.loc 1 73 0
+ 173 0018 00D82DE9 		sub	fp, ip, #4
+ 174              	.LCFI8:
+ 175              		.loc 1 76 0
+ 176 001c 082083E5 		str	r1, [r3, #0]
+ 177              		.loc 1 78 0
+ 178 0020 04B04CE2 		ldmfd	sp, {fp, sp, pc}
+ 179              	.LFE10:
+ 181 0024 001083E5 		.section	.text.RTCStop,"ax",%progbits
+  77:drivers_nxp/rtc.c ****   return;
+  78:drivers_nxp/rtc.c **** }
+ 182              	global	RTCStop
+ 184              	RTCStop:
+ 185              	.LFB11:
+ 186              		.loc 1 90 0
+ 187              		@ args = 0, pretend = 0, frame = 0
+ 188              		@ frame_needed = 1, uses_anonymous_args = 0
+ 189              		.loc 1 92 0
+ 190              		mov	r2, #-536870912
+ 191              		add	r2, r2, #147456
+  79:drivers_nxp/rtc.c **** 
+  80:drivers_nxp/rtc.c **** /*****************************************************************************
+  81:drivers_nxp/rtc.c **** ** Function name:		RTCStop
+  82:drivers_nxp/rtc.c **** **
+  83:drivers_nxp/rtc.c **** ** Descriptions:		Stop RTC timer
+  84:drivers_nxp/rtc.c **** **
+  85:drivers_nxp/rtc.c **** ** parameters:			None
+  86:drivers_nxp/rtc.c **** ** Returned value:		None
+  87:drivers_nxp/rtc.c **** ** 
+  88:drivers_nxp/rtc.c **** *****************************************************************************/
+  89:drivers_nxp/rtc.c **** void RTCStop( void )
+  90:drivers_nxp/rtc.c **** {   
+ 192              	r2, #8]
+ 193              		.loc 1 90 0
+ 194              		mov	ip, sp
+  91:drivers_nxp/rtc.c ****   /*--- Stop RTC counters ---*/
+  92:drivers_nxp/rtc.c ****   RTC_CCR &= ~CCR_CLKEN;
+ 195              	FI9:
+ 196 0000 0E22A0E3 		.loc 1 92 0
+ 197 0004 092982E2 		bic	r3, r3, #1
+ 198 0008 083092E5 		.loc 1 90 0
+ 199              		stmfd	sp!, {fp, ip, lr, pc}
+ 200 000c 0DC0A0E1 	.LCFI10:
+ 201              		.loc 1 92 0
+ 202              		str	r3, [r2, #8]
+ 203 0010 0130C3E3 		.loc 1 90 0
+ 204              		sub	fp, ip, #4
+ 205 0014 00D82DE9 	.LCFI11:
+ 206              		.loc 1 94 0
+ 207              		ldmfd	sp, {fp, sp, pc}
+ 208 0018 083082E5 	.LFE11:
+ 210 001c 04B04CE2 		.section	.text.RTC_CTCReset,"ax",%progbits
+ 211              		.align	2
+  93:drivers_nxp/rtc.c ****   return;
+  94:drivers_nxp/rtc.c **** } 
+ 212              	eset
+ 214              	RTC_CTCReset:
+ 215              	.LFB12:
+ 216              		.loc 1 106 0
+ 217              		@ args = 0, pretend = 0, frame = 0
+ 218              		@ frame_needed = 1, uses_anonymous_args = 0
+ 219              		.loc 1 108 0
+ 220              		mov	r2, #-536870912
+ 221              		add	r2, r2, #147456
+  95:drivers_nxp/rtc.c **** 
+  96:drivers_nxp/rtc.c **** /*****************************************************************************
+  97:drivers_nxp/rtc.c **** ** Function name:		RTC_CTCReset
+  98:drivers_nxp/rtc.c **** **
+  99:drivers_nxp/rtc.c **** ** Descriptions:		Reset RTC clock tick counter
+ 100:drivers_nxp/rtc.c **** **
+ 101:drivers_nxp/rtc.c **** ** parameters:			None
+ 102:drivers_nxp/rtc.c **** ** Returned value:		None
+ 103:drivers_nxp/rtc.c **** ** 
+ 104:drivers_nxp/rtc.c **** *****************************************************************************/
+ 105:drivers_nxp/rtc.c **** void RTC_CTCReset( void )
+ 106:drivers_nxp/rtc.c **** {   
+ 222              	r2, #8]
+ 223              		.loc 1 106 0
+ 224              		mov	ip, sp
+ 107:drivers_nxp/rtc.c ****   /*--- Reset CTC ---*/
+ 108:drivers_nxp/rtc.c ****   RTC_CCR |= CCR_CTCRST;
+ 225              	FI12:
+ 226 0000 0E22A0E3 		.loc 1 108 0
+ 227 0004 092982E2 		orr	r3, r3, #2
+ 228 0008 083092E5 		.loc 1 106 0
+ 229              		stmfd	sp!, {fp, ip, lr, pc}
+ 230 000c 0DC0A0E1 	.LCFI13:
+ 231              		.loc 1 108 0
+ 232              		str	r3, [r2, #8]
+ 233 0010 023083E3 		.loc 1 106 0
+ 234              		sub	fp, ip, #4
+ 235 0014 00D82DE9 	.LCFI14:
+ 236              		.loc 1 110 0
+ 237              		ldmfd	sp, {fp, sp, pc}
+ 238 0018 083082E5 	.LFE12:
+ 240 001c 04B04CE2 		.section	.text.RTCSetTime,"ax",%progbits
+ 241              		.align	2
+ 109:drivers_nxp/rtc.c ****   return;
+ 110:drivers_nxp/rtc.c **** }
+ 242              	me
+ 244              	RTCSetTime:
+ 245              	.LFB13:
+ 246              		.loc 1 122 0
+ 247              		@ args = 32, pretend = 16, frame = 0
+ 248              		@ frame_needed = 1, uses_anonymous_args = 0
+ 249              		mov	ip, sp
+ 250              	.LCFI15:
+ 251              		sub	sp, sp, #16
+ 111:drivers_nxp/rtc.c **** 
+ 112:drivers_nxp/rtc.c **** /*****************************************************************************
+ 113:drivers_nxp/rtc.c **** ** Function name:		RTCSetTime
+ 114:drivers_nxp/rtc.c **** **
+ 115:drivers_nxp/rtc.c **** ** Descriptions:		Setup RTC timer value
+ 116:drivers_nxp/rtc.c **** **
+ 117:drivers_nxp/rtc.c **** ** parameters:			None
+ 118:drivers_nxp/rtc.c **** ** Returned value:		None
+ 119:drivers_nxp/rtc.c **** ** 
+ 120:drivers_nxp/rtc.c **** *****************************************************************************/
+ 121:drivers_nxp/rtc.c **** void RTCSetTime( RTCTime Time ) 
+ 122:drivers_nxp/rtc.c **** {
+ 252              	stmfd	sp!, {r4, r5, r6, r7, fp, ip, lr, pc}
+ 253              	.LCFI17:
+ 254              		sub	fp, ip, #20
+ 255 0000 0DC0A0E1 	.LCFI18:
+ 256              		.loc 1 122 0
+ 257 0004 10D04DE2 		add	ip, fp, #4
+ 258              		stmia	ip, {r0, r1, r2, r3}
+ 259 0008 F0D82DE9 		ldr	r7, [fp, #28]
+ 260              		ldr	r1, [fp, #8]
+ 261 000c 14B04CE2 		add	r0, fp, #12
+ 262              		ldmia	r0, {r0, ip}	@ phole ldm
+ 263              		ldr	r4, [fp, #32]
+ 264 0010 04C08BE2 		add	r5, fp, #20
+ 265 0014 0F008CE8 		ldmia	r5, {r5, r6}	@ phole ldm
+ 266 0018 1C709BE5 		.loc 1 123 0
+ 267 001c 08109BE5 		ldr	r2, [fp, #4]
+ 268 0020 0C008BE2 		mov	r3, #-536870912
+ 269 0024 011090E8 		add	r3, r3, #147456
+ 270 0028 20409BE5 		str	r2, [r3, #32]
+ 271 002c 14508BE2 		.loc 1 124 0
+ 272 0030 600095E8 		str	r1, [r3, #36]
+ 123:drivers_nxp/rtc.c ****   RTC_SEC   = Time.RTC_Sec;
+ 273              	, [r3, #40]
+ 274 0034 04209BE5 		.loc 1 126 0
+ 275 0038 0E32A0E3 		str	ip, [r3, #44]
+ 276 003c 093983E2 		.loc 1 127 0
+ 277 0040 202083E5 		str	r7, [r3, #48]
+ 124:drivers_nxp/rtc.c ****   RTC_MIN   = Time.RTC_Min;
+ 278              	 1 128 0
+ 279 0044 241083E5 		str	r4, [r3, #52]
+ 125:drivers_nxp/rtc.c ****   RTC_HOUR  = Time.RTC_Hour;
+ 280              	loc 1 129 0
+ 281 0048 280083E5 		str	r5, [r3, #56]
+ 126:drivers_nxp/rtc.c ****   RTC_DOM   = Time.RTC_Mday;
+ 282              	loc 1 130 0
+ 283 004c 2CC083E5 		str	r6, [r3, #60]
+ 127:drivers_nxp/rtc.c ****   RTC_DOW   = Time.RTC_Wday;
+ 284              	loc 1 132 0
+ 285 0050 307083E5 		sub	sp, fp, #28
+ 128:drivers_nxp/rtc.c ****   RTC_DOY   = Time.RTC_Yday;
+ 286              	dmfd	sp, {r4, r5, r6, r7, fp, sp, pc}
+ 287 0054 344083E5 	.LFE13:
+ 129:drivers_nxp/rtc.c ****   RTC_MONTH = Time.RTC_Mon;
+ 288              	size	RTCSetTime, .-RTCSetTime
+ 289 0058 385083E5 		.section	.text.RTCSetAlarm,"ax",%progbits
+ 130:drivers_nxp/rtc.c ****   RTC_YEAR  = Time.RTC_Year;    
+ 290              	align	2
+ 291 005c 3C6083E5 		.global	RTCSetAlarm
+ 131:drivers_nxp/rtc.c ****   return;
+ 132:drivers_nxp/rtc.c **** }
+ 292              	type	RTCSetAlarm, %function
+ 293 0060 1CD04BE2 	RTCSetAlarm:
+ 294 0064 F0A89DE8 	.LFB14:
+ 295              		.loc 1 144 0
+ 296              		@ args = 32, pretend = 16, frame = 0
+ 297              		@ frame_needed = 1, uses_anonymous_args = 0
+ 298              		mov	ip, sp
+ 299              	.LCFI19:
+ 300              		sub	sp, sp, #16
+ 301              	.LCFI20:
+ 302              		stmfd	sp!, {r4, r5, r6, r7, fp, ip, lr, pc}
+ 133:drivers_nxp/rtc.c **** 
+ 134:drivers_nxp/rtc.c **** /*****************************************************************************
+ 135:drivers_nxp/rtc.c **** ** Function name:		RTCSetAlarm
+ 136:drivers_nxp/rtc.c **** **
+ 137:drivers_nxp/rtc.c **** ** Descriptions:		Initialize RTC timer
+ 138:drivers_nxp/rtc.c **** **
+ 139:drivers_nxp/rtc.c **** ** parameters:			None
+ 140:drivers_nxp/rtc.c **** ** Returned value:		None
+ 141:drivers_nxp/rtc.c **** ** 
+ 142:drivers_nxp/rtc.c **** *****************************************************************************/
+ 143:drivers_nxp/rtc.c **** void RTCSetAlarm( RTCTime Alarm ) 
+ 144:drivers_nxp/rtc.c **** {   
+ 303              	ub	fp, ip, #20
+ 304              	.LCFI22:
+ 305              		.loc 1 144 0
+ 306 0000 0DC0A0E1 		add	ip, fp, #4
+ 307              		stmia	ip, {r0, r1, r2, r3}
+ 308 0004 10D04DE2 		ldr	r7, [fp, #28]
+ 309              		ldr	r1, [fp, #8]
+ 310 0008 F0D82DE9 		add	r0, fp, #12
+ 311              		ldmia	r0, {r0, ip}	@ phole ldm
+ 312 000c 14B04CE2 		ldr	r4, [fp, #32]
+ 313              		add	r5, fp, #20
+ 314              		ldmia	r5, {r5, r6}	@ phole ldm
+ 315 0010 04C08BE2 		.loc 1 145 0
+ 316 0014 0F008CE8 		ldr	r2, [fp, #4]
+ 317 0018 1C709BE5 		mov	r3, #-536870912
+ 318 001c 08109BE5 		add	r3, r3, #147456
+ 319 0020 0C008BE2 		str	r2, [r3, #96]
+ 320 0024 011090E8 		.loc 1 146 0
+ 321 0028 20409BE5 		str	r1, [r3, #100]
+ 322 002c 14508BE2 		.loc 1 147 0
+ 323 0030 600095E8 		str	r0, [r3, #104]
+ 145:drivers_nxp/rtc.c ****   RTC_ALSEC  = Alarm.RTC_Sec;
+ 324              	, [r3, #108]
+ 325 0034 04209BE5 		.loc 1 149 0
+ 326 0038 0E32A0E3 		str	r7, [r3, #112]
+ 327 003c 093983E2 		.loc 1 150 0
+ 328 0040 602083E5 		str	r4, [r3, #116]
+ 146:drivers_nxp/rtc.c ****   RTC_ALMIN  = Alarm.RTC_Min;
+ 329              	 1 151 0
+ 330 0044 641083E5 		str	r5, [r3, #120]
+ 147:drivers_nxp/rtc.c ****   RTC_ALHOUR = Alarm.RTC_Hour;
+ 331              	loc 1 152 0
+ 332 0048 680083E5 		str	r6, [r3, #124]
+ 148:drivers_nxp/rtc.c ****   RTC_ALDOM  = Alarm.RTC_Mday;
+ 333              	loc 1 154 0
+ 334 004c 6CC083E5 		sub	sp, fp, #28
+ 149:drivers_nxp/rtc.c ****   RTC_ALDOW  = Alarm.RTC_Wday;
+ 335              	dmfd	sp, {r4, r5, r6, r7, fp, sp, pc}
+ 336 0050 707083E5 	.LFE14:
+ 150:drivers_nxp/rtc.c ****   RTC_ALDOY  = Alarm.RTC_Yday;
+ 337              	size	RTCSetAlarm, .-RTCSetAlarm
+ 338 0054 744083E5 		.section	.text.RTCGetTime,"ax",%progbits
+ 151:drivers_nxp/rtc.c ****   RTC_ALMON  = Alarm.RTC_Mon;
+ 339              	align	2
+ 340 0058 785083E5 		.global	RTCGetTime
+ 152:drivers_nxp/rtc.c ****   RTC_ALYEAR = Alarm.RTC_Year;    
+ 341              	type	RTCGetTime, %function
+ 342 005c 7C6083E5 	RTCGetTime:
+ 153:drivers_nxp/rtc.c ****   return;
+ 154:drivers_nxp/rtc.c **** }
+ 343              	FB15:
+ 344 0060 1CD04BE2 		.loc 1 167 0
+ 345 0064 F0A89DE8 		@ args = 0, pretend = 0, frame = 0
+ 346              		@ frame_needed = 1, uses_anonymous_args = 0
+ 347              	.LVL4:
+ 348              		mov	ip, sp
+ 349              	.LCFI23:
+ 350              		.loc 1 168 0
+ 351              		cmp	r0, #0
+ 352              		.loc 1 167 0
+ 353              		stmfd	sp!, {fp, ip, lr, pc}
+ 155:drivers_nxp/rtc.c **** 
+ 156:drivers_nxp/rtc.c **** #ifdef MTHOMAS_MOD
+ 157:drivers_nxp/rtc.c **** /*****************************************************************************
+ 158:drivers_nxp/rtc.c **** ** Function name:		RTCGetTime
+ 159:drivers_nxp/rtc.c **** **
+ 160:drivers_nxp/rtc.c **** ** Descriptions:		Get RTC timer value
+ 161:drivers_nxp/rtc.c **** **
+ 162:drivers_nxp/rtc.c **** ** parameters:			ptr to RTCTime object
+ 163:drivers_nxp/rtc.c **** ** Returned value:		updated object
+ 164:drivers_nxp/rtc.c **** **
+ 165:drivers_nxp/rtc.c **** *****************************************************************************/
+ 166:drivers_nxp/rtc.c **** void RTCGetTime( RTCTime* LocalTime ) 
+ 167:drivers_nxp/rtc.c **** {
+ 354              	ub	fp, ip, #4
+ 355              	.LCFI25:
+ 356              		.loc 1 168 0
+ 357              		ldmeqfd	sp, {fp, sp, pc}
+ 358 0000 0DC0A0E1 		.loc 1 170 0
+ 359              		mov	r3, #-536870912
+ 168:drivers_nxp/rtc.c **** 	if ( LocalTime == NULL ) return;
+ 360              	3, r3, #147456
+ 361 0004 000050E3 		ldr	r2, [r3, #32]
+ 362              		str	r2, [r0, #0]
+ 363 0008 00D82DE9 		.loc 1 171 0
+ 364              		ldr	r1, [r3, #36]
+ 365 000c 04B04CE2 		str	r1, [r0, #4]
+ 366              		.loc 1 172 0
+ 367              		ldr	r2, [r3, #40]
+ 368 0010 00A89D08 		str	r2, [r0, #8]
+ 169:drivers_nxp/rtc.c **** 
+ 170:drivers_nxp/rtc.c **** 	LocalTime->RTC_Sec  = RTC_SEC;
+ 369              	73 0
+ 370 0014 0E32A0E3 		ldr	r1, [r3, #44]
+ 371 0018 093983E2 		str	r1, [r0, #12]
+ 372 001c 202093E5 		.loc 1 174 0
+ 373 0020 002080E5 		ldr	r2, [r3, #48]
+ 171:drivers_nxp/rtc.c **** 	LocalTime->RTC_Min  = RTC_MIN;
+ 374              	r2, [r0, #24]
+ 375 0024 241093E5 		.loc 1 175 0
+ 376 0028 041080E5 		ldr	r1, [r3, #52]
+ 172:drivers_nxp/rtc.c **** 	LocalTime->RTC_Hour = RTC_HOUR;
+ 377              	r	r1, [r0, #28]
+ 378 002c 282093E5 		.loc 1 176 0
+ 379 0030 082080E5 		ldr	r2, [r3, #56]
+ 173:drivers_nxp/rtc.c **** 	LocalTime->RTC_Mday = RTC_DOM;
+ 380              	r	r2, [r0, #16]
+ 381 0034 2C1093E5 		.loc 1 177 0
+ 382 0038 0C1080E5 		ldr	r1, [r3, #60]
+ 174:drivers_nxp/rtc.c **** 	LocalTime->RTC_Wday = RTC_DOW;
+ 383              	r	r1, [r0, #20]
+ 384 003c 302093E5 		ldmfd	sp, {fp, sp, pc}
+ 385 0040 182080E5 	.LFE15:
+ 175:drivers_nxp/rtc.c **** 	LocalTime->RTC_Yday = RTC_DOY;
+ 386              	ize	RTCGetTime, .-RTCGetTime
+ 387 0044 341093E5 		.section	.text.RTCSetAlarmMask,"ax",%progbits
+ 388 0048 1C1080E5 		.align	2
+ 176:drivers_nxp/rtc.c **** 	LocalTime->RTC_Mon  = RTC_MONTH;
+ 389              	lobal	RTCSetAlarmMask
+ 391 0050 102080E5 	RTCSetAlarmMask:
+ 177:drivers_nxp/rtc.c **** 	LocalTime->RTC_Year = RTC_YEAR;
+ 392              	B16:
+ 393 0054 3C1093E5 		.loc 1 217 0
+ 394 0058 141080E5 		@ args = 0, pretend = 0, frame = 0
+ 395 005c 00A89DE8 		@ frame_needed = 1, uses_anonymous_args = 0
+ 396              	.LVL5:
+ 397              		.loc 1 219 0
+ 398              		mov	r3, #-536870912
+ 399              		.loc 1 217 0
+ 400              		mov	ip, sp
+ 401              	.LCFI26:
+ 402              		.loc 1 219 0
+ 403              		add	r3, r3, #147456
+ 178:drivers_nxp/rtc.c **** 	return;
+ 179:drivers_nxp/rtc.c **** }
+ 180:drivers_nxp/rtc.c **** #else
+ 181:drivers_nxp/rtc.c **** // NXP original:
+ 182:drivers_nxp/rtc.c **** /*****************************************************************************
+ 183:drivers_nxp/rtc.c **** ** Function name:		RTCGetTime
+ 184:drivers_nxp/rtc.c **** **
+ 185:drivers_nxp/rtc.c **** ** Descriptions:		Get RTC timer value
+ 186:drivers_nxp/rtc.c **** **
+ 187:drivers_nxp/rtc.c **** ** parameters:			None
+ 188:drivers_nxp/rtc.c **** ** Returned value:		The data structure of the RTC time table
+ 189:drivers_nxp/rtc.c **** ** 
+ 190:drivers_nxp/rtc.c **** *****************************************************************************/
+ 191:drivers_nxp/rtc.c **** RTCTime RTCGetTime( void ) 
+ 192:drivers_nxp/rtc.c **** {
+ 193:drivers_nxp/rtc.c ****   RTCTime LocalTime;
+ 194:drivers_nxp/rtc.c ****     
+ 195:drivers_nxp/rtc.c ****   LocalTime.RTC_Sec = RTC_SEC;
+ 196:drivers_nxp/rtc.c ****   LocalTime.RTC_Min = RTC_MIN;
+ 197:drivers_nxp/rtc.c ****   LocalTime.RTC_Hour = RTC_HOUR;
+ 198:drivers_nxp/rtc.c ****   LocalTime.RTC_Mday = RTC_DOM;
+ 199:drivers_nxp/rtc.c ****   LocalTime.RTC_Wday = RTC_DOW;
+ 200:drivers_nxp/rtc.c ****   LocalTime.RTC_Yday = RTC_DOY;
+ 201:drivers_nxp/rtc.c ****   LocalTime.RTC_Mon = RTC_MONTH;
+ 202:drivers_nxp/rtc.c ****   LocalTime.RTC_Year = RTC_YEAR;
+ 203:drivers_nxp/rtc.c ****   return ( LocalTime );
+ 204:drivers_nxp/rtc.c **** }
+ 205:drivers_nxp/rtc.c **** #endif
+ 206:drivers_nxp/rtc.c **** 
+ 207:drivers_nxp/rtc.c **** /*****************************************************************************
+ 208:drivers_nxp/rtc.c **** ** Function name:		RTCSetAlarmMask
+ 209:drivers_nxp/rtc.c **** **
+ 210:drivers_nxp/rtc.c **** ** Descriptions:		Set RTC timer alarm mask
+ 211:drivers_nxp/rtc.c **** **
+ 212:drivers_nxp/rtc.c **** ** parameters:			Alarm mask setting
+ 213:drivers_nxp/rtc.c **** ** Returned value:		None
+ 214:drivers_nxp/rtc.c **** ** 
+ 215:drivers_nxp/rtc.c **** *****************************************************************************/
+ 216:drivers_nxp/rtc.c **** void RTCSetAlarmMask( DWORD AlarmMask ) 
+ 217:drivers_nxp/rtc.c **** {
+ 404              	0
+ 405              		stmfd	sp!, {fp, ip, lr, pc}
+ 406              	.LCFI27:
+ 407              		.loc 1 219 0
+ 218:drivers_nxp/rtc.c ****   /*--- Set alarm mask ---*/    
+ 219:drivers_nxp/rtc.c ****   RTC_AMR = AlarmMask;
+ 408              		r0, [r3, #16]
+ 409 0000 0E32A0E3 		.loc 1 217 0
+ 410              		sub	fp, ip, #4
+ 411 0004 0DC0A0E1 	.LCFI28:
+ 412              		.loc 1 221 0
+ 413              		ldmfd	sp, {fp, sp, pc}
+ 414 0008 093983E2 	.LFE16:
+ 416 000c 00D82DE9 		.global	alarm_on
+ 417              		.section	.bss.alarm_on,"aw",%nobits
+ 418              		.align	2
+ 421 0014 04B04CE2 	alarm_on:
+ 422              		.space	4
+ 220:drivers_nxp/rtc.c ****   return;
+ 221:drivers_nxp/rtc.c **** }
+ 423              	g_frame,"",%progbits
+ 424 0018 00A89DE8 	.Lframe0:
+ 425              		.4byte	.LECIE0-.LSCIE0
+ 426              	.LSCIE0:
+ 427              		.4byte	0xffffffff
+ 428              		.byte	0x1
+ 429              		.ascii	"\000"
+ 430              		.uleb128 0x1
+ 431              		.sleb128 -4
+ 432              		.byte	0xe
+ 433 0000 00000000 		.byte	0xc
+ 697              		.byte	0x5c
+DEFINED SYMBOLS
+                            *ABS*:00000000 rtc.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:14     .text.RTCHandler:00000000 RTCHandler
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:21     .text.RTCHandler:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:99     .text.RTCHandler:00000064 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:432    .bss.alarm_on:00000000 alarm_on
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:106    .text.RTCInit:00000000 RTCInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:112    .text.RTCInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:149    .text.RTCInit:00000044 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:156    .text.RTCStart:00000000 RTCStart
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:162    .text.RTCStart:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:190    .text.RTCStop:00000000 RTCStop
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:196    .text.RTCStop:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:220    .text.RTC_CTCReset:00000000 RTC_CTCReset
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:226    .text.RTC_CTCReset:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:250    .text.RTCSetTime:00000000 RTCSetTime
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:255    .text.RTCSetTime:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:301    .text.RTCSetAlarm:00000000 RTCSetAlarm
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:306    .text.RTCSetAlarm:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:352    .text.RTCGetTime:00000000 RTCGetTime
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:358    .text.RTCGetTime:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:402    .text.RTCSetAlarmMask:00000000 RTCSetAlarmMask
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:409    .text.RTCSetAlarmMask:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:436    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccP6GrMZ.s:701    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

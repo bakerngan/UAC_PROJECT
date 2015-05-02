@@ -1,0 +1,430 @@
+   1              		.file	"FAT.c"
+   9              	.Ltext0:
+  10              		.section	.text.writeToSDCard,"ax",%progbits
+  11              		.align	2
+  12              		.global	writeToSDCard
+  14              	writeToSDCard:
+  15              	.LFB6:
+  16              		.file 1 "FAT.c"
+   1:FAT.c         **** /*
+   2:FAT.c         ****  * test.c
+   3:FAT.c         ****  *
+   4:FAT.c         ****  *  Created on: May 26, 2012
+   5:FAT.c         ****  *      Author: pyang
+   6:FAT.c         ****  */
+   7:FAT.c         **** #include "FAT.h"
+   8:FAT.c         **** FATFS fatfs[_DRIVES];
+   9:FAT.c         **** FIL file1, file2;		/* File objects */
+  10:FAT.c         **** UINT s2;				/* not used */
+  11:FAT.c         **** void put_rc (FRESULT rc)
+  12:FAT.c         **** {
+  13:FAT.c         **** 	const char *p;
+  14:FAT.c         **** 	static const char str[] =
+  15:FAT.c         **** 		"OK\0" "NOT_READY\0" "NO_FILE\0" "FR_NO_PATH\0" "INVALID_NAME\0" "INVALID_DRIVE\0"
+  16:FAT.c         **** 		"DENIED\0" "EXIST\0" "RW_ERROR\0" "WRITE_PROTECTED\0" "NOT_ENABLED\0"
+  17:FAT.c         **** 		"NO_FILESYSTEM\0" "INVALID_OBJECT\0" "MKFS_ABORTED\0";
+  18:FAT.c         **** 	FRESULT i;
+  19:FAT.c         **** 
+  20:FAT.c         **** 	for (p = str, i = 0; i != rc && *p; i++) {
+  21:FAT.c         **** 		while(*p++);
+  22:FAT.c         **** 	}
+  23:FAT.c         **** 	xprintf("\nrc=%u FR_%s", (UINT)rc, p);
+  24:FAT.c         **** }
+  25:FAT.c         **** void initSDCard()//fi 0 (force initialize 0)
+  26:FAT.c         **** {
+  27:FAT.c         **** 	long p1=0;
+  28:FAT.c         **** 	put_rc(f_mount((BYTE)p1, &fatfs[p1]));
+  29:FAT.c         **** 
+  30:FAT.c         **** }
+  31:FAT.c         **** void SDOpenSnapshot()
+  32:FAT.c         **** {
+  33:FAT.c         **** 	put_rc(f_unlink("snapshot.jpg"));
+  34:FAT.c         **** 	long p1=7;				/* read(1) write(2) create(4)*/
+  35:FAT.c         **** 	put_rc(f_open(&file2, "snapshot.jpg", (BYTE)p1));
+  36:FAT.c         **** }
+  37:FAT.c         **** void SDOpenVideo()
+  38:FAT.c         **** {
+  39:FAT.c         **** 	put_rc(f_unlink("size.bin"));
+  40:FAT.c         **** 	put_rc(f_unlink("video.bin"));
+  41:FAT.c         **** 	long p1=7;				/* read(1) write(2) create(4)*/
+  42:FAT.c         **** 	put_rc(f_open(&file1, "size.bin", (BYTE)p1));
+  43:FAT.c         **** 	put_rc(f_open(&file2, "video.bin", (BYTE)p1));
+  44:FAT.c         **** }
+  45:FAT.c         **** void writeToSDCard(int size)
+  46:FAT.c         **** {
+  17              	args = 0, pretend = 0, frame = 4
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              	.LVL0:
+  20              		mov	ip, sp
+  21 0000 0DC0A0E1 	.LCFI0:
+  22              		stmfd	sp!, {r4, fp, ip, lr, pc}
+  23 0004 10D82DE9 	.LCFI1:
+  24              		sub	fp, ip, #4
+  25 0008 04B04CE2 	.LCFI2:
+  26              		sub	sp, sp, #4
+  27 000c 04D04DE2 	.LCFI3:
+  28              		sub	r1, fp, #16
+  29 0010 10104BE2 		.loc 1 49 0
+  47:FAT.c         **** 	//BYTE *data = (BYTE*)0x80000000;
+  48:FAT.c         **** 	BYTE *data = (BYTE*)0x40004000;
+  49:FAT.c         **** 	f_write(&file1, &size, sizeof(int), &s2);
+  30              	.loc 1 46 0
+  31 0014 0420A0E3 		str	r0, [r1, #-4]!
+  32              		.loc 1 49 0
+  33 0018 040021E5 		ldr	r3, .L8
+  34              		ldr	r0, .L8+4
+  35 001c 60309FE5 	.LVL1:
+  36 0020 60009FE5 		bl	f_write
+  37              		.loc 1 50 0
+  38 0024 FEFFFFEB 		ldr	r2, [fp, #-20]
+  50:FAT.c         **** 	while (size>512)	{
+  39              	#512
+  40 0028 14201BE5 		movle	r4, #1073741824
+  41 002c 020C52E3 	.LVL2:
+  42 0030 0141A0D3 		addle	r4, r4, #16384
+  43              		ble	.L3
+  44 0034 014984D2 	.LVL3:
+  45 0038 0C0000DA 		mov	r4, #1073741824
+  46              		add	r4, r4, #16384
+  47 003c 0141A0E3 	.L4:
+  48 0040 014984E2 		.loc 1 51 0
+  49              		mov	r1, r4
+  51:FAT.c         **** 		f_write(&file2, data, 512, &s2);
+  50              	12
+  51 0044 0410A0E1 		ldr	r3, .L8
+  52 0048 022CA0E3 		ldr	r0, .L8+8
+  53 004c 30309FE5 		bl	f_write
+  54 0050 34009FE5 		.loc 1 53 0
+  55 0054 FEFFFFEB 		ldr	r3, [fp, #-20]
+  52:FAT.c         **** 		data+=512;
+  53:FAT.c         **** 		size=size-512;
+  56              	2, r3, #512
+  57 0058 14301BE5 		.loc 1 50 0
+  58 005c 022C43E2 		cmp	r2, #512
+  59              		.loc 1 52 0
+  60 0060 020C52E3 		add	r4, r4, #512
+  61              		.loc 1 53 0
+  62 0064 024C84E2 		str	r2, [fp, #-20]
+  63              	.LVL4:
+  64 0068 14200BE5 		.loc 1 50 0
+  65              		bgt	.L4
+  66              	.LVL5:
+  67 006c F4FFFFCA 	.L3:
+  68              		.loc 1 55 0
+  69              		mov	r1, r4
+  54:FAT.c         **** 	}
+  55:FAT.c         **** 	f_write(&file2, data, size, &s2);
+  70              	ldr	r0, .L8+8
+  71 0070 0410A0E1 		bl	f_write
+  72 0074 08309FE5 		.loc 1 57 0
+  73 0078 0C009FE5 		ldmfd	sp, {r3, r4, fp, sp, pc}
+  74 007c FEFFFFEB 	.L9:
+  56:FAT.c         **** 
+  57:FAT.c         **** }
+  75              	gn	2
+  76 0080 18A89DE8 	.L8:
+  77              		.word	s2
+  78              		.word	file1
+  79              		.word	file2
+  80 0084 00000000 	.LFE6:
+  82 008c 00000000 		.section	.rodata.str1.4,"aMS",%progbits,1
+  83              		.align	2
+  84              	.LC0:
+  85              		.ascii	"\012rc=%u FR_%s\000"
+  86              		.section	.text.put_rc,"ax",%progbits
+  87              		.align	2
+  88 0000 0A72633D 		.global	put_rc
+  88      25752046 
+  88      525F2573 
+  88      00
+  90              	put_rc:
+  91              	.LFB2:
+  92              		.loc 1 12 0
+  93              		@ args = 0, pretend = 0, frame = 0
+  94              		@ frame_needed = 1, uses_anonymous_args = 0
+  95              	.LVL6:
+  96              		mov	ip, sp
+  97              	.LCFI4:
+  98              		.loc 1 20 0
+  99 0000 0DC0A0E1 		cmp	r0, #0
+ 100              		.loc 1 12 0
+ 101              		stmfd	sp!, {fp, ip, lr, pc}
+ 102 0004 000050E3 	.LCFI5:
+ 103              		.loc 1 20 0
+ 104 0008 00D82DE9 		ldreq	r2, .L19
+ 105              	.LVL7:
+ 106              		.loc 1 12 0
+ 107 000c 48209F05 		sub	fp, ip, #4
+ 108              	.LCFI6:
+ 109              		.loc 1 20 0
+ 110 0010 04B04CE2 		beq	.L12
+ 111              		ldr	r2, .L19
+ 112              		mov	r3, #79
+ 113 0014 0C00000A 		mov	ip, #0
+ 114 0018 3C209FE5 	.LVL8:
+ 115 001c 4F30A0E3 	.L18:
+ 116 0020 00C0A0E3 		.loc 1 21 0
+ 117              		cmp	r3, #0
+ 118              		add	r2, r2, #1
+ 119              		ldrneb	r3, [r2, #0]	@ zero_extendqisi2
+ 120 0024 000053E3 		bne	.L18
+ 121 0028 012082E2 		.loc 1 20 0
+ 122 002c 0030D215 		add	ip, ip, #1
+ 123 0030 FBFFFF1A 		cmp	r0, ip
+ 124              		beq	.L12
+ 125 0034 01C08CE2 		ldrb	r3, [r2, #0]	@ zero_extendqisi2
+ 126 0038 0C0050E1 		cmp	r3, #0
+ 127 003c 0200000A 		bne	.L18
+ 128 0040 0030D2E5 	.L12:
+ 129 0044 000053E3 		.loc 1 23 0
+ 130 0048 F5FFFF1A 		mov	r1, r0
+ 131              		ldr	r0, .L19+4
+ 132              	.LVL9:
+ 133 004c 0010A0E1 		.loc 1 24 0
+ 134 0050 08009FE5 		ldmfd	sp, {fp, sp, lr}
+ 135              		.loc 1 23 0
+ 136              		b	xprintf
+ 137 0054 00689DE8 	.LVL10:
+ 138              	.L20:
+ 139 0058 FEFFFFEA 		.align	2
+ 140              	.L19:
+ 141              		.word	str.2353
+ 142              		.word	.LC0
+ 143              	.LFE2:
+ 145 0060 00000000 		.section	.text.closeFile,"ax",%progbits
+ 146              		.align	2
+ 147              		.global	closeFile
+ 149              	closeFile:
+ 150              	.LFB7:
+ 151              		.loc 1 59 0
+ 152              		@ args = 0, pretend = 0, frame = 0
+ 153              		@ frame_needed = 1, uses_anonymous_args = 0
+  58:FAT.c         **** void closeFile()
+  59:FAT.c         **** {
+ 154              	.L23
+ 155              		.loc 1 59 0
+ 156              		sub	fp, ip, #4
+ 157 0000 0DC0A0E1 	.LCFI9:
+ 158              		.loc 1 60 0
+ 159 0004 00D82DE9 		bl	f_close
+ 160              		bl	put_rc
+  60:FAT.c         **** 	put_rc(f_close(&file1));
+ 161              	 61 0
+ 162 0008 18009FE5 		ldr	r0, .L23+4
+ 163              		bl	f_close
+ 164 000c 04B04CE2 		.loc 1 62 0
+ 165              		ldmfd	sp, {fp, sp, lr}
+ 166              		.loc 1 61 0
+ 167 0010 FEFFFFEB 		b	put_rc
+ 168 0014 FEFFFFEB 	.L24:
+  61:FAT.c         **** 	put_rc(f_close(&file2));
+ 169              	2
+ 170 0018 0C009FE5 	.L23:
+ 171 001c FEFFFFEB 		.word	file1
+  62:FAT.c         **** }
+ 172              	ord	file2
+ 173 0020 00689DE8 	.LFE7:
+ 175 0024 FEFFFFEA 		.section	.rodata.str1.4
+ 176              		.align	2
+ 177              	.LC1:
+ 178              		.ascii	"size.bin\000"
+ 179 0028 00000000 		.align	2
+ 180 002c 00000000 	.LC2:
+ 181              		.ascii	"video.bin\000"
+ 182              		.section	.text.SDOpenVideo,"ax",%progbits
+ 183              		.align	2
+ 184 000d 000000   		.global	SDOpenVideo
+ 186 0010 73697A65 	SDOpenVideo:
+ 186      2E62696E 
+ 186      00
+ 187 0019 000000   	.LFB5:
+ 188              		.loc 1 38 0
+ 189 001c 76696465 		@ args = 0, pretend = 0, frame = 0
+ 189      6F2E6269 
+ 189      6E00
+ 190              		@ frame_needed = 1, uses_anonymous_args = 0
+ 191              		mov	ip, sp
+ 192              	.LCFI10:
+ 193              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 194              	.LCFI11:
+ 195              		.loc 1 39 0
+ 196              		ldr	r4, .L27
+ 197              		.loc 1 38 0
+ 198              		sub	fp, ip, #4
+ 199 0000 0DC0A0E1 	.LCFI12:
+ 200              		.loc 1 40 0
+ 201 0004 30D82DE9 		ldr	r5, .L27+4
+ 202              		.loc 1 39 0
+ 203              		mov	r0, r4
+ 204 0008 48409FE5 		bl	f_unlink
+ 205              		bl	put_rc
+ 206 000c 04B04CE2 		.loc 1 40 0
+ 207              		mov	r0, r5
+ 208              		bl	f_unlink
+ 209 0010 44509FE5 		bl	put_rc
+ 210              		.loc 1 42 0
+ 211 0014 0400A0E1 		mov	r1, r4
+ 212 0018 FEFFFFEB 		mov	r2, #7
+ 213 001c FEFFFFEB 		ldr	r0, .L27+8
+ 214              		bl	f_open
+ 215 0020 0500A0E1 		bl	put_rc
+ 216 0024 FEFFFFEB 		.loc 1 43 0
+ 217 0028 FEFFFFEB 		mov	r1, r5
+ 218              		mov	r2, #7
+ 219 002c 0410A0E1 		ldr	r0, .L27+12
+ 220 0030 0720A0E3 		bl	f_open
+ 221 0034 24009FE5 		.loc 1 44 0
+ 222 0038 FEFFFFEB 		ldmfd	sp, {r4, r5, fp, sp, lr}
+ 223 003c FEFFFFEB 		.loc 1 43 0
+ 224              		b	put_rc
+ 225 0040 0510A0E1 	.L28:
+ 226 0044 0720A0E3 		.align	2
+ 227 0048 14009FE5 	.L27:
+ 228 004c FEFFFFEB 		.word	.LC1
+ 229              		.word	.LC2
+ 230 0050 30689DE8 		.word	file1
+ 231              		.word	file2
+ 232 0054 FEFFFFEA 	.LFE5:
+ 234              		.section	.rodata.str1.4
+ 235              		.align	2
+ 236 0058 10000000 	.LC3:
+ 237 005c 1C000000 		.ascii	"snapshot.jpg\000"
+ 238 0060 00000000 		.section	.text.SDOpenSnapshot,"ax",%progbits
+ 239 0064 00000000 		.align	2
+ 240              		.global	SDOpenSnapshot
+ 242              	SDOpenSnapshot:
+ 243 0026 0000     	.LFB4:
+ 244              		.loc 1 32 0
+ 245 0028 736E6170 		@ args = 0, pretend = 0, frame = 0
+ 245      73686F74 
+ 245      2E6A7067 
+ 245      00
+ 246 0035 000000   		@ frame_needed = 1, uses_anonymous_args = 0
+ 247              		mov	ip, sp
+ 248              	.LCFI13:
+ 249              		stmfd	sp!, {r4, fp, ip, lr, pc}
+ 250              	.LCFI14:
+ 251              		.loc 1 33 0
+ 252              		ldr	r4, .L31
+ 253              		.loc 1 32 0
+ 254              		sub	fp, ip, #4
+ 255 0000 0DC0A0E1 	.LCFI15:
+ 256              		.loc 1 33 0
+ 257 0004 10D82DE9 		mov	r0, r4
+ 258              		bl	f_unlink
+ 259              		bl	put_rc
+ 260 0008 24409FE5 		.loc 1 35 0
+ 261              		mov	r1, r4
+ 262 000c 04B04CE2 		mov	r2, #7
+ 263              		ldr	r0, .L31+4
+ 264              		bl	f_open
+ 265 0010 0400A0E1 		.loc 1 36 0
+ 266 0014 FEFFFFEB 		ldmfd	sp, {r4, fp, sp, lr}
+ 267 0018 FEFFFFEB 		.loc 1 35 0
+ 268              		b	put_rc
+ 269 001c 0410A0E1 	.L32:
+ 270 0020 0720A0E3 		.align	2
+ 271 0024 0C009FE5 	.L31:
+ 272 0028 FEFFFFEB 		.word	.LC3
+ 273              		.word	file2
+ 274 002c 10689DE8 	.LFE4:
+ 276 0030 FEFFFFEA 		.section	.text.initSDCard,"ax",%progbits
+ 277              		.align	2
+ 278              		.global	initSDCard
+ 280 0034 28000000 	initSDCard:
+ 281 0038 00000000 	.LFB3:
+ 282              		.loc 1 26 0
+ 283              		@ args = 0, pretend = 0, frame = 0
+ 284              		@ frame_needed = 1, uses_anonymous_args = 0
+ 285              		mov	ip, sp
+ 286              	.LCFI16:
+ 287              		stmfd	sp!, {fp, ip, lr, pc}
+ 288              	.LCFI17:
+ 289              		.loc 1 28 0
+ 290              		ldr	r1, .L35
+ 291              		.loc 1 26 0
+ 292              		sub	fp, ip, #4
+ 293 0000 0DC0A0E1 	.LCFI18:
+ 294              		.loc 1 28 0
+ 295 0004 00D82DE9 		mov	r0, #0
+ 296              		bl	f_mount
+ 297              		.loc 1 30 0
+ 298 0008 10109FE5 		ldmfd	sp, {fp, sp, lr}
+ 299              		.loc 1 28 0
+ 300 000c 04B04CE2 		b	put_rc
+ 301              	.L36:
+ 302              		.align	2
+ 303 0010 0000A0E3 	.L35:
+ 304 0014 FEFFFFEB 		.word	fatfs
+ 305              	.LFE3:
+ 307              		.section	.rodata.str.2353,"a",%progbits
+ 308 001c FEFFFFEA 		.align	2
+ 311              	str.2353:
+ 312 0020 00000000 		.ascii	"OK\000NOT_READY\000NO_FILE\000FR_NO_PATH\000INVALID"
+ 313              		.ascii	"_NAME\000INVALID_DRIVE\000DENIED\000EXIST\000RW_ERR"
+ 314              		.ascii	"OR\000WRITE_PROTECTED\000NOT_ENABLED\000NO_FILESYST"
+ 315              		.ascii	"EM\000INVALID_OBJECT\000MKFS_ABORTED\000\000"
+ 316              		.comm	fatfs,560,4
+ 317              		.comm	file1,548,4
+ 318              		.comm	file2,548,4
+ 319              		.comm	s2,4,4
+ 320 0000 4F4B004E 		.section	.debug_frame,"",%progbits
+ 320      4F545F52 
+ 320      45414459 
+ 320      004E4F5F 
+ 320      46494C45 
+ 321 0027 5F4E414D 	.Lframe0:
+ 321      4500494E 
+ 321      56414C49 
+ 321      445F4452 
+ 321      49564500 
+ 322 004e 4F520057 		.4byte	.LECIE0-.LSCIE0
+ 322      52495445 
+ 322      5F50524F 
+ 322      54454354 
+ 322      4544004E 
+ 323 0078 454D0049 	.LSCIE0:
+ 323      4E56414C 
+ 323      49445F4F 
+ 323      424A4543 
+ 323      54004D4B 
+ 324              		.4byte	0xffffffff
+ 325              		.byte	0x1
+ 326              		.ascii	"\000"
+ 327              		.uleb128 0x1
+ 502              		.4byte	.LCFI0
+DEFINED SYMBOLS
+                            *ABS*:00000000 FAT.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:14     .text.writeToSDCard:00000000 writeToSDCard
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:21     .text.writeToSDCard:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:80     .text.writeToSDCard:00000084 $d
+                            *COM*:00000004 s2
+                            *COM*:00000224 file1
+                            *COM*:00000224 file2
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:93     .text.put_rc:00000000 put_rc
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:99     .text.put_rc:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:144    .text.put_rc:0000005c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:319    .rodata.str.2353:00000000 str.2353
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:152    .text.closeFile:00000000 closeFile
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:157    .text.closeFile:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:179    .text.closeFile:00000028 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:194    .text.SDOpenVideo:00000000 SDOpenVideo
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:199    .text.SDOpenVideo:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:236    .text.SDOpenVideo:00000058 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:250    .text.SDOpenSnapshot:00000000 SDOpenSnapshot
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:255    .text.SDOpenSnapshot:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:280    .text.SDOpenSnapshot:00000034 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:288    .text.initSDCard:00000000 initSDCard
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:293    .text.initSDCard:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:312    .text.initSDCard:00000020 $d
+                            *COM*:00000230 fatfs
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:330    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc8jG8mK.s:506    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+f_write
+xprintf
+f_close
+f_unlink
+f_open
+f_mount

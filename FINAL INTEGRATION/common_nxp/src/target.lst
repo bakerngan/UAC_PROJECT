@@ -1,0 +1,471 @@
+   1              		.file	"target.c"
+   9              	.Ltext0:
+  10              		.section	.text.TargetInit,"ax",%progbits
+  11              		.align	2
+  12              		.global	TargetInit
+  14              	TargetInit:
+  15              	.LFB8:
+  16              		.file 1 "common_nxp/src/target.c"
+   1:common_nxp/src/target.c **** /*****************************************************************************
+   2:common_nxp/src/target.c ****  *   target.c:  Target C file for NXP LPC23xx/24xx Family Microprocessors
+   3:common_nxp/src/target.c ****  *
+   4:common_nxp/src/target.c ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:common_nxp/src/target.c ****  *   All rights reserved.
+   6:common_nxp/src/target.c ****  *
+   7:common_nxp/src/target.c ****  *   History
+   8:common_nxp/src/target.c ****  *   2006.07.13  ver 1.00    Prelimnary version, first Release
+   9:common_nxp/src/target.c ****  *
+  10:common_nxp/src/target.c **** *****************************************************************************/
+  11:common_nxp/src/target.c **** #include "LPC23xx.h"
+  12:common_nxp/src/target.c **** #include "type.h"
+  13:common_nxp/src/target.c **** #include "irq.h"
+  14:common_nxp/src/target.c **** #include "target.h"
+  15:common_nxp/src/target.c **** 
+  16:common_nxp/src/target.c **** /******************************************************************************
+  17:common_nxp/src/target.c **** ** Function name:		TargetInit
+  18:common_nxp/src/target.c **** **
+  19:common_nxp/src/target.c **** ** Descriptions:		Initialize the target board; it is called in a necessary 
+  20:common_nxp/src/target.c **** **						place, change it as needed
+  21:common_nxp/src/target.c **** **
+  22:common_nxp/src/target.c **** ** parameters:			None
+  23:common_nxp/src/target.c **** ** Returned value:		None
+  24:common_nxp/src/target.c **** ** 
+  25:common_nxp/src/target.c **** ******************************************************************************/
+  26:common_nxp/src/target.c **** void TargetInit(void)
+  27:common_nxp/src/target.c **** {
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              		mov	ip, sp
+  20 0000 0DC0A0E1 	.LCFI0:
+  21              		stmfd	sp!, {fp, ip, lr, pc}
+  22 0004 00D82DE9 	.LCFI1:
+  23              		sub	fp, ip, #4
+  24 0008 04B04CE2 	.LCFI2:
+  25              		.loc 1 30 0
+  28:common_nxp/src/target.c ****   /* Add your codes here */
+  29:common_nxp/src/target.c ****   return;
+  30:common_nxp/src/target.c **** }
+  26              	, {fp, sp, pc}
+  27 000c 00A89DE8 	.LFE8:
+  29              		.section	.text.ConfigurePLL,"ax",%progbits
+  30              		.align	2
+  31              		.global	ConfigurePLL
+  33              	ConfigurePLL:
+  34              	.LFB10:
+  35              		.loc 1 92 0
+  31:common_nxp/src/target.c **** 
+  32:common_nxp/src/target.c **** /******************************************************************************
+  33:common_nxp/src/target.c **** ** Function name:		GPIOResetInit
+  34:common_nxp/src/target.c **** **
+  35:common_nxp/src/target.c **** ** Descriptions:		Initialize the target board before running the main() 
+  36:common_nxp/src/target.c **** **				function; User may change it as needed, but may not 
+  37:common_nxp/src/target.c **** **				deleted it.
+  38:common_nxp/src/target.c **** **
+  39:common_nxp/src/target.c **** ** parameters:			None
+  40:common_nxp/src/target.c **** ** Returned value:		None
+  41:common_nxp/src/target.c **** ** 
+  42:common_nxp/src/target.c **** ******************************************************************************/
+  43:common_nxp/src/target.c **** // mthomas void GPIOResetInit( void )
+  44:common_nxp/src/target.c **** static void GPIOResetInit( void )
+  45:common_nxp/src/target.c **** {
+  46:common_nxp/src/target.c ****   /* Reset all GPIO pins to default: primary function */
+  47:common_nxp/src/target.c ****   PINSEL0 = 0x00000000;
+  48:common_nxp/src/target.c ****   PINSEL1 = 0x00000000;
+  49:common_nxp/src/target.c ****   PINSEL2 = 0x00000000;
+  50:common_nxp/src/target.c ****   PINSEL3 = 0x00000000;
+  51:common_nxp/src/target.c ****   PINSEL4 = 0x00000000;
+  52:common_nxp/src/target.c ****   PINSEL5 = 0x00000000;
+  53:common_nxp/src/target.c ****   PINSEL6 = 0x00000000;
+  54:common_nxp/src/target.c ****   PINSEL7 = 0x00000000;
+  55:common_nxp/src/target.c ****   PINSEL8 = 0x00000000;
+  56:common_nxp/src/target.c ****   PINSEL9 = 0x00000000;
+  57:common_nxp/src/target.c ****   PINSEL10 = 0x00000000;
+  58:common_nxp/src/target.c ****     
+  59:common_nxp/src/target.c ****   IODIR0 = 0x00000000;
+  60:common_nxp/src/target.c ****   IODIR1 = 0x00000000;
+  61:common_nxp/src/target.c ****   IOSET0 = 0x00000000;
+  62:common_nxp/src/target.c ****   IOSET1 = 0x00000000;
+  63:common_nxp/src/target.c ****     
+  64:common_nxp/src/target.c ****   FIO0DIR = 0x00000000;
+  65:common_nxp/src/target.c ****   FIO1DIR = 0x00000000;
+  66:common_nxp/src/target.c ****   FIO2DIR = 0x00000000;
+  67:common_nxp/src/target.c ****   FIO3DIR = 0x00000000;
+  68:common_nxp/src/target.c ****   FIO4DIR = 0x00000000;
+  69:common_nxp/src/target.c ****     
+  70:common_nxp/src/target.c ****   FIO0SET = 0x00000000;
+  71:common_nxp/src/target.c ****   FIO1SET = 0x00000000;
+  72:common_nxp/src/target.c ****   FIO2SET = 0x00000000;
+  73:common_nxp/src/target.c ****   FIO3SET = 0x00000000;
+  74:common_nxp/src/target.c ****   FIO4SET = 0x00000000;
+  75:common_nxp/src/target.c ****   return;        
+  76:common_nxp/src/target.c **** }
+  77:common_nxp/src/target.c **** 
+  78:common_nxp/src/target.c **** /******************************************************************************
+  79:common_nxp/src/target.c **** ** Function name:		ConfigurePLL
+  80:common_nxp/src/target.c **** **
+  81:common_nxp/src/target.c **** ** Descriptions:		Configure PLL switching to main OSC instead of IRC
+  82:common_nxp/src/target.c **** **						at power up and wake up from power down. 
+  83:common_nxp/src/target.c **** **						This routine is used in TargetResetInit() and those
+  84:common_nxp/src/target.c **** **						examples using power down and wake up such as
+  85:common_nxp/src/target.c **** **						USB suspend to resume, ethernet WOL, and power management
+  86:common_nxp/src/target.c **** **						example
+  87:common_nxp/src/target.c **** ** parameters:			None
+  88:common_nxp/src/target.c **** ** Returned value:		None
+  89:common_nxp/src/target.c **** ** 
+  90:common_nxp/src/target.c **** ******************************************************************************/
+  91:common_nxp/src/target.c **** void ConfigurePLL ( void )
+  92:common_nxp/src/target.c **** {
+  36              	0, pretend = 0, frame = 0
+  37              		@ frame_needed = 1, uses_anonymous_args = 0
+  38              		.loc 1 95 0
+  93:common_nxp/src/target.c ****   DWORD MValue, NValue;
+  94:common_nxp/src/target.c **** 
+  95:common_nxp/src/target.c ****   if ( PLLSTAT & (1 << 25) )
+  39              	v	r1, #-536870912
+  40 0000 0E12A0E3 		add	r1, r1, #2080768
+  41 0004 7F1981E2 		ldr	r3, [r1, #136]
+  42 0008 883091E5 		.loc 1 92 0
+  43              		mov	ip, sp
+  44 000c 0DC0A0E1 	.LCFI3:
+  45              		.loc 1 95 0
+  46              		tst	r3, #33554432
+  47 0010 020413E3 		.loc 1 92 0
+  48              		stmfd	sp!, {fp, ip, lr, pc}
+  49 0014 00D82DE9 	.LCFI4:
+  50              		sub	fp, ip, #4
+  51 0018 04B04CE2 	.LCFI5:
+  52              		.loc 1 95 0
+  53              		beq	.L4
+  54 001c 0500000A 		.loc 1 97 0
+  96:common_nxp/src/target.c ****   {
+  97:common_nxp/src/target.c **** 	PLLCON = 1;			/* Enable PLL, disconnected */
+  55              		r3, [r1, #128]
+  56 0020 0130A0E3 		.loc 1 98 0
+  57 0024 803081E5 		mov	r2, #170
+  98:common_nxp/src/target.c **** 	PLLFEED = 0xaa;
+  58              	oc 1 99 0
+  59 0028 AA20A0E3 		add	r3, r3, #84
+  99:common_nxp/src/target.c **** 	PLLFEED = 0x55;
+  60              	loc 1 98 0
+  61 002c 543083E2 		str	r2, [r1, #140]
+  62              		.loc 1 99 0
+  63 0030 8C2081E5 		str	r3, [r1, #140]
+  64              	.L4:
+  65 0034 8C3081E5 		.loc 1 102 0
+  66              		mov	r2, #-536870912
+ 100:common_nxp/src/target.c ****   }
+ 101:common_nxp/src/target.c **** 
+ 102:common_nxp/src/target.c ****   PLLCON = 0;				/* Disable PLL, disconnected */
+  67              	, r2, #2080768
+  68 0038 0E22A0E3 		mov	r3, #0
+  69 003c 7F2982E2 		.loc 1 103 0
+  70 0040 0030A0E3 		mov	r1, #170
+ 103:common_nxp/src/target.c ****   PLLFEED = 0xaa;
+  71              	c 1 104 0
+  72 0044 AA10A0E3 		mov	r0, #85
+ 104:common_nxp/src/target.c ****   PLLFEED = 0x55;
+  73              	loc 1 102 0
+  74 0048 5500A0E3 		str	r3, [r2, #128]
+  75              		.loc 1 103 0
+  76 004c 803082E5 		str	r1, [r2, #140]
+  77              		.loc 1 104 0
+  78 0050 8C1082E5 		str	r0, [r2, #140]
+  79              		.loc 1 106 0
+  80 0054 8C0082E5 		ldr	r3, [r2, #416]
+ 105:common_nxp/src/target.c ****     
+ 106:common_nxp/src/target.c ****   SCS |= 0x20;			/* Enable main OSC */
+  81              	 r3, #32
+  82 0058 A03192E5 		str	r3, [r2, #416]
+  83 005c 203083E3 	.L5:
+  84 0060 A03182E5 		.loc 1 107 0
+  85              		ldr	r3, [r2, #416]
+ 107:common_nxp/src/target.c ****   while( !(SCS & 0x40) );	/* Wait until main OSC is usable */
+  86              	ip, #-536870912
+  87 0064 A03192E5 		tst	r3, #64
+  88 0068 0EC2A0E3 		add	ip, ip, #2080768
+  89 006c 400013E3 		beq	.L5
+  90 0070 7FC98CE2 		.loc 1 111 0
+  91 0074 FAFFFF0A 		mov	r3, #262144
+ 108:common_nxp/src/target.c **** 
+ 109:common_nxp/src/target.c ****   CLKSRCSEL = 0x1;		/* select main OSC, 12MHz, as the PLL clock source */
+ 110:common_nxp/src/target.c **** 
+ 111:common_nxp/src/target.c ****   PLLCFG = PLL_MValue | (PLL_NValue << 16);
+  92              	3, r3, #144
+  93 0078 0137A0E3 		.loc 1 109 0
+  94 007c 903083E2 		mov	r2, #1
+  95              		str	r2, [ip, #268]
+  96 0080 0120A0E3 		.loc 1 112 0
+  97 0084 0C218CE5 		mov	r1, #170
+ 112:common_nxp/src/target.c ****   PLLFEED = 0xaa;
+  98              	1 111 0
+  99 0088 AA10A0E3 		str	r3, [ip, #132]
+ 100              		.loc 1 113 0
+ 101 008c 84308CE5 		mov	r0, #85
+ 113:common_nxp/src/target.c ****   PLLFEED = 0x55;
+ 102              	c 1 119 0
+ 103 0090 5500A0E3 		mov	r3, #5
+ 114:common_nxp/src/target.c ****       
+ 115:common_nxp/src/target.c ****   PLLCON = 1;				/* Enable PLL, disconnected */
+ 116:common_nxp/src/target.c ****   PLLFEED = 0xaa;
+ 117:common_nxp/src/target.c ****   PLLFEED = 0x55;
+ 118:common_nxp/src/target.c **** 
+ 119:common_nxp/src/target.c ****   CCLKCFG = CCLKDivValue;	/* Set clock divider */
+ 104              	loc 1 112 0
+ 105 0094 0530A0E3 		str	r1, [ip, #140]
+ 106              		.loc 1 113 0
+ 107 0098 8C108CE5 		str	r0, [ip, #140]
+ 108              		.loc 1 115 0
+ 109 009c 8C008CE5 		str	r2, [ip, #128]
+ 110              		.loc 1 116 0
+ 111 00a0 80208CE5 		str	r1, [ip, #140]
+ 112              		.loc 1 117 0
+ 113 00a4 8C108CE5 		str	r0, [ip, #140]
+ 114              		.loc 1 119 0
+ 115 00a8 8C008CE5 		str	r3, [ip, #260]
+ 116              		.loc 1 124 0
+ 117 00ac 04318CE5 		mov	r1, ip
+ 120:common_nxp/src/target.c **** #if USE_USB
+ 121:common_nxp/src/target.c ****   USBCLKCFG = USBCLKDivValue;		/* usbclk = 288 MHz/6 = 48 MHz */
+ 122:common_nxp/src/target.c **** #endif
+ 123:common_nxp/src/target.c **** 
+ 124:common_nxp/src/target.c ****   while ( ((PLLSTAT & (1 << 26)) == 0) );	/* Check lock bit status */
+ 118              	[r1, #136]
+ 119 00b0 0C10A0E1 		mov	r2, #-536870912
+ 120              		tst	r3, #67108864
+ 121 00b4 883091E5 		add	r2, r2, #2080768
+ 122 00b8 0E22A0E3 		beq	.L6
+ 123 00bc 010313E3 		.loc 1 126 0
+ 124 00c0 7F2982E2 		ldr	r3, [r2, #136]
+ 125 00c4 FAFFFF0A 		.loc 1 127 0
+ 125:common_nxp/src/target.c ****     
+ 126:common_nxp/src/target.c ****   MValue = PLLSTAT & 0x00007FFF;
+ 126              	 [r2, #136]
+ 127 00c8 883092E5 		mov	r3, r3, asl #17
+ 127:common_nxp/src/target.c ****   NValue = (PLLSTAT & 0x00FF0000) >> 16;
+ 128              	ov	r3, r3, lsr #17
+ 129 00cc 882092E5 		and	r2, r2, #16711680
+ 130 00d0 8338A0E1 		.loc 1 128 0
+ 131 00d4 A338A0E1 		cmp	r3, #144
+ 132 00d8 FF2802E2 		cmpne	r2, #262144
+ 128:common_nxp/src/target.c ****   while ((MValue != PLL_MValue) && ( NValue != PLL_NValue) );
+ 133              	q	r3, #0
+ 134 00dc 900053E3 		movne	r3, #1
+ 135 00e0 01075213 	.L7:
+ 136 00e4 0030A003 		cmp	r3, #0
+ 137 00e8 0130A013 		bne	.L7
+ 138              		.loc 1 130 0
+ 139 00ec 000053E3 		mov	r1, #-536870912
+ 140 00f0 FDFFFF1A 		add	r1, r1, #2080768
+ 129:common_nxp/src/target.c **** 
+ 130:common_nxp/src/target.c ****   PLLCON = 3;				/* enable and connect */
+ 141              	 r3, #3
+ 142 00f4 0E12A0E3 		str	r3, [r1, #128]
+ 143 00f8 7F1981E2 		.loc 1 131 0
+ 144 00fc 033083E2 		mov	r2, #170
+ 145 0100 803081E5 		.loc 1 132 0
+ 131:common_nxp/src/target.c ****   PLLFEED = 0xaa;
+ 146              	r3, r3, #82
+ 147 0104 AA20A0E3 		.loc 1 131 0
+ 132:common_nxp/src/target.c ****   PLLFEED = 0x55;
+ 148              	tr	r2, [r1, #140]
+ 149 0108 523083E2 		.loc 1 132 0
+ 150              		str	r3, [r1, #140]
+ 151 010c 8C2081E5 	.L8:
+ 152              		.loc 1 133 0
+ 153 0110 8C3081E5 		ldr	r3, [r1, #136]
+ 154              		tst	r3, #33554432
+ 133:common_nxp/src/target.c ****   while ( ((PLLSTAT & (1 << 25)) == 0) );	/* Check connect bit status */
+ 155              	8
+ 156 0114 883091E5 		.loc 1 135 0
+ 157 0118 020413E3 		ldmfd	sp, {fp, sp, pc}
+ 158 011c FCFFFF0A 	.LFE10:
+ 134:common_nxp/src/target.c ****   return;
+ 135:common_nxp/src/target.c **** }
+ 159              	ze	ConfigurePLL, .-ConfigurePLL
+ 160 0120 00A89DE8 		.section	.text.TargetResetInit,"ax",%progbits
+ 161              		.align	2
+ 162              		.global	TargetResetInit
+ 164              	TargetResetInit:
+ 165              	.LFB11:
+ 166              		.loc 1 149 0
+ 167              		@ args = 0, pretend = 0, frame = 0
+ 168              		@ frame_needed = 1, uses_anonymous_args = 0
+ 136:common_nxp/src/target.c **** 
+ 137:common_nxp/src/target.c **** /******************************************************************************
+ 138:common_nxp/src/target.c **** ** Function name:		TargetResetInit
+ 139:common_nxp/src/target.c **** **
+ 140:common_nxp/src/target.c **** ** Descriptions:		Initialize the target board before running the main() 
+ 141:common_nxp/src/target.c **** **						function; User may change it as needed, but may not 
+ 142:common_nxp/src/target.c **** **						deleted it.
+ 143:common_nxp/src/target.c **** **
+ 144:common_nxp/src/target.c **** ** parameters:			None
+ 145:common_nxp/src/target.c **** ** Returned value:		None
+ 146:common_nxp/src/target.c **** ** 
+ 147:common_nxp/src/target.c **** ******************************************************************************/
+ 148:common_nxp/src/target.c **** void TargetResetInit(void)
+ 149:common_nxp/src/target.c **** {
+ 169              	p
+ 170              	.LCFI6:
+ 171              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 172 0000 0DC0A0E1 	.LCFI7:
+ 173              		sub	fp, ip, #4
+ 174 0004 30D82DE9 	.LCFI8:
+ 175              		.loc 1 162 0
+ 176 0008 04B04CE2 		bl	ConfigurePLL
+ 177              	.LBB4:
+ 150:common_nxp/src/target.c **** #ifdef __DEBUG_RAM    
+ 151:common_nxp/src/target.c ****   MEMMAP = 0x2;			/* remap to internal RAM */
+ 152:common_nxp/src/target.c **** #endif
+ 153:common_nxp/src/target.c **** 
+ 154:common_nxp/src/target.c **** #ifdef __DEBUG_FLASH    
+ 155:common_nxp/src/target.c ****   MEMMAP = 0x1;			/* remap to internal flash */
+ 156:common_nxp/src/target.c **** #endif
+ 157:common_nxp/src/target.c **** 
+ 158:common_nxp/src/target.c **** #if USE_USB
+ 159:common_nxp/src/target.c ****   PCONP |= 0x80000000;		/* Turn On USB PCLK */
+ 160:common_nxp/src/target.c **** #endif
+ 161:common_nxp/src/target.c ****   /* Configure PLL, switch from IRC to Main OSC */
+ 162:common_nxp/src/target.c ****   ConfigurePLL();
+ 178              	loc 1 64 0
+ 179 000c FEFFFFEB 		mvn	r4, #-1073741824
+ 180              	.LBE6:
+ 181              	.LBE4:
+ 182              		.loc 1 166 0
+ 183 0010 0341E0E3 		mov	r2, #-536870912
+ 184              		mov	r3, #0
+ 185              	.LBB8:
+ 163:common_nxp/src/target.c **** 
+ 164:common_nxp/src/target.c ****   /* Set system timers for each component */
+ 165:common_nxp/src/target.c **** #if (Fpclk / (Fcclk / 4)) == 1
+ 166:common_nxp/src/target.c ****   PCLKSEL0 = 0x00000000;	/* PCLK is 1/4 CCLK */
+ 186              	.loc 1 47 0
+ 187 0014 0E22A0E3 		add	ip, r2, #180224
+ 188 0018 0030A0E3 		.loc 1 64 0
+ 189              		sub	r4, r4, #12288
+ 190              		.loc 1 59 0
+ 191              		add	r5, r2, #163840
+ 192 001c 0BC982E2 	.LBE5:
+ 193              	.LBE8:
+ 194 0020 034A44E2 		.loc 1 186 0
+ 195              		mov	r1, #3
+ 196 0024 0A5982E2 		.loc 1 166 0
+ 197              		add	r2, r2, #2080768
+ 198              		.loc 1 189 0
+ 167:common_nxp/src/target.c ****   PCLKSEL1 = 0x00000000;
+ 168:common_nxp/src/target.c **** #endif
+ 169:common_nxp/src/target.c **** #if (Fpclk / (Fcclk / 4)) == 2
+ 170:common_nxp/src/target.c ****   PCLKSEL0 = 0xAAAAAAAA;	/* PCLK is 1/2 CCLK */
+ 171:common_nxp/src/target.c ****   PCLKSEL1 = 0xAAAAAAAA;	 
+ 172:common_nxp/src/target.c **** #endif
+ 173:common_nxp/src/target.c **** #if (Fpclk / (Fcclk / 4)) == 4
+ 174:common_nxp/src/target.c ****   PCLKSEL0 = 0x55555555;	/* PCLK is the same as CCLK */
+ 175:common_nxp/src/target.c ****   PCLKSEL1 = 0x55555555;	
+ 176:common_nxp/src/target.c **** #endif
+ 177:common_nxp/src/target.c **** 
+ 178:common_nxp/src/target.c ****   /* Set memory accelerater module*/
+ 179:common_nxp/src/target.c ****   MAMCR = 0; 
+ 180:common_nxp/src/target.c **** #if Fcclk < 20000000
+ 181:common_nxp/src/target.c ****   MAMTIM = 1;
+ 182:common_nxp/src/target.c **** #else
+ 183:common_nxp/src/target.c **** #if Fcclk < 40000000
+ 184:common_nxp/src/target.c ****   MAMTIM = 2;
+ 185:common_nxp/src/target.c **** #else
+ 186:common_nxp/src/target.c ****   MAMTIM = 3;
+ 199              	.loc 1 166 0
+ 200 0028 0310A0E3 		str	r3, [r2, #424]
+ 201              		.loc 1 167 0
+ 202 002c 7F2982E2 		str	r3, [r2, #428]
+ 187:common_nxp/src/target.c **** #endif
+ 188:common_nxp/src/target.c **** #endif
+ 189:common_nxp/src/target.c ****   MAMCR = 1; /* partly see errata */
+ 203              	c 1 179 0
+ 204 0030 0100A0E3 		str	r3, [r2, #0]
+ 205              		.loc 1 186 0
+ 206 0034 A83182E5 		str	r1, [r2, #4]
+ 207              		.loc 1 189 0
+ 208 0038 AC3182E5 		str	r0, [r2, #0]
+ 209              	.LBB9:
+ 210 003c 003082E5 	.LBB7:
+ 211              		.loc 1 47 0
+ 212 0040 041082E5 		str	r3, [ip, #0]
+ 213              		.loc 1 48 0
+ 214 0044 000082E5 		str	r3, [ip, #4]
+ 215              		.loc 1 49 0
+ 216              		str	r3, [ip, #8]
+ 217              		.loc 1 50 0
+ 218 0048 00308CE5 		str	r3, [ip, #12]
+ 219              		.loc 1 51 0
+ 220 004c 04308CE5 		str	r3, [ip, #16]
+ 221              		.loc 1 52 0
+ 222 0050 08308CE5 		str	r3, [ip, #20]
+ 223              		.loc 1 53 0
+ 224 0054 0C308CE5 		str	r3, [ip, #24]
+ 225              		.loc 1 54 0
+ 226 0058 10308CE5 		str	r3, [ip, #28]
+ 227              		.loc 1 55 0
+ 228 005c 14308CE5 		str	r3, [ip, #32]
+ 229              		.loc 1 56 0
+ 230 0060 18308CE5 		str	r3, [ip, #36]
+ 231              		.loc 1 57 0
+ 232 0064 1C308CE5 		str	r3, [ip, #40]
+ 233              		.loc 1 59 0
+ 234 0068 20308CE5 		str	r3, [r5, #8]
+ 235              		.loc 1 60 0
+ 236 006c 24308CE5 		str	r3, [r5, #24]
+ 237              		.loc 1 61 0
+ 238 0070 28308CE5 		str	r3, [r5, #4]
+ 239              		.loc 1 62 0
+ 240 0074 083085E5 		str	r3, [r5, #20]
+ 241              		.loc 1 64 0
+ 242 0078 183085E5 		str	r3, [r4, #-4095]
+ 243              		.loc 1 65 0
+ 244 007c 043085E5 		str	r3, [r4, #-4063]
+ 245              		.loc 1 66 0
+ 246 0080 143085E5 		str	r3, [r4, #-4031]
+ 247              		.loc 1 67 0
+ 248 0084 FF3F04E5 		str	r3, [r4, #-3999]
+ 249              		.loc 1 68 0
+ 250 0088 DF3F04E5 		str	r3, [r4, #-3967]
+ 251              		.loc 1 70 0
+ 252 008c BF3F04E5 		str	r3, [r4, #-4071]
+ 253              		.loc 1 71 0
+ 254 0090 9F3F04E5 		str	r3, [r4, #-4039]
+ 255              		.loc 1 72 0
+ 256 0094 7F3F04E5 		str	r3, [r4, #-4007]
+ 257              		.loc 1 73 0
+ 258 0098 E73F04E5 		str	r3, [r4, #-3975]
+ 259              		.loc 1 74 0
+ 260 009c C73F04E5 		str	r3, [r4, #-3943]
+ 261              	.LBE7:
+ 262 00a0 A73F04E5 	.LBE9:
+ 263              		.loc 1 195 0
+ 264 00a4 873F04E5 		ldmfd	sp, {r4, r5, fp, sp, lr}
+ 265              		.loc 1 193 0
+ 266 00a8 673F04E5 		b	init_VIC
+ 267              	.LFE11:
+ 190:common_nxp/src/target.c **** 
+ 191:common_nxp/src/target.c ****   GPIOResetInit();
+ 192:common_nxp/src/target.c **** 
+ 193:common_nxp/src/target.c ****   init_VIC();
+ 194:common_nxp/src/target.c ****   return;
+ 195:common_nxp/src/target.c **** }
+ 269              	IE0
+ 270 00ac 30689DE8 	.LSCIE0:
+ 271              		.4byte	0xffffffff
+ 272 00b0 FEFFFFEA 		.byte	0x1
+ 273              		.ascii	"\000"
+ 274              		.uleb128 0x1
+ 370              		.4byte	.LCFI0
+DEFINED SYMBOLS
+                            *ABS*:00000000 target.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:14     .text.TargetInit:00000000 TargetInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:20     .text.TargetInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:34     .text.ConfigurePLL:00000000 ConfigurePLL
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:40     .text.ConfigurePLL:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:167    .text.TargetResetInit:00000000 TargetResetInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:172    .text.TargetResetInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:277    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccvyjpLb.s:374    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+init_VIC

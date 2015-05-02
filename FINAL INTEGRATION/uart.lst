@@ -1,0 +1,687 @@
+   1              		.file	"uart.c"
+   9              	.Ltext0:
+  10              		.section	.text.uart0Init,"ax",%progbits
+  11              		.align	2
+  12              		.global	uart0Init
+  14              	uart0Init:
+  15              	.LFB2:
+  16              		.file 1 "uart.c"
+   1:uart.c        **** /******************************************************************************
+   2:uart.c        ****  *
+   3:uart.c        ****  * $RCSfile: $
+   4:uart.c        ****  * $Revision: $
+   5:uart.c        ****  *
+   6:uart.c        ****  * This module provides interface routines to the LPC ARM UARTs.
+   7:uart.c        ****  * Copyright 2004, R O SoftWare
+   8:uart.c        ****  * No guarantees, warrantees, or promises, implied or otherwise.
+   9:uart.c        ****  * May be used for hobby or commercial purposes provided copyright
+  10:uart.c        ****  * notice remains intact.
+  11:uart.c        ****  *
+  12:uart.c        ****  * reduced to see what has to be done for minimum UART-support by mthomas
+  13:uart.c        ****  *****************************************************************************/
+  14:uart.c        **** 
+  15:uart.c        **** // #warning "this is a reduced version of the R O Software code"
+  16:uart.c        **** 
+  17:uart.c        **** #include "LPC24xx.h"
+  18:uart.c        **** #include "uart.h"
+  19:uart.c        **** #include <stdio.h>
+  20:uart.c        **** //#include "type.h"
+  21:uart.c        **** #include "target.h"
+  22:uart.c        **** volatile int global_counter = 1;
+  23:uart.c        **** 
+  24:uart.c        **** /* on LPC210x: UART0 TX-Pin=P0.2, RX-Pin=P0.3 
+  25:uart.c        ****    PINSEL0 has to be set to "UART-Function" = Function "01" 
+  26:uart.c        ****    for Pin 0.2 and 0.3 */
+  27:uart.c        ****    
+  28:uart.c        **** #define PINSEL_BITPIN2  4
+  29:uart.c        **** #define PINSEL_BITPIN3  6
+  30:uart.c        **** #define PINSEL_FIRST_ALT_FUNC   1
+  31:uart.c        **** 
+  32:uart.c        **** // Values of Bits 7:4 in PINSEL to activate UART0
+  33:uart.c        **** #define UART0_PINSEL    ((PINSEL_FIRST_ALT_FUNC<<PINSEL_BITPIN2)|  \
+  34:uart.c        **** 						 (PINSEL_FIRST_ALT_FUNC<<PINSEL_BITPIN3))
+  35:uart.c        **** // Values of Bits 7:4 in PINMODE to turnoff pullups/downs for UART0
+  36:uart.c        **** #define UART0_PINMODE    ((2<<PINSEL_BITPIN2)| (2<<PINSEL_BITPIN3))
+  37:uart.c        **** 
+  38:uart.c        **** // Mask to isolate UART0 in PINSEL0 and PINMODE0 regs (i.e. bits 7:4)
+  39:uart.c        **** #define UART0_PINMASK   ((3<<PINSEL_BITPIN2)|(3<<PINSEL_BITPIN3))
+  40:uart.c        **** 
+  41:uart.c        **** /*    baudrate divisor - use UART_BAUD macro
+  42:uart.c        ****  *    mode - see typical modes (uart.h)
+  43:uart.c        ****  *    fmode - see typical fmodes (uart.h)
+  44:uart.c        ****  *    NOTE: uart0Init(UART_BAUD(9600), UART_8N1, UART_FIFO_8); 
+  45:uart.c        ****  */
+  46:uart.c        **** 
+  47:uart.c        **** void uart0Init(uint16_t baud, uint8_t mode, uint8_t fmode)
+  48:uart.c        **** {
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              	.LVL0:
+  20              		mov	ip, sp
+  21 0000 0DC0A0E1 	.LCFI0:
+  22              		stmfd	sp!, {r4, r5, r6, fp, ip, lr, pc}
+  23 0004 70D82DE9 	.LCFI1:
+  24              		.loc 1 49 0
+  49:uart.c        **** 	 U0IER = 0x00;             	// disable all interrupts
+  25              	 #-536870912
+  26 0008 0E42A0E3 		add	r5, r4, #49152
+  27 000c 035984E2 		mov	r3, #0
+  28 0010 0030A0E3 		str	r3, [r5, #4]
+  29 0014 043085E5 		.loc 1 50 0
+  50:uart.c        **** 	 U0IIR = 0x00;             	// clear interrupt ID register
+  30              	r3, [r5, #8]
+  31 0018 083085E5 		.loc 1 51 0
+  51:uart.c        **** 	 U0LSR = 0x00;             	// clear line status register
+  32              	tr	r3, [r5, #20]
+  33 001c 143085E5 		.loc 1 48 0
+  34              		sub	fp, ip, #4
+  35 0020 04B04CE2 	.LCFI2:
+  36              		.loc 1 52 0
+  52:uart.c        ****   	 PCONP = (PCONP | 8); 		// enables uart0 on reset
+  37              	ip, r4, #2080768
+  38 0024 7FC984E2 		ldr	r3, [ip, #196]
+  39 0028 C4309CE5 		orr	r3, r3, #8
+  40 002c 083083E3 		str	r3, [ip, #196]
+  41 0030 C4308CE5 		.loc 1 58 0
+  53:uart.c        **** 
+  54:uart.c        **** 	//PCLK_UART0 on reset the value is 00 so pclk = cclk/4 = 18MHz
+  55:uart.c        **** 	// setup Pin Function Select Register (Pin Connect Block) 
+  56:uart.c        **** 	// make sure old values of Bits 0-4 are masked out and
+  57:uart.c        **** 	// set them according to UART0-Pin-Selection
+  58:uart.c        ****   	PINSEL0 = (PINSEL0 & ~UART0_PINMASK) | UART0_PINSEL;
+  42              	r4, r4, #180224
+  43 0034 0B4984E2 		ldr	r3, [r4, #0]
+  44 0038 003094E5 		bic	r3, r3, #240
+  45 003c F030C3E3 		orr	r3, r3, #80
+  46 0040 503083E3 		str	r3, [r4, #0]
+  47 0044 003084E5 		.loc 1 59 0
+  59:uart.c        **** 	PINMODE0= (PINMODE0& ~UART0_PINMASK) | UART0_PINMODE;
+  48              	p, [r4, #64]
+  49 0048 40C094E5 		.loc 1 48 0
+  50              		mov	r0, r0, asl #16
+  51 004c 0008A0E1 	.LVL1:
+  52              		mov	r6, r0, lsr #16
+  53 0050 2068A0E1 	.LVL2:
+  54              		.loc 1 59 0
+  55              		bic	ip, ip, #240
+  56 0054 F0C0CCE3 		.loc 1 48 0
+  57              		and	r2, r2, #255
+  58 0058 FF2002E2 	.LVL3:
+  59              		.loc 1 59 0
+  60              		orr	ip, ip, #160
+  61 005c A0C08CE3 		.loc 1 63 0
+  60:uart.c        **** 
+  61:uart.c        ****   	// set the baudrate - DLAB must be set to access DLL/DLM
+  62:uart.c        ****   	U0LCR = ULCR_DLAB_ENABLE; 	 // set divisor latches (DLAB)
+  63:uart.c        ****   	U0DLL = (uint8_t)baud;       // set for baud low byte
+  62              	255
+  63 0060 FF6006E2 	.LVL4:
+  64              		.loc 1 64 0
+  64:uart.c        ****   	U0DLM = (uint8_t)(baud >> 8);// set for baud high byte
+  65              	v	r0, r0, lsr #24
+  66 0064 200CA0E1 		.loc 1 69 0
+  65:uart.c        ****   
+  66:uart.c        ****   	// set the number of characters and other
+  67:uart.c        ****   	// user specified operating parameters
+  68:uart.c        ****   	// Databits, Parity, Stopbits - Settings in Line Control Register
+  69:uart.c        ****   	U0LCR = (mode & ~(ULCR_DLAB_ENABLE)); // clear DLAB "on-the-fly"
+  67              	nd	r1, r1, #127
+  68 0068 7F1001E2 	.LVL5:
+  69              		.loc 1 62 0
+  70              		mov	r3, #128
+  71 006c 8030A0E3 		.loc 1 59 0
+  72              		str	ip, [r4, #64]
+  73 0070 40C084E5 		.loc 1 62 0
+  74              		str	r3, [r5, #12]
+  75 0074 0C3085E5 		.loc 1 63 0
+  76              		str	r6, [r5, #0]
+  77 0078 006085E5 		.loc 1 64 0
+  78              		str	r0, [r5, #4]
+  79 007c 040085E5 		.loc 1 69 0
+  80              		str	r1, [r5, #12]
+  81 0080 0C1085E5 		.loc 1 71 0
+  70:uart.c        ****   	// setup FIFO Control Register (fifo-enabled + xx trig) 
+  71:uart.c        ****   	U0FCR = fmode;
+  82              	8]
+  83 0084 082085E5 		.loc 1 72 0
+  72:uart.c        **** }
+  84              	dmfd	sp, {r4, r5, r6, fp, sp, pc}
+  85 0088 70A89DE8 	.LFE2:
+  87              		.section	.text.uart0Putch,"ax",%progbits
+  88              		.align	2
+  89              		.global	uart0Putch
+  91              	uart0Putch:
+  92              	.LFB3:
+  93              		.loc 1 75 0
+  73:uart.c        **** 
+  74:uart.c        **** int uart0Putch(int ch)
+  75:uart.c        **** {
+  94              	0, pretend = 0, frame = 0
+  95              		@ frame_needed = 1, uses_anonymous_args = 0
+  96              	.LVL6:
+  97              		mov	ip, sp
+  98 0000 0DC0A0E1 	.LCFI3:
+  99              		.loc 1 76 0
+  76:uart.c        ****   while (!(U0LSR & ULSR_THRE))          // wait for TX buffer to empty
+ 100              	2, #-536870912
+ 101 0004 0E22A0E3 		.loc 1 75 0
+ 102              		stmfd	sp!, {fp, ip, lr, pc}
+ 103 0008 00D82DE9 	.LCFI4:
+ 104              		.loc 1 76 0
+ 105              		add	r2, r2, #49152
+ 106 000c 032982E2 		.loc 1 75 0
+ 107              		sub	fp, ip, #4
+ 108 0010 04B04CE2 	.LCFI5:
+ 109              	.L4:
+ 110              		.loc 1 76 0
+ 111              		ldr	r3, [r2, #20]
+ 112 0014 143092E5 		tst	r3, #32
+ 113 0018 200013E3 		mov	r3, #-536870912
+ 114 001c 0E32A0E3 		add	r3, r3, #49152
+ 115 0020 033983E2 		beq	.L4
+ 116 0024 FAFFFF0A 		.loc 1 79 0
+  77:uart.c        ****     continue;                           // also either WDOG() or swap()
+  78:uart.c        **** 
+  79:uart.c        ****   U0THR = (uint8_t)ch;  // put char to Transmit Holding Register
+ 117              	
+ 118 0028 FF0000E2 	.LVL7:
+ 119              		str	r0, [r3, #0]
+ 120 002c 000083E5 		.loc 1 83 0
+  80:uart.c        **** 
+  81:uart.c        **** 
+  82:uart.c        ****   return (uint8_t)ch;      // return char ("stdio-compatible"?)
+  83:uart.c        **** }
+ 121              	mfd	sp, {fp, sp, pc}
+ 122 0030 00A89DE8 	.LFE3:
+ 124              		.section	.text.uart0Puts,"ax",%progbits
+ 125              		.align	2
+ 126              		.global	uart0Puts
+ 128              	uart0Puts:
+ 129              	.LFB4:
+ 130              		.loc 1 86 0
+  84:uart.c        **** 
+  85:uart.c        **** const char *uart0Puts(const char *string)
+  86:uart.c        **** {
+ 131              	0, pretend = 0, frame = 0
+ 132              		@ frame_needed = 1, uses_anonymous_args = 0
+ 133              	.LVL8:
+ 134              		.loc 1 89 0
+  87:uart.c        **** 	char ch;
+  88:uart.c        **** 	
+  89:uart.c        **** 	while ((ch = *string)) {
+ 135              	b	r1, [r0, #0]	@ zero_extendqisi2
+ 136 0000 0010D0E5 	.LVL9:
+ 137              		.loc 1 86 0
+ 138              		mov	ip, sp
+ 139 0004 0DC0A0E1 	.LCFI6:
+ 140              		.loc 1 89 0
+ 141              		cmp	r1, #0
+ 142 0008 000051E3 		.loc 1 86 0
+ 143              		stmfd	sp!, {fp, ip, lr, pc}
+ 144 000c 00D82DE9 	.LCFI7:
+ 145              		sub	fp, ip, #4
+ 146 0010 04B04CE2 	.LCFI8:
+ 147              		.loc 1 89 0
+ 148              		ldmeqfd	sp, {fp, sp, pc}
+ 149 0014 00A89D08 	.LBB16:
+ 150              	.LBB17:
+ 151              		.loc 1 76 0
+ 152              		mov	r2, #-536870912
+ 153 0018 0E22A0E3 		add	r2, r2, #49152
+ 154 001c 032982E2 	.L14:
+ 155              		ldr	r3, [r2, #20]
+ 156 0020 143092E5 		tst	r3, #32
+ 157 0024 200013E3 		beq	.L14
+ 158 0028 FCFFFF0A 		.loc 1 79 0
+ 159              		str	r1, [r2, #0]
+ 160 002c 001082E5 	.LBE17:
+ 161              	.LBE16:
+ 162              		.loc 1 89 0
+ 163              		ldrb	r1, [r0, #1]!	@ zero_extendqisi2
+ 164 0030 0110F0E5 	.LVL10:
+ 165              		cmp	r1, #0
+ 166 0034 000051E3 		bne	.L14
+ 167 0038 F8FFFF1A 	.LVL11:
+ 168              		.loc 1 95 0
+  90:uart.c        **** 		if (uart0Putch(ch)<0) break;
+  91:uart.c        **** 		string++;
+  92:uart.c        **** 	}
+  93:uart.c        **** 	
+  94:uart.c        **** 	return string;
+  95:uart.c        **** }
+ 169              	ize	uart0Puts, .-uart0Puts
+ 170 003c 00A89DE8 		.section	.text.uart0TxEmpty,"ax",%progbits
+ 171              		.align	2
+ 172              		.global	uart0TxEmpty
+ 174              	uart0TxEmpty:
+ 175              	.LFB5:
+ 176              		.loc 1 98 0
+ 177              		@ args = 0, pretend = 0, frame = 0
+ 178              		@ frame_needed = 1, uses_anonymous_args = 0
+  96:uart.c        **** 
+  97:uart.c        **** int uart0TxEmpty(void)
+  98:uart.c        **** {
+ 179              	 0
+ 180              		mov	r3, #-536870912
+ 181              		add	r3, r3, #49152
+  99:uart.c        ****   return (U0LSR & (ULSR_THRE | ULSR_TEMT)) == (ULSR_THRE | ULSR_TEMT);
+ 182              	r	r0, [r3, #20]
+ 183 0000 0E32A0E3 		.loc 1 98 0
+ 184 0004 033983E2 		mov	ip, sp
+ 185 0008 140093E5 	.LCFI9:
+ 186              		.loc 1 99 0
+ 187 000c 0DC0A0E1 		and	r0, r0, #96
+ 188              		.loc 1 98 0
+ 189              		stmfd	sp!, {fp, ip, lr, pc}
+ 190 0010 600000E2 	.LCFI10:
+ 191              		.loc 1 100 0
+ 192 0014 00D82DE9 		cmp	r0, #96
+ 193              		movne	r0, #0
+ 100:uart.c        **** }
+ 194              	1
+ 195 0018 600050E3 		.loc 1 98 0
+ 196 001c 0000A013 		sub	fp, ip, #4
+ 197 0020 0100A003 	.LCFI11:
+ 198              		.loc 1 100 0
+ 199 0024 04B04CE2 		ldmfd	sp, {fp, sp, pc}
+ 200              	.LFE5:
+ 202 0028 00A89DE8 		.section	.text.uart0TxFlush,"ax",%progbits
+ 203              		.align	2
+ 204              		.global	uart0TxFlush
+ 206              	uart0TxFlush:
+ 207              	.LFB6:
+ 208              		.loc 1 103 0
+ 209              		@ args = 0, pretend = 0, frame = 0
+ 210              		@ frame_needed = 1, uses_anonymous_args = 0
+ 101:uart.c        **** 
+ 102:uart.c        **** void uart0TxFlush(void)
+ 103:uart.c        **** {
+ 211              	v	r2, #-536870912
+ 212              		add	r2, r2, #49152
+ 213              		ldr	r3, [r2, #8]
+ 104:uart.c        ****   U0FCR |= UFCR_TX_FIFO_RESET;          // clear the TX fifo
+ 214              	oc 1 103 0
+ 215 0000 0E22A0E3 		mov	ip, sp
+ 216 0004 032982E2 	.LCFI12:
+ 217 0008 083092E5 		.loc 1 104 0
+ 218              		orr	r3, r3, #4
+ 219 000c 0DC0A0E1 		.loc 1 103 0
+ 220              		stmfd	sp!, {fp, ip, lr, pc}
+ 221              	.LCFI13:
+ 222 0010 043083E3 		.loc 1 104 0
+ 223              		str	r3, [r2, #8]
+ 224 0014 00D82DE9 		.loc 1 103 0
+ 225              		sub	fp, ip, #4
+ 226              	.LCFI14:
+ 227 0018 083082E5 		.loc 1 105 0
+ 228              		ldmfd	sp, {fp, sp, pc}
+ 229 001c 04B04CE2 	.LFE6:
+ 105:uart.c        **** }
+ 231              	art0Getch,"ax",%progbits
+ 232 0020 00A89DE8 		.align	2
+ 233              		.global	uart0Getch
+ 235              	uart0Getch:
+ 236              	.LFB7:
+ 237              		.loc 1 110 0
+ 238              		@ args = 0, pretend = 0, frame = 0
+ 239              		@ frame_needed = 1, uses_anonymous_args = 0
+ 240              		.loc 1 111 0
+ 106:uart.c        **** 
+ 107:uart.c        **** 
+ 108:uart.c        **** /* Returns: character on success, -1 if no character is available */
+ 109:uart.c        **** int uart0Getch(void)
+ 110:uart.c        **** {
+ 241              	-536870912
+ 242              		add	r0, r0, #49152
+ 243              		ldr	r3, [r0, #20]
+ 111:uart.c        **** 	if (U0LSR & ULSR_RDR)                 // check if character is available
+ 244              	oc 1 110 0
+ 245 0000 0E02A0E3 		mov	ip, sp
+ 246 0004 030980E2 	.LCFI15:
+ 247 0008 143090E5 		.loc 1 111 0
+ 248              		tst	r3, #1
+ 249 000c 0DC0A0E1 		.loc 1 110 0
+ 250              		stmfd	sp!, {fp, ip, lr, pc}
+ 251              	.LCFI16:
+ 252 0010 010013E3 		.loc 1 111 0
+ 253              		mvneq	r0, #0
+ 254 0014 00D82DE9 		.loc 1 110 0
+ 255              		sub	fp, ip, #4
+ 256              	.LCFI17:
+ 257 0018 0000E003 		.loc 1 112 0
+ 258              		ldrne	r0, [r0, #0]
+ 259 001c 04B04CE2 		.loc 1 115 0
+ 260              		ldmfd	sp, {fp, sp, pc}
+ 112:uart.c        **** 		return U0RBR;                     // return character
+ 261              	t0Getch, .-uart0Getch
+ 262 0020 00009015 		.section	.text.uart0GetchW,"ax",%progbits
+ 113:uart.c        **** 
+ 114:uart.c        **** 	return -1;
+ 115:uart.c        **** }
+ 263              	align	2
+ 264 0024 00A89DE8 		.global	uart0GetchW
+ 266              	uart0GetchW:
+ 267              	.LFB8:
+ 268              		.loc 1 119 0
+ 269              		@ args = 0, pretend = 0, frame = 0
+ 270              		@ frame_needed = 1, uses_anonymous_args = 0
+ 271              		mov	ip, sp
+ 272              	.LCFI18:
+ 116:uart.c        **** 
+ 117:uart.c        **** /* Returns: character on success, waits */
+ 118:uart.c        **** int uart0GetchW(void)
+ 119:uart.c        **** {
+ 273              	0 0
+ 274              		mov	r2, #-536870912
+ 275              		.loc 1 119 0
+ 276 0000 0DC0A0E1 		stmfd	sp!, {fp, ip, lr, pc}
+ 277              	.LCFI19:
+ 120:uart.c        **** 	while ( !(U0LSR & ULSR_RDR) ); // wait for character 
+ 278              	 1 120 0
+ 279 0004 0E22A0E3 		add	r2, r2, #49152
+ 280              		.loc 1 119 0
+ 281 0008 00D82DE9 		sub	fp, ip, #4
+ 282              	.LCFI20:
+ 283              	.L24:
+ 284 000c 032982E2 		.loc 1 120 0
+ 285              		ldr	r3, [r2, #20]
+ 286 0010 04B04CE2 		mov	r0, #-536870912
+ 287              		tst	r3, #1
+ 288              		add	r0, r0, #49152
+ 289              		beq	.L24
+ 290 0014 143092E5 		.loc 1 121 0
+ 291 0018 0E02A0E3 		ldr	r0, [r0, #0]
+ 292 001c 010013E3 		.loc 1 122 0
+ 293 0020 030980E2 		ldmfd	sp, {fp, sp, pc}
+ 294 0024 FAFFFF0A 	.LFE8:
+ 121:uart.c        **** 	return U0RBR;                // return character
+ 295              	W, .-uart0GetchW
+ 296 0028 000090E5 		.section	.text.uart_get,"ax",%progbits
+ 122:uart.c        **** }
+ 297              	align	2
+ 298 002c 00A89DE8 		.global	uart_get
+ 300              	uart_get:
+ 301              	.LFB9:
+ 302              		.loc 1 125 0
+ 303              		@ args = 0, pretend = 0, frame = 0
+ 304              		@ frame_needed = 1, uses_anonymous_args = 0
+ 305              		mov	ip, sp
+ 306              	.LCFI21:
+ 123:uart.c        **** 
+ 124:uart.c        **** BYTE uart_get(void)
+ 125:uart.c        **** {
+ 307              	BB20:
+ 308              		.loc 1 141 0
+ 309              		mov	r2, #-536870912
+ 310 0000 0DC0A0E1 	.LBE20:
+ 311              	.LBE18:
+ 312              		.loc 1 125 0
+ 313              		stmfd	sp!, {fp, ip, lr, pc}
+ 126:uart.c        **** 	while ( !uart_test() ) { ; }
+ 127:uart.c        **** 
+ 128:uart.c        **** 	return U0RBR;
+ 129:uart.c        **** }
+ 130:uart.c        **** 
+ 131:uart.c        **** static void uart_xmit( BYTE d )
+ 132:uart.c        **** {
+ 133:uart.c        **** 	while ( !( U0LSR & 0x20 ) ) {
+ 134:uart.c        **** 		// wait for send possible
+ 135:uart.c        **** 		;
+ 136:uart.c        **** 	}
+ 137:uart.c        **** 	U0THR = d;
+ 138:uart.c        **** }
+ 139:uart.c        **** int uart_test(void)
+ 140:uart.c        **** {
+ 141:uart.c        **** 	return ( U0LSR & 0x01 ) ? 1 : 0;
+ 314              	:
+ 315 0004 0E22A0E3 	.LBB23:
+ 316              	.LBB21:
+ 317              		.loc 1 141 0
+ 318              		add	r2, r2, #49152
+ 319 0008 00D82DE9 	.LBE21:
+ 320              	.LBE23:
+ 321              		.loc 1 125 0
+ 322              		sub	fp, ip, #4
+ 323              	.LCFI23:
+ 324 000c 032982E2 	.L28:
+ 325              	.LBB24:
+ 326              	.LBB19:
+ 327              		.loc 1 141 0
+ 328 0010 04B04CE2 		ldr	r3, [r2, #20]
+ 329              		mov	r0, #-536870912
+ 330              	.LBE19:
+ 331              	.LBE24:
+ 332              		.loc 1 126 0
+ 333              		tst	r3, #1
+ 334 0014 143092E5 	.LBB25:
+ 335 0018 0E02A0E3 	.LBB22:
+ 336              		.loc 1 141 0
+ 337              		add	r0, r0, #49152
+ 338              	.LBE22:
+ 339 001c 010013E3 	.LBE25:
+ 340              		.loc 1 126 0
+ 341              		beq	.L28
+ 342              		.loc 1 128 0
+ 343 0020 030980E2 		ldr	r0, [r0, #0]
+ 344              		and	r0, r0, #255
+ 345              		.loc 1 129 0
+ 346              		ldmfd	sp, {fp, sp, pc}
+ 347 0024 FAFFFF0A 	.LFE9:
+ 349 0028 000090E5 		.section	.text.uart_test,"ax",%progbits
+ 350 002c FF0000E2 		.align	2
+ 351              		.global	uart_test
+ 353              	uart_test:
+ 354              	.LFB11:
+ 355              		.loc 1 140 0
+ 356              		@ args = 0, pretend = 0, frame = 0
+ 357              		@ frame_needed = 1, uses_anonymous_args = 0
+ 358              		.loc 1 141 0
+ 359              		mov	r3, #-536870912
+ 360              		add	r3, r3, #49152
+ 361              		ldr	r0, [r3, #20]
+ 362              		.loc 1 140 0
+ 363              		mov	ip, sp
+ 364              	.LCFI24:
+ 365 0000 0E32A0E3 		stmfd	sp!, {fp, ip, lr, pc}
+ 366 0004 033983E2 	.LCFI25:
+ 367 0008 140093E5 		.loc 1 142 0
+ 368              		and	r0, r0, #1
+ 369 000c 0DC0A0E1 		.loc 1 140 0
+ 370              		sub	fp, ip, #4
+ 371 0010 00D82DE9 	.LCFI26:
+ 372              		.loc 1 142 0
+ 142:uart.c        **** }
+ 373              	st
+ 374 0014 010000E2 		.section	.text.sendchar,"ax",%progbits
+ 375              		.align	2
+ 376 0018 04B04CE2 		.global	sendchar
+ 378              	sendchar:
+ 379 001c 00A89DE8 	.LFB12:
+ 380              		.loc 1 149 0
+ 381              		@ args = 0, pretend = 0, frame = 0
+ 382              		@ frame_needed = 1, uses_anonymous_args = 0
+ 383              	.LVL12:
+ 384              		mov	ip, sp
+ 385              	.LCFI27:
+ 386              		.loc 1 150 0
+ 387              		cmp	r0, #10
+ 143:uart.c        **** 
+ 144:uart.c        **** // RealView syscall for libc printf
+ 145:uart.c        **** // (used during tests until eval-version-limit
+ 146:uart.c        **** //  forced early migration to GNU-tools)
+ 147:uart.c        **** int sendchar( int ch );
+ 148:uart.c        **** int sendchar( int ch )
+ 149:uart.c        **** {
+ 388              	stmfd	sp!, {fp, ip, lr, pc}
+ 389              	.LCFI28:
+ 390              		sub	fp, ip, #4
+ 391              	.LCFI29:
+ 392 0000 0DC0A0E1 		.loc 1 150 0
+ 393              		beq	.L41
+ 150:uart.c        **** 	if ( ch == '\n' ) {
+ 394              	.LBB26:
+ 395 0004 0A0050E3 	.LBB27:
+ 396              		.loc 1 133 0
+ 397 0008 00D82DE9 		mov	r1, #-536870912
+ 398              		add	r1, r1, #49152
+ 399 000c 04B04CE2 	.L37:
+ 400              		ldr	r3, [r1, #20]
+ 401              		mov	r2, #-536870912
+ 402 0010 0A00000A 		tst	r3, #32
+ 403              		add	r2, r2, #49152
+ 404              		beq	.L37
+ 405              		.loc 1 137 0
+ 406              		and	r3, r0, #255
+ 407 0014 0E12A0E3 		str	r3, [r2, #0]
+ 408 0018 031981E2 	.LBE27:
+ 409              	.LBE26:
+ 410 001c 143091E5 		.loc 1 155 0
+ 411 0020 0E22A0E3 		mov	r0, #1
+ 412 0024 200013E3 	.LVL13:
+ 413 0028 032982E2 		ldmfd	sp, {fp, sp, pc}
+ 414 002c FAFFFF0A 	.LVL14:
+ 415              	.L41:
+ 416 0030 FF3000E2 	.LBB28:
+ 417 0034 003082E5 	.LBB29:
+ 418              		.loc 1 133 0
+ 419              		mov	r1, #-536870912
+ 151:uart.c        **** 		uart_xmit( '\r' );
+ 152:uart.c        **** 	}
+ 153:uart.c        **** 	uart_xmit( ch );
+ 154:uart.c        **** 	return 1;
+ 155:uart.c        **** }
+ 420              		ldr	r3, [r1, #20]
+ 421 0038 0100A0E3 		mov	r2, #-536870912
+ 422              		tst	r3, #32
+ 423 003c 00A89DE8 		add	r2, r2, #49152
+ 424              		beq	.L38
+ 425              		.loc 1 137 0
+ 426              		mov	r3, #13
+ 427              		str	r3, [r2, #0]
+ 428              		b	.L34
+ 429 0040 0E12A0E3 	.LBE29:
+ 430 0044 031981E2 	.LBE28:
+ 431              	.LFE12:
+ 433 004c 0E22A0E3 		.section	.text.uart_put,"ax",%progbits
+ 434 0050 200013E3 		.align	2
+ 435 0054 032982E2 		.global	uart_put
+ 437              	uart_put:
+ 438 005c 0D30A0E3 	.LFB13:
+ 439 0060 003082E5 		.loc 1 158 0
+ 440 0064 EAFFFFEA 		@ args = 0, pretend = 0, frame = 0
+ 441              		@ frame_needed = 1, uses_anonymous_args = 0
+ 442              	.LVL15:
+ 443              		and	r0, r0, #255
+ 444              	.LVL16:
+ 445              		mov	ip, sp
+ 446              	.LCFI30:
+ 447              	.LBB30:
+ 448              	.LBB32:
+ 449              		.loc 1 150 0
+ 450              		cmp	r0, #10
+ 156:uart.c        **** 
+ 157:uart.c        **** void uart_put (BYTE d)
+ 158:uart.c        **** {
+ 451              	stmfd	sp!, {fp, ip, lr, pc}
+ 452              	.LCFI31:
+ 453              		sub	fp, ip, #4
+ 454              	.LCFI32:
+ 455 0000 FF0000E2 	.LBB38:
+ 456              	.LBB31:
+ 457 0004 0DC0A0E1 		.loc 1 150 0
+ 458              		beq	.L50
+ 459              	.L43:
+ 460              	.LBB33:
+ 461              	.LBB34:
+ 462 0008 0A0050E3 		.loc 1 133 0
+ 463              		mov	r2, #-536870912
+ 464              		add	r2, r2, #49152
+ 465              	.L46:
+ 466 000c 00D82DE9 		ldr	r3, [r2, #20]
+ 467              		tst	r3, #32
+ 468 0010 04B04CE2 		mov	r3, #-536870912
+ 469              		add	r3, r3, #49152
+ 470              		beq	.L46
+ 471              		.loc 1 137 0
+ 472              		str	r0, [r3, #0]
+ 473 0014 0800000A 	.LBE34:
+ 474              	.LBE33:
+ 475              	.LBE31:
+ 476              	.LBE38:
+ 477              		.loc 1 160 0
+ 478 0018 0E22A0E3 		ldmfd	sp, {fp, sp, pc}
+ 479 001c 032982E2 	.L50:
+ 480              	.LBB39:
+ 481 0020 143092E5 	.LBB37:
+ 482 0024 200013E3 	.LBB35:
+ 483 0028 0E32A0E3 	.LBB36:
+ 484 002c 033983E2 		.loc 1 133 0
+ 485 0030 FAFFFF0A 		mov	r1, #-536870912
+ 486              		add	r1, r1, #49152
+ 487 0034 000083E5 	.L47:
+ 488              		ldr	r3, [r1, #20]
+ 489              		mov	r2, #-536870912
+ 490              		tst	r3, #32
+ 491              		add	r2, r2, #49152
+ 159:uart.c        **** 	sendchar( d );
+ 160:uart.c        **** }
+ 492              		r3, [r2, #0]
+ 493 0038 00A89DE8 		b	.L43
+ 494              	.LBE36:
+ 495              	.LBE35:
+ 496              	.LBE37:
+ 497              	.LBE39:
+ 498              	.LFE13:
+ 500 003c 0E12A0E3 		.global	global_counter
+ 501 0040 031981E2 		.section	.data.global_counter,"aw",%progbits
+ 502              		.align	2
+ 505 004c 200013E3 	global_counter:
+ 506 0050 032982E2 		.word	1
+ 507 0054 FAFFFF0A 		.section	.debug_frame,"",%progbits
+ 508              	.Lframe0:
+ 509 0058 0D30A0E3 		.4byte	.LECIE0-.LSCIE0
+ 510 005c 003082E5 	.LSCIE0:
+ 511 0060 ECFFFFEA 		.4byte	0xffffffff
+ 512              		.byte	0x1
+ 513              		.ascii	"\000"
+ 514              		.uleb128 0x1
+ 515              		.sleb128 -4
+ 516              		.byte	0xe
+ 517              		.byte	0xc
+ 518              		.uleb128 0xd
+ 519              		.uleb128 0x0
+ 520              		.align	2
+ 521              	.LECIE0:
+ 522              	.LSFDE0:
+ 523              		.4byte	.LEFDE0-.LASFDE0
+ 524 0000 01000000 	.LASFDE0:
+ 822              		.4byte	0x0
+DEFINED SYMBOLS
+                            *ABS*:00000000 uart.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:14     .text.uart0Init:00000000 uart0Init
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:21     .text.uart0Init:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:92     .text.uart0Putch:00000000 uart0Putch
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:98     .text.uart0Putch:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:129    .text.uart0Puts:00000000 uart0Puts
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:136    .text.uart0Puts:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:177    .text.uart0TxEmpty:00000000 uart0TxEmpty
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:183    .text.uart0TxEmpty:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:209    .text.uart0TxFlush:00000000 uart0TxFlush
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:215    .text.uart0TxFlush:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:239    .text.uart0Getch:00000000 uart0Getch
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:245    .text.uart0Getch:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:271    .text.uart0GetchW:00000000 uart0GetchW
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:276    .text.uart0GetchW:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:305    .text.uart_get:00000000 uart_get
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:310    .text.uart_get:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:359    .text.uart_test:00000000 uart_test
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:365    .text.uart_test:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:386    .text.sendchar:00000000 sendchar
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:392    .text.sendchar:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:449    .text.uart_put:00000000 uart_put
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:455    .text.uart_put:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:523    .data.global_counter:00000000 global_counter
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:524    .data.global_counter:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMzaqPo.s:826    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

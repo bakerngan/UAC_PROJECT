@@ -1,0 +1,222 @@
+   1              		.file	"sysinit.c"
+   9              	.Ltext0:
+  10              		.section	.text.systemInit,"ax",%progbits
+  11              		.align	2
+  12              		.global	systemInit
+  14              	systemInit:
+  15              	.LFB2:
+  16              		.file 1 "sysinit.c"
+   1:sysinit.c     **** /******************************************************************************
+   2:sysinit.c     ****  * M O D I F I E D -------
+   3:sysinit.c     ****  * LPC2119 Demo - stdio with newlib and analog to digital conversion
+   4:sysinit.c     ****  * by Martin THOMAS <eversmith@heizung-thomas.de>
+   5:sysinit.c     ****  *
+   6:sysinit.c     ****  * Reads voltage at PINA0 in "Singe-Conversion/Burst-Mode"
+   7:sysinit.c     ****  * and uses stdio/printf to view the result.
+   8:sysinit.c     ****  *
+   9:sysinit.c     ****  * ----------------------------------------------------------------------------
+  10:sysinit.c     ****  *
+  11:sysinit.c     ****  * - UART functions based on code from Bill Knight (R O Software)
+  12:sysinit.c     ****  * - newlib stdio-interface from newlib-lpc (Aeolus Development)
+  13:sysinit.c     ****  *   (may be easier to port to other targets in this form)
+  14:sysinit.c     ****  * - V/V3A->V conversion based on an example found somewhere in the net
+  15:sysinit.c     ****  *
+  16:sysinit.c     ****  * ----------------------------------------------------------------------------
+  17:sysinit.c     ****  *
+  18:sysinit.c     ****  *  Tested with WinARM 4/05 (arm-elf-gcc 4.0.0) and 
+  19:sysinit.c     ****  *  a Philips LPC2129 on a LPC-P2129 board (Olimex)
+  20:sysinit.c     ****  *
+  21:sysinit.c     ****  *  Review 20060710: 
+  22:sysinit.c     ****  *  - updated makefile
+  23:sysinit.c     ****  *  - test with WinARM 6/06 (arm-elf-gcc 4.1.1)
+  24:sysinit.c     ****  *  Reviews 200603**
+  25:sysinit.c     ****  *  - added fixes/improvements provided by Alexey Shusharin 
+  26:sysinit.c     ****  *
+  27:sysinit.c     ****  *****************************************************************************/
+  28:sysinit.c     **** 
+  29:sysinit.c     **** /*
+  30:sysinit.c     **** 	With arm-elf-gcc 4.0.0, newlib 1.13, Thumb-mode:
+  31:sysinit.c     **** 	section            size         addr
+  32:sysinit.c     **** 	.text             12939            0
+  33:sysinit.c     **** 	.data              2088   1073741824
+  34:sysinit.c     **** 	.bss                 68   1073743912
+  35:sysinit.c     **** 	.stack             1024   1073744128
+  36:sysinit.c     **** 	
+  37:sysinit.c     **** 	ARM-Mode:
+  38:sysinit.c     **** 	section            size         addr
+  39:sysinit.c     **** 	.text             18011            0
+  40:sysinit.c     **** 	
+  41:sysinit.c     **** 	With arm-elf-gcc 4.1.1, newlib 1.14, updated makefile
+  42:sysinit.c     **** 	             section            size         addr
+  43:sysinit.c     **** 	Thumb-mode:  .text             11208            0
+  44:sysinit.c     **** 	ARM-mode:    .text             15692            0
+  45:sysinit.c     **** */
+  46:sysinit.c     **** 
+  47:sysinit.c     **** #include "LPC24xx.h"
+  48:sysinit.c     **** 
+  49:sysinit.c     **** void systemInit(void)
+  50:sysinit.c     **** {
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              		.loc 1 53 0
+  51:sysinit.c     **** 
+  52:sysinit.c     **** 
+  53:sysinit.c     **** 	  if ( PLLSTAT & (1 << 25) )	// is PLL "connected"?
+  20              	v	r1, #-536870912
+  21 0000 0E12A0E3 		add	r1, r1, #2080768
+  22 0004 7F1981E2 		ldr	r3, [r1, #136]
+  23 0008 883091E5 		.loc 1 50 0
+  24              		mov	ip, sp
+  25 000c 0DC0A0E1 	.LCFI0:
+  26              		.loc 1 53 0
+  27              		tst	r3, #33554432
+  28 0010 020413E3 		.loc 1 50 0
+  29              		stmfd	sp!, {fp, ip, lr, pc}
+  30 0014 00D82DE9 	.LCFI1:
+  31              		sub	fp, ip, #4
+  32 0018 04B04CE2 	.LCFI2:
+  33              		.loc 1 53 0
+  34              		beq	.L2
+  35 001c 0500000A 		.loc 1 55 0
+  54:sysinit.c     **** 	  {
+  55:sysinit.c     **** 		PLLCON = 1;			// Enable PLL, disconnected
+  36              	c 1 53 0
+  37 0020 0130A0E3 		mov	r1, #-536870912
+  38 0024 803081E5 		add	r1, r1, #2080768
+  56:sysinit.c     **** 		PLLFEED = 0xaa;
+  39              	,%progbits
+  40 0028 AA20A0E3 		.align	2
+  57:sysinit.c     **** 		PLLFEED = 0x55;
+  41              	global	systemInit
+  43              	systemInit:
+  44 0030 8C2081E5 	.LFB2:
+  45              		.file 1 "sysinit.c"
+  46 0034 8C3081E5 		.loc 1 50 0
+  47              		@ args = 0, pretend = 0, frame = 0
+  58:sysinit.c     **** 	  }
+  59:sysinit.c     **** 
+  60:sysinit.c     **** 	  PLLCON = 0;			// Disable PLL, disconnected
+  48              	e_needed = 1, uses_anonymous_args = 0
+  49 0038 0E32A0E3 		.loc 1 53 0
+  61:sysinit.c     **** 	  PLLFEED = 0xaa;
+  62:sysinit.c     **** 	  PLLFEED = 0x55;
+  63:sysinit.c     **** 
+  64:sysinit.c     **** //	  SCS |= 1;				//  Enable fast GPIO access 
+  65:sysinit.c     **** //	  while( !(SCS & 0x40) );	// Wait until main OSC is usable
+  66:sysinit.c     **** 
+  67:sysinit.c     **** 	  CLKSRCSEL = 0;		// pg. 46: select internal OSC, 4MHz, as the PLL clock source
+  68:sysinit.c     **** 	  //CLKSRCSEL = 0x1;		// pg. 46: select main OSC, 25MHz
+  69:sysinit.c     **** 	  //CLKSRCSEL = 0x2;		// pg. 46: select RTC OSC, 32kHz 
+  70:sysinit.c     **** 
+  71:sysinit.c     **** 	  // pg. 49, 54: M and N bounds 
+  72:sysinit.c     **** 	  // for Main OSC, use M = 144 and N = 25 
+  73:sysinit.c     **** 	  // for RTC OSC, use M = 6750 and N = 1 
+  74:sysinit.c     **** 	  // for internal 4MHz osc, use M=144 and N=4 
+  75:sysinit.c     **** 
+  76:sysinit.c     **** 	  //PLLCFG = 143 | (24 << 16);			// pg. 49: Main OSC PLL Setup
+  77:sysinit.c     **** 	  //PLLCFG = 6750 | (1 << 16);			// pg. 49: RTC OSC PLL Setup 
+  78:sysinit.c     **** 	  PLLCFG = (144-1) | ((4-1) << 16);		// pg. 49: Internal OSC PLL Setup 
+  50              	text
+  51 003c 0328A0E3 	.Ltext0:
+  52              		.section	.text.systemInit,"ax",%progbits
+  53 0040 7F3983E2 		.align	2
+  54              		.global	systemInit
+  56              	systemInit:
+  57 0048 55C0A0E3 	.LFB2:
+  58              		.file 1 "sysinit.c"
+  59 004c 8F2082E2 		.loc 1 50 0
+  60              		@ args = 0, pretend = 0, frame = 0
+  61 0050 0010A0E3 		@ frame_needed = 1, uses_anonymous_args = 0
+  62 0054 801083E5 		.loc 1 53 0
+  63              		mov	r1, #-536870912
+  64 0058 8C0083E5 		add	r1, r1, #2080768
+  65              		ldr	r3, [r1, #136]
+  66 005c 8CC083E5 		.loc 1 50 0
+  67              		mov	ip, sp
+  68 0060 0C1183E5 	.LCFI0:
+  69              		.loc 1 53 0
+  70 0064 842083E5 		tst	r3, #33554432
+  79:sysinit.c     **** 	  PLLFEED = 0xaa;
+  80:sysinit.c     **** 	  PLLFEED = 0x55;
+  81:sysinit.c     **** 
+  82:sysinit.c     **** 	  PLLCON = 1;					// pg. 49: Enable PLL, disconnected
+  71              	p!, {fp, ip, lr, pc}
+  72 0068 0120A0E3 	.LCFI1:
+  73              		sub	fp, ip, #4
+  74 006c 8C0083E5 	.LCFI2:
+  75              		.loc 1 53 0
+  76 0070 8CC083E5 		beq	.L2
+  77              		.loc 1 55 0
+  78 0074 802083E5 		mov	r3, #1
+  83:sysinit.c     **** 	  PLLFEED = 0xaa;				// pg. 53
+  84:sysinit.c     **** 	  PLLFEED = 0x55;				// pg. 53
+  85:sysinit.c     **** 
+  86:sysinit.c     **** 	  //CCLKCFG = CCLKDivValue;	/* Set clock divider */
+  87:sysinit.c     **** 
+  88:sysinit.c     **** 	  CCLKCFG = (4-1);	/* pg. 57: Set clock divider (meant for Main OSC) */
+  79              		r1, #-536870912
+  80 0078 022082E2 		add	r1, r1, #2080768
+  81              		ldr	r3, [r1, #136]
+  82 007c 8C0083E5 		.loc 1 50 0
+  83              		mov	ip, sp
+  84 0080 8CC083E5 	.LCFI0:
+  85              		.loc 1 53 0
+  86 0084 042183E5 		tst	r3, #33554432
+  89:sysinit.c     **** 	  //CCLKCFG = 5;	/* pg. 57: Set clock divider (meant for RTC OSC) */
+  90:sysinit.c     **** 
+  91:sysinit.c     **** 	//#if USE_USB
+  92:sysinit.c     **** 	//  USBCLKCFG = USBCLKDivValue;		/* usbclk = 288 MHz/6 = 48 MHz */
+  93:sysinit.c     **** 	//#endif
+  94:sysinit.c     **** 
+  95:sysinit.c     **** 	  while ( ((PLLSTAT & (1 << 26)) == 0) );	// wait for PLL to lock
+  87              	file 1 "sysinit.c"
+  88 0088 0320A0E1 		.loc 1 50 0
+  89              		@ args = 0, pretend = 0, frame = 0
+  90 008c 883092E5 		@ frame_needed = 1, uses_anonymous_args = 0
+  91 0090 0E12A0E3 		.loc 1 53 0
+  92 0094 010313E3 		mov	r1, #-536870912
+  93 0098 7F1981E2 		add	r1, r1, #2080768
+  94 009c FAFFFF0A 		ldr	r3, [r1, #136]
+  96:sysinit.c     **** 
+  97:sysinit.c     **** //	  MValue = PLLSTAT & 0x00007FFF;		/* pg. 52: seems to just read in current M value */
+  98:sysinit.c     **** //	  NValue = (PLLSTAT & 0x00FF0000) >> 16;		/* pg. 52: seems to just read in current N value */
+  99:sysinit.c     **** 	  //while ((MValue != 72) && ( NValue != 25) );		/* Main OSC */
+ 100:sysinit.c     **** 	  //while ((MValue != 6750) && ( NValue != 1) );	/* RTC OSC */
+ 101:sysinit.c     **** 
+ 102:sysinit.c     **** 	  PLLCON = 3;								// enable and connect PLL
+  95              	50 0
+  96 00a0 0330A0E3 		mov	ip, sp
+  97 00a4 803081E5 	.LCFI0:
+ 103:sysinit.c     **** 	  PLLFEED = 0xaa;
+  98              	t, %function
+  99 00a8 AA20A0E3 	systemInit:
+ 104:sysinit.c     **** 	  PLLFEED = 0x55;
+ 100              	FB2:
+ 101 00ac 523083E2 		.file 1 "sysinit.c"
+ 102              		.loc 1 50 0
+ 103 00b0 8C2081E5 		@ args = 0, pretend = 0, frame = 0
+ 104              		@ frame_needed = 1, uses_anonymous_args = 0
+ 105 00b4 8C3081E5 		.loc 1 53 0
+ 105:sysinit.c     **** 	  while ( ((PLLSTAT & (1 << 25)) == 0) );	// Check connect status
+ 106              	1, #-536870912
+ 107 00b8 0120A0E1 		add	r1, r1, #2080768
+ 108              		ldr	r3, [r1, #136]
+ 109 00bc 883092E5 		.loc 1 50 0
+ 110 00c0 020413E3 		mov	ip, sp
+ 111 00c4 FCFFFF0A 	.LCFI0:
+ 106:sysinit.c     **** 	  return;
+ 107:sysinit.c     **** 	
+ 108:sysinit.c     **** }
+ 112              	t, %function
+ 113 00c8 00A89DE8 	systemInit:
+ 114              	.LFB2:
+ 115              		.file 1 "sysinit.c"
+ 157              		.loc 1 78 0
+DEFINED SYMBOLS
+                            *ABS*:00000000 sysinit.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccfxkDdd.s:14     .text.systemInit:00000000 systemInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccfxkDdd.s:21     .text.systemInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccfxkDdd.s:118    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccfxkDdd.s:161    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,540 @@
+   1              		.file	"fat_mci_demo.c"
+   9              	.Ltext0:
+  10              		.global	takeSnapshot
+  11              		.section	.bss.takeSnapshot,"aw",%nobits
+  12              		.align	2
+  15              	takeSnapshot:
+  16 0000 00000000 		.space	4
+  17              		.global	startRecording
+  18              		.section	.bss.startRecording,"aw",%nobits
+  19              		.align	2
+  22              	startRecording:
+  23 0000 00000000 		.space	4
+  24              		.global	stopRecording
+  25              		.section	.bss.stopRecording,"aw",%nobits
+  26              		.align	2
+  29              	stopRecording:
+  30 0000 00000000 		.space	4
+  31              		.section	.text.SRAMInit,"ax",%progbits
+  32              		.align	2
+  33              		.global	SRAMInit
+  35              	SRAMInit:
+  36              	.LFB8:
+  37              		.file 1 "fat_mci_demo.c"
+   1:fat_mci_demo.c **** /*---------------------------------------------------------------*/
+   2:fat_mci_demo.c **** /* FAT file system module test program R0.05   (C)ChaN, 2007     */
+   3:fat_mci_demo.c **** /* Extended for LPC23xx/24xx MCI Test          (C)Martin Thomas  */
+   4:fat_mci_demo.c **** /*---------------------------------------------------------------*/
+   5:fat_mci_demo.c **** 
+   6:fat_mci_demo.c **** #include "LPC24xx.h"
+   7:fat_mci_demo.c **** #include "irq.h"
+   8:fat_mci_demo.c **** #include "monitor.h"
+   9:fat_mci_demo.c **** #include "sysinit.h"
+  10:fat_mci_demo.c **** 
+  11:fat_mci_demo.c **** #include "uart.h"		//Uart interface
+  12:fat_mci_demo.c **** #include "spi.h"		//SPI Camera
+  13:fat_mci_demo.c **** #include "extint.h"		//external interrupt
+  14:fat_mci_demo.c **** #include "FAT.h"		//SDCard
+  15:fat_mci_demo.c **** 
+  16:fat_mci_demo.c **** //This is for the UART
+  17:fat_mci_demo.c **** #define IO0DIR (*(volatile unsigned long *)0xE0028008)
+  18:fat_mci_demo.c **** #define IO0PIN (*(volatile unsigned long *)0xE0028000)
+  19:fat_mci_demo.c **** //Global flags that are set by the external interrupt
+  20:fat_mci_demo.c **** int takeSnapshot=0;
+  21:fat_mci_demo.c **** int startRecording=0;
+  22:fat_mci_demo.c **** int stopRecording=0;
+  23:fat_mci_demo.c **** 
+  24:fat_mci_demo.c **** void SRAMInit(){
+  38              	, frame = 4
+  39              		@ frame_needed = 1, uses_anonymous_args = 0
+  40              		mov	ip, sp
+  41 0000 0DC0A0E1 	.LCFI0:
+  42              		stmfd	sp!, {fp, ip, lr, pc}
+  43 0004 00D82DE9 	.LCFI1:
+  44              		sub	fp, ip, #4
+  45 0008 04B04CE2 	.LCFI2:
+  46              		sub	sp, sp, #4
+  47 000c 04D04DE2 	.LCFI3:
+  48              		.loc 1 25 0
+  25:fat_mci_demo.c **** 	  PINSEL6 = 0x55555555;
+  49              	536870912
+  50 0010 0E22A0E3 		add	r2, r2, #180224
+  51 0014 0B2982E2 		add	r2, r2, #24
+  52 0018 182082E2 		mov	r3, #21760
+  53 001c 553CA0E3 		add	r3, r3, #85
+  54 0020 553083E2 		orr	r3, r3, r3, asl #16
+  55 0024 033883E1 		str	r3, [r2, #0]
+  56 0028 003082E5 		.loc 1 26 0
+  26:fat_mci_demo.c **** 	  PINSEL8 = PINSEL8 & 0x00000000;
+  57              	 #-536870912
+  58 002c 0E32A0E3 		add	r3, r3, #180224
+  59 0030 0B3983E2 		add	r3, r3, #32
+  60 0034 203083E2 		ldr	r3, [r3, #0]
+  61 0038 003093E5 		mov	r3, #-536870912
+  62 003c 0E32A0E3 		add	r3, r3, #180224
+  63 0040 0B3983E2 		add	r3, r3, #32
+  64 0044 203083E2 		mov	r2, #0
+  65 0048 0020A0E3 		str	r2, [r3, #0]
+  66 004c 002083E5 		.loc 1 27 0
+  27:fat_mci_demo.c **** 	  PINSEL8 = PINSEL8 | 0x55555555; 	  //Set all 32:0 pins to 01 for address P4[0] - P4[15]
+  67              	-536870912
+  68 0050 0E22A0E3 		add	r2, r2, #180224
+  69 0054 0B2982E2 		add	r2, r2, #32
+  70 0058 202082E2 		mov	r3, #-536870912
+  71 005c 0E32A0E3 		add	r3, r3, #180224
+  72 0060 0B3983E2 		add	r3, r3, #32
+  73 0064 203083E2 		ldr	r3, [r3, #0]
+  74 0068 003093E5 		orr	r3, r3, #1426063360
+  75 006c 553483E3 		orr	r3, r3, #5570560
+  76 0070 553883E3 		orr	r3, r3, #21760
+  77 0074 553C83E3 		orr	r3, r3, #85
+  78 0078 553083E3 		str	r3, [r2, #0]
+  79 007c 003082E5 		.loc 1 29 0
+  28:fat_mci_demo.c **** 
+  29:fat_mci_demo.c **** 	  PINSEL9 = PINSEL9 & 0x0F00FF00;	  //Set 7:0 pins to 01 for address P4[16] - P4[19]
+  80              	6870912
+  81 0080 0E22A0E3 		add	r2, r2, #180224
+  82 0084 0B2982E2 		add	r2, r2, #36
+  83 0088 242082E2 		mov	r3, #-536870912
+  84 008c 0E32A0E3 		add	r3, r3, #180224
+  85 0090 0B3983E2 		add	r3, r3, #36
+  86 0094 243083E2 		ldr	r3, [r3, #0]
+  87 0098 003093E5 		bic	r3, r3, #-268435456
+  88 009c 0F32C3E3 		bic	r3, r3, #16711680
+  89 00a0 FF38C3E3 		bic	r3, r3, #255
+  90 00a4 FF30C3E3 		str	r3, [r2, #0]
+  91 00a8 003082E5 		.loc 1 30 0
+  30:fat_mci_demo.c **** 	  PINSEL9 = PINSEL9 | 0x50550055;
+  92              	36870912
+  93 00ac 0E22A0E3 		add	r2, r2, #180224
+  94 00b0 0B2982E2 		add	r2, r2, #36
+  95 00b4 242082E2 		mov	r3, #-536870912
+  96 00b8 0E32A0E3 		add	r3, r3, #180224
+  97 00bc 0B3983E2 		add	r3, r3, #36
+  98 00c0 243083E2 		ldr	r3, [r3, #0]
+  99 00c4 003093E5 		orr	r3, r3, #1342177280
+ 100 00c8 053283E3 		orr	r3, r3, #5570560
+ 101 00cc 553883E3 		orr	r3, r3, #85
+ 102 00d0 553083E3 		str	r3, [r2, #0]
+ 103 00d4 003082E5 		.loc 1 32 0
+  31:fat_mci_demo.c **** 
+  32:fat_mci_demo.c **** 	  EMC_CTRL &= ~2;					// select normal memory map (enables CS0 operation)
+ 104              	113929216
+ 105 00d8 8224A0E3 		mov	r2, r2, asr #10
+ 106 00dc 4225A0E1 		mov	r3, #-2113929216
+ 107 00e0 8234A0E3 		mov	r3, r3, asr #10
+ 108 00e4 4335A0E1 		ldr	r3, [r3, #0]
+ 109 00e8 003093E5 		bic	r3, r3, #2
+ 110 00ec 0230C3E3 		str	r3, [r2, #0]
+ 111 00f0 003082E5 		.loc 1 33 0
+  33:fat_mci_demo.c **** 	  EMC_STA_CFG0 = 0x81;
+ 112              	 #-16777216
+ 113 00f4 FF34A0E3 		add	r3, r3, #14680064
+ 114 00f8 0E3683E2 		add	r3, r3, #33280
+ 115 00fc 823C83E2 		mov	r2, #129
+ 116 0100 8120A0E3 		str	r2, [r3, #0]
+ 117 0104 002083E5 		.loc 1 34 0
+  34:fat_mci_demo.c **** 	  EMC_STA_WAITWEN0 = 0x0;			// Keil had 2
+ 118              	3, #-268435452
+ 119 0108 4F32A0E3 		add	r3, r3, #266338304
+ 120 010c FE3683E2 		add	r3, r3, #33280
+ 121 0110 823C83E2 		mov	r2, #0
+ 122 0114 0020A0E3 		str	r2, [r3, #0]
+ 123 0118 002083E5 		.loc 1 35 0
+  35:fat_mci_demo.c **** 	  EMC_STA_WAITOEN0 = 0x0;			//          3
+ 124              	3, #-268435448
+ 125 011c 8F32A0E3 		add	r3, r3, #266338304
+ 126 0120 FE3683E2 		add	r3, r3, #33280
+ 127 0124 823C83E2 		mov	r2, #0
+ 128 0128 0020A0E3 		str	r2, [r3, #0]
+ 129 012c 002083E5 		.loc 1 36 0
+  36:fat_mci_demo.c **** 	  EMC_STA_WAITRD0 = 0x1;			//          2
+ 130              	3, #-268435444
+ 131 0130 CF32A0E3 		add	r3, r3, #266338304
+ 132 0134 FE3683E2 		add	r3, r3, #33280
+ 133 0138 823C83E2 		mov	r2, #1
+ 134 013c 0120A0E3 		str	r2, [r3, #0]
+ 135 0140 002083E5 		.loc 1 37 0
+  37:fat_mci_demo.c **** 	  EMC_STA_WAITPAGE0 = 0x2;
+ 136              	2, .L3
+ 137 0144 20209FE5 		mov	r3, #2
+ 138 0148 0230A0E3 		str	r3, [r2, #0]
+ 139 014c 003082E5 		.loc 1 38 0
+  38:fat_mci_demo.c **** 	  EMC_STA_WAITWR0 = 0x0;			//          2
+ 140              		r2, .L3+4
+ 141 0150 18209FE5 		mov	r3, #0
+ 142 0154 0030A0E3 		str	r3, [r2, #0]
+ 143 0158 003082E5 		.loc 1 39 0
+  39:fat_mci_demo.c **** 	  EMC_STA_WAITTURN0 = 0x2;
+ 144              		r2, .L3+8
+ 145 015c 10209FE5 		mov	r3, #2
+ 146 0160 0230A0E3 		str	r3, [r2, #0]
+ 147 0164 003082E5 		.loc 1 40 0
+  40:fat_mci_demo.c **** }
+ 148              	fd	sp, {r3, fp, sp, pc}
+ 149 0168 08A89DE8 	.L4:
+ 150              		.align	2
+ 151              	.L3:
+ 152              		.word	-2063856
+ 153 016c 1082E0FF 		.word	-2063852
+ 154 0170 1482E0FF 		.word	-2063848
+ 155 0174 1882E0FF 	.LFE8:
+ 157              		.section	.text.IoInit,"ax",%progbits
+ 158              		.align	2
+ 160              	IoInit:
+ 161              	.LFB9:
+ 162              		.loc 1 45 0
+  41:fat_mci_demo.c **** 
+  42:fat_mci_demo.c **** 
+  43:fat_mci_demo.c **** static
+  44:fat_mci_demo.c **** void IoInit (void)
+  45:fat_mci_demo.c **** {
+ 163              	etend = 0, frame = 0
+ 164              		@ frame_needed = 1, uses_anonymous_args = 0
+ 165              		mov	ip, sp
+ 166 0000 0DC0A0E1 	.LCFI4:
+ 167              		stmfd	sp!, {fp, ip, lr, pc}
+ 168 0004 00D82DE9 	.LCFI5:
+ 169              		sub	fp, ip, #4
+ 170 0008 04B04CE2 	.LCFI6:
+ 171              		.loc 1 46 0
+  46:fat_mci_demo.c **** 	systemInit();
+ 172              	mInit
+ 173 000c FEFFFFEB 		.loc 1 47 0
+  47:fat_mci_demo.c **** 	uart0Init(B115200 ,UART_8N1 , UART_FIFO_8);
+ 174              	ov	r0, #10
+ 175 0010 0A00A0E3 		mov	r1, #3
+ 176 0014 0310A0E3 		mov	r2, #129
+ 177 0018 8120A0E3 		bl	uart0Init
+ 178 001c FEFFFFEB 		.loc 1 48 0
+  48:fat_mci_demo.c **** 	SPIInit();		/* initialize SPI 0 */
+ 179              	PIInit
+ 180 0020 FEFFFFEB 		.loc 1 49 0
+  49:fat_mci_demo.c **** 	setupCamera();
+ 181              	l	setupCamera
+ 182 0024 FEFFFFEB 		.loc 1 50 0
+  50:fat_mci_demo.c **** 	init_VIC();
+ 183              	l	init_VIC
+ 184 0028 FEFFFFEB 		.loc 1 51 0
+  51:fat_mci_demo.c **** 	EINTInit();
+ 185              	l	EINTInit
+ 186 002c FEFFFFEB 		.loc 1 52 0
+  52:fat_mci_demo.c **** 	SRAMInit();
+ 187              	l	SRAMInit
+ 188 0030 FEFFFFEB 		.loc 1 53 0
+  53:fat_mci_demo.c **** 	initSDCard();
+ 189              	l	initSDCard
+ 190 0034 FEFFFFEB 		.loc 1 54 0
+  54:fat_mci_demo.c **** 	enable_interrupt();
+ 191              	l	enable_interrupt
+ 192 0038 FEFFFFEB 		.loc 1 55 0
+  55:fat_mci_demo.c **** }
+ 193              	dmfd	sp, {fp, sp, pc}
+ 194 003c 00A89DE8 	.LFE9:
+ 196              		.section	.text.enable_interrupt,"ax",%progbits
+ 197              		.align	2
+ 199              	enable_interrupt:
+ 200              	.LFB4:
+ 201              		.file 2 "common_nxp/inc/irq.h"
+ 202              		.loc 2 111 0
+   1:common_nxp/inc/irq.h **** /******************************************************************************
+   2:common_nxp/inc/irq.h ****  *   irq.h:  Interrupt related Header file for NXP LPC23xx/24xx Family 
+   3:common_nxp/inc/irq.h ****  *   Microprocessors
+   4:common_nxp/inc/irq.h ****  *
+   5:common_nxp/inc/irq.h ****  *   Copyright(C) 2006, NXP Semiconductor
+   6:common_nxp/inc/irq.h ****  *   All rights reserved.
+   7:common_nxp/inc/irq.h ****  *
+   8:common_nxp/inc/irq.h ****  *   History
+   9:common_nxp/inc/irq.h ****  *   2006.09.01  ver 1.00    Prelimnary version, first Release
+  10:common_nxp/inc/irq.h ****  *   2011.05.03  ver 2.00    Edits and additions for use with Eclipse/GCC
+  11:common_nxp/inc/irq.h ****  *
+  12:common_nxp/inc/irq.h **** ******************************************************************************/
+  13:common_nxp/inc/irq.h **** #ifndef __IRQ_H 
+  14:common_nxp/inc/irq.h **** #define __IRQ_H
+  15:common_nxp/inc/irq.h **** #include "type.h"
+  16:common_nxp/inc/irq.h **** 
+  17:common_nxp/inc/irq.h **** #define I_Bit			0x80
+  18:common_nxp/inc/irq.h **** #define F_Bit			0x40
+  19:common_nxp/inc/irq.h **** 
+  20:common_nxp/inc/irq.h **** #define SYS32Mode		0x1F
+  21:common_nxp/inc/irq.h **** #define IRQ32Mode		0x12
+  22:common_nxp/inc/irq.h **** #define FIQ32Mode		0x11
+  23:common_nxp/inc/irq.h **** 
+  24:common_nxp/inc/irq.h **** /* To use FIQ, set below to 1;  otherwise, it's 0 */
+  25:common_nxp/inc/irq.h **** #define FIQ				0
+  26:common_nxp/inc/irq.h **** 
+  27:common_nxp/inc/irq.h **** #define HIGHEST_PRIORITY	0x01
+  28:common_nxp/inc/irq.h **** #define MID_PRIORITY		0x04
+  29:common_nxp/inc/irq.h **** #define LOWEST_PRIORITY		0x0F
+  30:common_nxp/inc/irq.h **** 
+  31:common_nxp/inc/irq.h **** #define	WDT_INT			0
+  32:common_nxp/inc/irq.h **** #define SWI_INT			1
+  33:common_nxp/inc/irq.h **** #define ARM_CORE0_INT	2
+  34:common_nxp/inc/irq.h **** #define	ARM_CORE1_INT	3
+  35:common_nxp/inc/irq.h **** #define	TIMER0_INT		4
+  36:common_nxp/inc/irq.h **** #define TIMER1_INT		5
+  37:common_nxp/inc/irq.h **** #define UART0_INT		6
+  38:common_nxp/inc/irq.h **** #define	UART1_INT		7
+  39:common_nxp/inc/irq.h **** #define	PWM0_1_INT		8
+  40:common_nxp/inc/irq.h **** #define I2C0_INT		9
+  41:common_nxp/inc/irq.h **** #define SPI0_INT		10		/* SPI and SSP0 share VIC slot */
+  42:common_nxp/inc/irq.h **** #define SSP0_INT		10
+  43:common_nxp/inc/irq.h **** #define	SSP1_INT		11
+  44:common_nxp/inc/irq.h **** #define	PLL_INT			12
+  45:common_nxp/inc/irq.h **** #define RTC_INT			13
+  46:common_nxp/inc/irq.h **** #define EINT0_INT		14
+  47:common_nxp/inc/irq.h **** #define EINT1_INT		15
+  48:common_nxp/inc/irq.h **** #define EINT2_INT		16
+  49:common_nxp/inc/irq.h **** #define LCD_INT			16
+  50:common_nxp/inc/irq.h **** #define EINT3_INT		17
+  51:common_nxp/inc/irq.h **** #define	ADC0_INT		18
+  52:common_nxp/inc/irq.h **** #define I2C1_INT		19
+  53:common_nxp/inc/irq.h **** #define BOD_INT			20
+  54:common_nxp/inc/irq.h **** #define EMAC_INT		21
+  55:common_nxp/inc/irq.h **** #define USB_INT			22
+  56:common_nxp/inc/irq.h **** #define CAN_INT			23
+  57:common_nxp/inc/irq.h **** #define MCI_INT			24
+  58:common_nxp/inc/irq.h **** #define GPDMA_INT		25
+  59:common_nxp/inc/irq.h **** #define TIMER2_INT		26
+  60:common_nxp/inc/irq.h **** #define TIMER3_INT		27
+  61:common_nxp/inc/irq.h **** #define UART2_INT		28
+  62:common_nxp/inc/irq.h **** #define UART3_INT		29
+  63:common_nxp/inc/irq.h **** #define I2C2_INT		30
+  64:common_nxp/inc/irq.h **** #define I2S_INT			31
+  65:common_nxp/inc/irq.h **** 
+  66:common_nxp/inc/irq.h **** #define VIC_SIZE		32
+  67:common_nxp/inc/irq.h **** 
+  68:common_nxp/inc/irq.h **** #define VECT_ADDR_INDEX	0x100
+  69:common_nxp/inc/irq.h **** #define VECT_PRIO_INDEX 0x200
+  70:common_nxp/inc/irq.h **** 
+  71:common_nxp/inc/irq.h **** extern void FIQ_Handler( void )  __attribute__ ((interrupt ("FIQ"))) ;    // __irq;
+  72:common_nxp/inc/irq.h **** void init_VIC( void );
+  73:common_nxp/inc/irq.h **** DWORD install_irq( DWORD IntNumber, void *HandlerAddr, DWORD Priority );
+  74:common_nxp/inc/irq.h **** 
+  75:common_nxp/inc/irq.h **** /* Be aware that, from compiler to compiler, nested interrupt will have to
+  76:common_nxp/inc/irq.h ****    be handled differently. More details can be found in Philips LPC2000
+  77:common_nxp/inc/irq.h ****    family app-note AN10381 */
+  78:common_nxp/inc/irq.h ****  
+  79:common_nxp/inc/irq.h **** /* unlike Keil CARM Compiler, in ARM's RealView compiler, don't save and 
+  80:common_nxp/inc/irq.h ****    restore registers into the stack in RVD as the compiler does that for you.
+  81:common_nxp/inc/irq.h ****    See RVD ARM compiler Inline and embedded assemblers, "Rules for
+  82:common_nxp/inc/irq.h ****    using __asm and asm keywords. */
+  83:common_nxp/inc/irq.h **** 
+  84:common_nxp/inc/irq.h **** #if 0       // below 3 lines are for Keil compilers only
+  85:common_nxp/inc/irq.h **** static DWORD sysreg;		/* used as LR register */
+  86:common_nxp/inc/irq.h **** #define IENABLE __asm { MRS sysreg, SPSR; MSR CPSR_c, #SYS32Mode }
+  87:common_nxp/inc/irq.h **** #define IDISABLE __asm { MSR CPSR_c, #(IRQ32Mode|I_Bit); MSR SPSR_cxsf, sysreg }
+  88:common_nxp/inc/irq.h **** 
+  89:common_nxp/inc/irq.h **** #else	// for Eclipse/GCC use enable_interrupt() and disable_interrupt() below
+  90:common_nxp/inc/irq.h **** 
+  91:common_nxp/inc/irq.h **** // -------------- Additions to be used with Eclipse/GCC --------
+  92:common_nxp/inc/irq.h **** #include <stdint.h>
+  93:common_nxp/inc/irq.h **** //#include "inttypes.h"
+  94:common_nxp/inc/irq.h **** 
+  95:common_nxp/inc/irq.h **** #ifndef __thumb
+  96:common_nxp/inc/irq.h **** static inline uint32_t __get_CPSR(void)
+  97:common_nxp/inc/irq.h **** {
+  98:common_nxp/inc/irq.h **** 	uint32_t temp;
+  99:common_nxp/inc/irq.h **** 	asm volatile ("mrs %0,CPSR":"=r" (temp):) ;
+ 100:common_nxp/inc/irq.h **** 	return temp;
+ 101:common_nxp/inc/irq.h **** }
+ 102:common_nxp/inc/irq.h **** 
+ 103:common_nxp/inc/irq.h **** static inline void __set_CPSR(uint32_t save_cpsr)
+ 104:common_nxp/inc/irq.h **** {
+ 105:common_nxp/inc/irq.h **** 	asm volatile (" msr CPSR_cxsf,%0"::"r"(save_cpsr) );
+ 106:common_nxp/inc/irq.h **** }
+ 107:common_nxp/inc/irq.h **** #endif
+ 108:common_nxp/inc/irq.h **** 
+ 109:common_nxp/inc/irq.h **** /* enable interrupts */
+ 110:common_nxp/inc/irq.h **** static inline void enable_interrupt(void)
+ 111:common_nxp/inc/irq.h **** {
+ 203              	0, pretend = 0, frame = 4
+ 204              		@ frame_needed = 1, uses_anonymous_args = 0
+ 205              		mov	ip, sp
+ 206 0000 0DC0A0E1 	.LCFI7:
+ 207              		stmfd	sp!, {fp, ip, lr, pc}
+ 208 0004 00D82DE9 	.LCFI8:
+ 209              		sub	fp, ip, #4
+ 210 0008 04B04CE2 	.LCFI9:
+ 211              		sub	sp, sp, #4
+ 212 000c 04D04DE2 	.LCFI10:
+ 213              		.loc 2 113 0
+ 112:common_nxp/inc/irq.h **** 	uint32_t temp;
+ 113:common_nxp/inc/irq.h **** 	temp = __get_CPSR();
+ 214              	PSR
+ 215 0010 FEFFFFEB 		mov	r3, r0
+ 216 0014 0030A0E1 		str	r3, [fp, #-16]
+ 217 0018 10300BE5 		.loc 2 114 0
+ 114:common_nxp/inc/irq.h **** 	__set_CPSR(temp & ~0xC0);
+ 218              		r3, [fp, #-16]
+ 219 001c 10301BE5 		bic	r3, r3, #192
+ 220 0020 C030C3E3 		mov	r0, r3
+ 221 0024 0300A0E1 		bl	__set_CPSR
+ 222 0028 FEFFFFEB 		.loc 2 115 0
+ 115:common_nxp/inc/irq.h **** }
+ 223              	d	sp, {r3, fp, sp, pc}
+ 224 002c 08A89DE8 	.LFE4:
+ 226              		.section	.text.__get_CPSR,"ax",%progbits
+ 227              		.align	2
+ 229              	__get_CPSR:
+ 230              	.LFB2:
+ 231              		.loc 2 97 0
+ 232              		@ args = 0, pretend = 0, frame = 4
+ 233              		@ frame_needed = 1, uses_anonymous_args = 0
+ 234              		mov	ip, sp
+ 235 0000 0DC0A0E1 	.LCFI11:
+ 236              		stmfd	sp!, {fp, ip, lr, pc}
+ 237 0004 00D82DE9 	.LCFI12:
+ 238              		sub	fp, ip, #4
+ 239 0008 04B04CE2 	.LCFI13:
+ 240              		sub	sp, sp, #4
+ 241 000c 04D04DE2 	.LCFI14:
+ 242              		.loc 2 99 0
+ 243              	@ 99 "common_nxp/inc/irq.h" 1
+ 244              		mrs r3,CPSR
+ 245 0010 00300FE1 	@ 0 "" 2
+ 246              		str	r3, [fp, #-16]
+ 247 0014 10300BE5 		.loc 2 100 0
+ 248              		ldr	r3, [fp, #-16]
+ 249 0018 10301BE5 		.loc 2 101 0
+ 250              		mov	r0, r3
+ 251 001c 0300A0E1 		ldmfd	sp, {r3, fp, sp, pc}
+ 252 0020 08A89DE8 	.LFE2:
+ 254              		.section	.text.__set_CPSR,"ax",%progbits
+ 255              		.align	2
+ 257              	__set_CPSR:
+ 258              	.LFB3:
+ 259              		.loc 2 104 0
+ 260              		@ args = 0, pretend = 0, frame = 4
+ 261              		@ frame_needed = 1, uses_anonymous_args = 0
+ 262              		mov	ip, sp
+ 263 0000 0DC0A0E1 	.LCFI15:
+ 264              		stmfd	sp!, {fp, ip, lr, pc}
+ 265 0004 00D82DE9 	.LCFI16:
+ 266              		sub	fp, ip, #4
+ 267 0008 04B04CE2 	.LCFI17:
+ 268              		sub	sp, sp, #4
+ 269 000c 04D04DE2 	.LCFI18:
+ 270              		str	r0, [fp, #-16]
+ 271 0010 10000BE5 		.loc 2 105 0
+ 272              		ldr	r3, [fp, #-16]
+ 273 0014 10301BE5 	@ 105 "common_nxp/inc/irq.h" 1
+ 274              		 msr CPSR_cxsf,r3
+ 275 0018 03F02FE1 	@ 0 "" 2
+ 276              		.loc 2 106 0
+ 277              		ldmfd	sp, {r3, fp, sp, pc}
+ 278 001c 08A89DE8 	.LFE3:
+ 280              		.section	.text.main,"ax",%progbits
+ 281              		.align	2
+ 282              		.global	main
+ 284              	main:
+ 285              	.LFB10:
+ 286              		.loc 1 58 0
+  56:fat_mci_demo.c **** 
+  57:fat_mci_demo.c **** int main (void)
+  58:fat_mci_demo.c **** {
+ 287              	onymous_args = 0
+ 288              		mov	ip, sp
+ 289              	.LCFI19:
+ 290 0000 0DC0A0E1 		stmfd	sp!, {fp, ip, lr, pc}
+ 291              	.LCFI20:
+ 292 0004 00D82DE9 		sub	fp, ip, #4
+ 293              	.LCFI21:
+ 294 0008 04B04CE2 		.loc 1 59 0
+ 295              		bl	IoInit
+  59:fat_mci_demo.c **** 	IoInit();
+ 296              	oc 1 62 0
+ 297 000c FEFFFFEB 		ldr	r3, .L19
+ 298              		ldr	r3, [r3, #0]
+  60:fat_mci_demo.c **** 	while(1)
+  61:fat_mci_demo.c **** 	{
+  62:fat_mci_demo.c **** 		if(takeSnapshot)
+ 299              	p	r3, #0
+ 300 0010 5C309FE5 		beq	.L14
+ 301 0014 003093E5 		.loc 1 64 0
+ 302 0018 000053E3 		ldr	r2, .L19
+ 303 001c 0300000A 		mov	r3, #0
+  63:fat_mci_demo.c **** 		{
+  64:fat_mci_demo.c **** 			takeSnapshot=0;
+ 304              	r3, [r2, #0]
+ 305 0020 4C209FE5 		.loc 1 65 0
+ 306 0024 0030A0E3 		bl	takePicture
+ 307 0028 003082E5 	.L14:
+  65:fat_mci_demo.c **** 			takePicture();
+ 308              	c 1 67 0
+ 309 002c FEFFFFEB 		ldr	r3, .L19+4
+ 310              		ldr	r3, [r3, #0]
+  66:fat_mci_demo.c **** 		}
+  67:fat_mci_demo.c **** 		if(startRecording)
+ 311              	p	r3, #0
+ 312 0030 40309FE5 		beq	.L15
+ 313 0034 003093E5 		.loc 1 69 0
+ 314 0038 000053E3 		ldr	r2, .L19+4
+ 315 003c 0300000A 		mov	r3, #0
+  68:fat_mci_demo.c **** 		{
+  69:fat_mci_demo.c **** 			startRecording=0;
+ 316              	r3, [r2, #0]
+ 317 0040 30209FE5 		.loc 1 70 0
+ 318 0044 0030A0E3 		bl	record
+ 319 0048 003082E5 	.L15:
+  70:fat_mci_demo.c **** 			record();
+ 320              	c 1 72 0
+ 321 004c FEFFFFEB 		ldr	r3, .L19+8
+ 322              		ldr	r3, [r3, #0]
+  71:fat_mci_demo.c **** 		}
+  72:fat_mci_demo.c **** 		if(stopRecording)
+ 323              	p	r3, #0
+ 324 0050 24309FE5 		beq	.L17
+ 325 0054 003093E5 		.loc 1 74 0
+ 326 0058 000053E3 		ldr	r2, .L19+8
+ 327 005c EBFFFF0A 		mov	r3, #0
+  73:fat_mci_demo.c **** 		{
+  74:fat_mci_demo.c **** 			stopRecording=0;
+ 328              	r3, [r2, #0]
+ 329 0060 14209FE5 		.loc 1 75 0
+ 330 0064 0030A0E3 		bl	stopRec
+ 331 0068 003082E5 		b	.L17
+  75:fat_mci_demo.c **** 			stopRec();
+ 332              	:
+ 333 006c FEFFFFEB 		.align	2
+ 334 0070 E6FFFFEA 	.L19:
+ 335              		.word	takeSnapshot
+ 336              		.word	startRecording
+ 337              		.word	stopRecording
+ 338 0074 00000000 	.LFE10:
+ 340 007c 00000000 		.section	.debug_frame,"",%progbits
+ 341              	.Lframe0:
+ 342              		.4byte	.LECIE0-.LSCIE0
+ 509              	.LLST0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 fat_mci_demo.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:15     .bss.takeSnapshot:00000000 takeSnapshot
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:22     .bss.startRecording:00000000 startRecording
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:29     .bss.stopRecording:00000000 stopRecording
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:35     .text.SRAMInit:00000000 SRAMInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:41     .text.SRAMInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:153    .text.SRAMInit:0000016c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:161    .text.IoInit:00000000 IoInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:166    .text.IoInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:200    .text.enable_interrupt:00000000 enable_interrupt
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:206    .text.enable_interrupt:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:230    .text.__get_CPSR:00000000 __get_CPSR
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:258    .text.__set_CPSR:00000000 __set_CPSR
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:235    .text.__get_CPSR:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:263    .text.__set_CPSR:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:285    .text.main:00000000 main
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:290    .text.main:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:338    .text.main:00000074 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccMY9fZk.s:513    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+systemInit
+uart0Init
+SPIInit
+setupCamera
+init_VIC
+EINTInit
+initSDCard
+takePicture
+record
+stopRec

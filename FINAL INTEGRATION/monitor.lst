@@ -1,0 +1,995 @@
+   1              		.file	"monitor.c"
+   9              	.Ltext0:
+  10              		.section	.text.xatoi,"ax",%progbits
+  11              		.align	2
+  12              		.global	xatoi
+  14              	xatoi:
+  15              	.LFB2:
+  16              		.file 1 "monitor.c"
+   1:monitor.c     **** #include <stdarg.h>
+   2:monitor.c     **** #include "monitor.h"
+   3:monitor.c     **** 
+   4:monitor.c     **** 
+   5:monitor.c     **** 
+   6:monitor.c     **** int xatoi (/*const*/ char **str, long *res)
+   7:monitor.c     **** {
+  17              	rgs = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              	.LVL0:
+  20              		mov	ip, sp
+  21 0000 0DC0A0E1 	.LCFI0:
+  22              		stmfd	sp!, {r4, r5, r6, r7, fp, ip, lr, pc}
+  23 0004 F0D82DE9 	.LCFI1:
+  24              		.loc 1 12 0
+   8:monitor.c     **** 	DWORD val;
+   9:monitor.c     **** 	BYTE c, radix, s = 0;
+  10:monitor.c     **** 
+  11:monitor.c     **** 
+  12:monitor.c     **** 	while ((c = **str) == ' ') (*str)++;
+  25              	 [r0, #0]
+  26 0008 002090E5 		ldrb	r3, [r2, #0]	@ zero_extendqisi2
+  27 000c 0030D2E5 	.LVL1:
+  28              		cmp	r3, #32
+  29 0010 200053E3 		.loc 1 7 0
+  30              		sub	fp, ip, #4
+  31 0014 04B04CE2 	.LCFI2:
+  32              		.loc 1 7 0
+  33              		mov	r7, r1
+  34 0018 0170A0E1 		.loc 1 12 0
+  35              		bne	.L2
+  36 001c 0400001A 	.LVL2:
+  37              	.L20:
+  38              		add	r2, r2, #1
+  39 0020 012082E2 		str	r2, [r0, #0]
+  40 0024 002080E5 		ldrb	r3, [r2, #0]	@ zero_extendqisi2
+  41 0028 0030D2E5 	.LVL3:
+  42              		cmp	r3, #32
+  43 002c 200053E3 		beq	.L20
+  44 0030 FAFFFF0A 	.L2:
+  45              		.loc 1 13 0
+  13:monitor.c     **** 	if (c == '-') {
+  46              	12 0
+  47 0034 2D0053E3 		mov	r1, r3
+  48              		.loc 1 15 0
+  49 0038 0310A0E1 		addeq	r3, r2, #1
+  14:monitor.c     **** 		s = 1;
+  15:monitor.c     **** 		c = *(++(*str));
+  50              	4:
+  51 003c 01308202 		streq	r3, [r0, #0]
+  52              		ldreqb	r1, [r2, #1]	@ zero_extendqisi2
+  53 0040 00308005 	.LVL5:
+  54 0044 0110D205 		.loc 1 13 0
+  55              		movne	r6, #0
+  56              	.LVL6:
+  57 0048 0060A013 		.loc 1 15 0
+  58              		moveq	r6, #1
+  59              	.LVL7:
+  60 004c 0160A003 		.loc 1 17 0
+  61              		cmp	r1, #48
+  16:monitor.c     **** 	}
+  17:monitor.c     **** 	if (c == '0') {
+  62              	loc 1 37 0
+  63 0050 300051E3 		sub	r3, r1, #49
+  64 0054 2600000A 		and	r3, r3, #255
+  18:monitor.c     **** 		c = *(++(*str));
+  19:monitor.c     **** 		if (c <= ' ') {
+  20:monitor.c     **** 			*res = 0; return 1;
+  21:monitor.c     **** 		}
+  22:monitor.c     **** 		if (c == 'x') {
+  23:monitor.c     **** 			radix = 16;
+  24:monitor.c     **** 			c = *(++(*str));
+  25:monitor.c     **** 		} else {
+  26:monitor.c     **** 			if (c == 'b') {
+  27:monitor.c     **** 				radix = 2;
+  28:monitor.c     **** 				c = *(++(*str));
+  29:monitor.c     **** 			} else {
+  30:monitor.c     **** 				if ((c >= '0')&&(c <= '9'))
+  31:monitor.c     **** 					radix = 8;
+  32:monitor.c     **** 				else
+  33:monitor.c     **** 					return 0;
+  34:monitor.c     **** 			}
+  35:monitor.c     **** 		}
+  36:monitor.c     **** 	} else {
+  37:monitor.c     **** 		if ((c < '1')||(c > '9'))
+  65              	p	r3, #8
+  66 0058 313041E2 		bhi	.L12
+  67 005c FF3003E2 		mov	r5, #10
+  68 0060 080053E3 	.LVL8:
+  69 0064 1A00008A 	.L10:
+  70 0068 0A50A0E3 		.loc 1 42 0
+  71              		cmp	r1, #32
+  72              		movls	r3, #0
+  38:monitor.c     **** 			return 0;
+  39:monitor.c     **** 		radix = 10;
+  40:monitor.c     **** 	}
+  41:monitor.c     **** 	val = 0;
+  42:monitor.c     **** 	while (c > ' ') {
+  73              	movls	r4, r3
+  74 006c 200051E3 		bls	.L15
+  75 0070 0030A093 	.LVL10:
+  76              	.L14:
+  77 0074 0340A091 		.loc 1 30 0
+  78 0078 1800009A 		mov	r4, #0
+  79              		b	.L13
+  80              	.LVL11:
+  81              	.L26:
+  82 007c 0040A0E3 		.loc 1 51 0
+  83 0080 060000EA 		ldr	r2, [r0, #0]
+  84              		add	r3, r2, #1
+  85              		str	r3, [r0, #0]
+  43:monitor.c     **** 		if (c >= 'a') c -= 0x20;
+  44:monitor.c     **** 		c -= '0';
+  45:monitor.c     **** 		if (c >= 17) {
+  46:monitor.c     **** 			c -= 7;
+  47:monitor.c     **** 			if (c <= 9) return 0;
+  48:monitor.c     **** 		}
+  49:monitor.c     **** 		if (c >= radix) return 0;
+  50:monitor.c     **** 		val = val * radix + c;
+  51:monitor.c     **** 		c = *(++(*str));
+  86              	, #1]	@ zero_extendqisi2
+  87 0084 002090E5 	.LVL12:
+  88 0088 013082E2 		.loc 1 42 0
+  89 008c 003080E5 		cmp	r1, #32
+  90 0090 0110D2E5 		.loc 1 50 0
+  91              		mla	r4, r5, r4, ip
+  92              		.loc 1 42 0
+  93 0094 200051E3 		bls	.L25
+  94              	.L13:
+  95 0098 95C424E0 		.loc 1 43 0
+  96              		cmp	r1, #96
+  97 009c 0E00009A 		sub	r3, r1, #32
+  98              		andhi	r1, r3, #255
+  99              	.LVL13:
+ 100 00a0 600051E3 		.loc 1 44 0
+ 101 00a4 203041E2 		sub	r3, r1, #48
+ 102 00a8 FF100382 		and	ip, r3, #255
+ 103              	.LVL14:
+ 104              		.loc 1 45 0
+ 105 00ac 303041E2 		cmp	ip, #16
+ 106 00b0 FFC003E2 		.loc 1 46 0
+ 107              		sub	r3, ip, #7
+ 108              		.loc 1 45 0
+ 109 00b4 10005CE3 		bls	.L17
+ 110              		.loc 1 46 0
+ 111 00b8 07304CE2 		and	ip, r3, #255
+ 112              	.LVL15:
+ 113 00bc 0200009A 		.loc 1 47 0
+ 114              		cmp	ip, #9
+ 115 00c0 FFC003E2 		bls	.L12
+ 116              	.L17:
+ 117              		.loc 1 49 0
+ 118 00c4 09005CE3 		cmp	ip, r5
+ 119 00c8 0100009A 		bcc	.L26
+ 120              	.LVL16:
+ 121              	.L12:
+ 122 00cc 05005CE1 		.loc 1 55 0
+ 123 00d0 EBFFFF3A 		mov	r0, #0
+ 124              	.LVL17:
+ 125              		.loc 1 56 0
+  52:monitor.c     **** 	}
+  53:monitor.c     **** 	if (s) val = -val;
+  54:monitor.c     **** 	*res = val;
+  55:monitor.c     **** 	return 1;
+ 126              	.LVL18:
+ 127 00d4 0000A0E3 	.L25:
+ 128              		.loc 1 42 0
+  56:monitor.c     **** }
+ 129              	v	r3, r4
+ 130 00d8 F0A89DE8 	.LVL19:
+ 131              	.L15:
+ 132              		.loc 1 53 0
+ 133              		cmp	r6, #0
+ 134 00dc 0430A0E1 		rsbne	r4, r3, #0
+ 135              	.LVL20:
+ 136              		.loc 1 54 0
+ 137              		str	r4, [r7, #0]
+ 138 00e0 000056E3 		mov	r0, #1
+ 139 00e4 00406312 	.LVL21:
+ 140              		ldmfd	sp, {r4, r5, r6, r7, fp, sp, pc}
+ 141              	.LVL22:
+ 142 00e8 004087E5 	.L24:
+ 143 00ec 0100A0E3 		.loc 1 18 0
+ 144              		ldr	r3, [r0, #0]
+ 145 00f0 F0A89DE8 		add	r2, r3, #1
+ 146              		str	r2, [r0, #0]
+ 147              		ldrb	r1, [r3, #1]	@ zero_extendqisi2
+ 148              	.LVL23:
+ 149 00f4 003090E5 		.loc 1 19 0
+ 150 00f8 012083E2 		cmp	r1, #32
+ 151 00fc 002080E5 		.loc 1 20 0
+ 152 0100 0110D3E5 		movls	r3, #0
+ 153              		strls	r3, [r7, #0]
+ 154              		movls	r0, #1
+ 155 0104 200051E3 	.LVL24:
+ 156              		.loc 1 19 0
+ 157 0108 0030A093 		ldmlsfd	sp, {r4, r5, r6, r7, fp, sp, pc}
+ 158 010c 00308795 		.loc 1 22 0
+ 159 0110 0100A093 		cmp	r1, #120
+ 160              		beq	.L27
+ 161              		.loc 1 26 0
+ 162 0114 F0A89D98 		cmp	r1, #98
+ 163              		beq	.L28
+ 164 0118 780051E3 		.loc 1 30 0
+ 165 011c 0700000A 		sub	r3, r1, #48
+ 166              		and	r3, r3, #255
+ 167 0120 620051E3 		cmp	r3, #9
+ 168 0124 0A00000A 		bhi	.L12
+ 169              		mov	r5, #8
+ 170 0128 303041E2 	.LVL25:
+ 171 012c FF3003E2 		b	.L14
+ 172 0130 090053E3 	.LVL26:
+ 173 0134 E6FFFF8A 	.L27:
+ 174 0138 0850A0E3 		.loc 1 24 0
+ 175              		add	r3, r2, #1
+ 176 013c CEFFFFEA 		str	r3, [r0, #0]
+ 177              	.LVL27:
+ 178              		mov	r5, #16
+ 179              	.LVL28:
+ 180 0140 013082E2 		ldrb	r1, [r2, #1]	@ zero_extendqisi2
+ 181 0144 003080E5 	.LVL29:
+ 182              		b	.L10
+ 183 0148 1050A0E3 	.LVL30:
+ 184              	.L28:
+ 185 014c 0110D2E5 		.loc 1 28 0
+ 186              		add	r3, r2, #1
+ 187 0150 C5FFFFEA 		str	r3, [r0, #0]
+ 188              	.LVL31:
+ 189              		mov	r5, #2
+ 190              	.LVL32:
+ 191 0154 013082E2 		ldrb	r1, [r2, #1]	@ zero_extendqisi2
+ 192 0158 003080E5 	.LVL33:
+ 193              		b	.L10
+ 194 015c 0250A0E3 	.LFE2:
+ 196 0160 0110D2E5 		.section	.text.get_line,"ax",%progbits
+ 197              		.align	2
+ 198 0164 C0FFFFEA 		.global	get_line
+ 200              	get_line:
+ 201              	.LFB7:
+ 202              		.loc 1 198 0
+ 203              		@ args = 0, pretend = 0, frame = 0
+ 204              		@ frame_needed = 1, uses_anonymous_args = 0
+ 205              	.LVL34:
+ 206              		mov	ip, sp
+  57:monitor.c     **** 
+  58:monitor.c     **** 
+  59:monitor.c     **** 
+  60:monitor.c     **** #if 0
+  61:monitor.c     **** void xputc (char c)
+  62:monitor.c     **** {
+  63:monitor.c     **** 	if (c == '\n') uart_put('\r');
+  64:monitor.c     **** 	uart_put(c);
+  65:monitor.c     **** }
+  66:monitor.c     **** #endif
+  67:monitor.c     **** 
+  68:monitor.c     **** 
+  69:monitor.c     **** 
+  70:monitor.c     **** 
+  71:monitor.c     **** void xputs (const char* str)
+  72:monitor.c     **** {
+  73:monitor.c     **** 	while (*str)
+  74:monitor.c     **** 		xputc(*str++);
+  75:monitor.c     **** }
+  76:monitor.c     **** 
+  77:monitor.c     **** 
+  78:monitor.c     **** 
+  79:monitor.c     **** 
+  80:monitor.c     **** void xitoa (signed long val, signed char radix, signed char len)
+  81:monitor.c     **** {
+  82:monitor.c     **** 	BYTE c, r, sgn = 0, pad = ' ';
+  83:monitor.c     **** 	BYTE s[20], i = 0;
+  84:monitor.c     **** 	DWORD v;
+  85:monitor.c     **** 
+  86:monitor.c     **** 
+  87:monitor.c     **** 	if (radix < 0) {
+  88:monitor.c     **** 		radix = -radix;
+  89:monitor.c     **** 		if (val < 0) {
+  90:monitor.c     **** 			val = -val;
+  91:monitor.c     **** 			sgn = '-';
+  92:monitor.c     **** 		}
+  93:monitor.c     **** 	}
+  94:monitor.c     **** 	v = val;
+  95:monitor.c     **** 	r = radix;
+  96:monitor.c     **** 	if (len < 0) {
+  97:monitor.c     **** 		len = -len;
+  98:monitor.c     **** 		pad = '0';
+  99:monitor.c     **** 	}
+ 100:monitor.c     **** 	if (len > 20) return;
+ 101:monitor.c     **** 	do {
+ 102:monitor.c     **** 		c = (BYTE)(v % r);
+ 103:monitor.c     **** 		if (c >= 10) c += 7;
+ 104:monitor.c     **** 		c += '0';
+ 105:monitor.c     **** 		s[i++] = c;
+ 106:monitor.c     **** 		v /= r;
+ 107:monitor.c     **** 	} while (v);
+ 108:monitor.c     **** 	if (sgn) s[i++] = sgn;
+ 109:monitor.c     **** 	while (i < len)
+ 110:monitor.c     **** 		s[i++] = pad;
+ 111:monitor.c     **** 	do
+ 112:monitor.c     **** 		xputc(s[--i]);
+ 113:monitor.c     **** 	while (i);
+ 114:monitor.c     **** }
+ 115:monitor.c     **** 
+ 116:monitor.c     **** 
+ 117:monitor.c     **** 
+ 118:monitor.c     **** 
+ 119:monitor.c     **** void xprintf (const char* str, ...)
+ 120:monitor.c     **** {
+ 121:monitor.c     **** 	va_list arp;
+ 122:monitor.c     **** 	char d, r, w, s, l;
+ 123:monitor.c     **** 
+ 124:monitor.c     **** 
+ 125:monitor.c     **** 	va_start(arp, str);
+ 126:monitor.c     **** 
+ 127:monitor.c     **** 	while ((d = *str++) != 0) {
+ 128:monitor.c     **** 		if (d != '%') {
+ 129:monitor.c     **** 			xputc(d); continue;
+ 130:monitor.c     **** 		}
+ 131:monitor.c     **** 		d = *str++; w = r = s = l = 0;
+ 132:monitor.c     **** 		if (d == '0') {
+ 133:monitor.c     **** 			d = *str++; s = 1;
+ 134:monitor.c     **** 		}
+ 135:monitor.c     **** 		while ((d >= '0')&&(d <= '9')) {
+ 136:monitor.c     **** 			w += w * 10 + (d - '0');
+ 137:monitor.c     **** 			d = *str++;
+ 138:monitor.c     **** 		}
+ 139:monitor.c     **** 		if (s) w = -w;
+ 140:monitor.c     **** 		if (d == 'l') {
+ 141:monitor.c     **** 			l = 1;
+ 142:monitor.c     **** 			d = *str++;
+ 143:monitor.c     **** 		}
+ 144:monitor.c     **** 		if (!d) break;
+ 145:monitor.c     **** 		if (d == 's') {
+ 146:monitor.c     **** 			xputs(va_arg(arp, char*));
+ 147:monitor.c     **** 			continue;
+ 148:monitor.c     **** 		}
+ 149:monitor.c     **** 		if (d == 'c') {
+ 150:monitor.c     **** 			// xputc(va_arg(arp, char));
+ 151:monitor.c     **** 			xputc(va_arg(arp, int));
+ 152:monitor.c     **** 			continue;
+ 153:monitor.c     **** 		}
+ 154:monitor.c     **** 		if (d == 'u') r = 10;
+ 155:monitor.c     **** 		if (d == 'd') r = -10;
+ 156:monitor.c     **** 		if (d == 'X') r = 16;
+ 157:monitor.c     **** 		if (d == 'x') r = 16;
+ 158:monitor.c     **** 		if (d == 'b') r = 2;
+ 159:monitor.c     **** 		if (!r) break;
+ 160:monitor.c     **** 		if (l) {
+ 161:monitor.c     **** 			xitoa((long)va_arg(arp, long), r, w);
+ 162:monitor.c     **** 		} else {
+ 163:monitor.c     **** 			if (r > 0)
+ 164:monitor.c     **** 				xitoa((unsigned long)va_arg(arp, int), r, w);
+ 165:monitor.c     **** 			else
+ 166:monitor.c     **** 				xitoa((long)va_arg(arp, int), r, w);
+ 167:monitor.c     **** 		}
+ 168:monitor.c     **** 	}
+ 169:monitor.c     **** 
+ 170:monitor.c     **** 	va_end(arp);
+ 171:monitor.c     **** }
+ 172:monitor.c     **** 
+ 173:monitor.c     **** 
+ 174:monitor.c     **** 
+ 175:monitor.c     **** 
+ 176:monitor.c     **** void put_dump (const BYTE *buff, DWORD ofs, int cnt)
+ 177:monitor.c     **** {
+ 178:monitor.c     **** 	BYTE n;
+ 179:monitor.c     **** 
+ 180:monitor.c     **** 
+ 181:monitor.c     **** 	xprintf("%08lX ", ofs);
+ 182:monitor.c     **** 	for(n = 0; n < cnt; n++)
+ 183:monitor.c     **** 		xprintf(" %02X", buff[n]);
+ 184:monitor.c     **** 	xputc(' ');
+ 185:monitor.c     **** 	for(n = 0; n < cnt; n++) {
+ 186:monitor.c     **** 		if ((buff[n] < 0x20)||(buff[n] >= 0x7F))
+ 187:monitor.c     **** 			xputc('.');
+ 188:monitor.c     **** 		else
+ 189:monitor.c     **** 			xputc(buff[n]);
+ 190:monitor.c     **** 	}
+ 191:monitor.c     **** 	xputc('\n');
+ 192:monitor.c     **** }
+ 193:monitor.c     **** 
+ 194:monitor.c     **** 
+ 195:monitor.c     **** 
+ 196:monitor.c     **** 
+ 197:monitor.c     **** void get_line (char *buff, int len)
+ 198:monitor.c     **** {
+ 207              	5:
+ 208              		.loc 1 198 0
+ 209              		mov	r6, r0
+ 210              		.loc 1 209 0
+ 211 0000 0DC0A0E1 		sub	r5, r1, #1
+ 212              		.loc 1 198 0
+ 213 0004 70D82DE9 		mov	r4, #0
+ 214              	.LVL35:
+ 215 0008 04B04CE2 	.L36:
+ 216              		.loc 1 204 0
+ 217              		bl	uart_get
+ 218 000c 0060A0E1 	.LVL36:
+ 199:monitor.c     **** 	char c;
+ 200:monitor.c     **** 	int idx = 0;
+ 201:monitor.c     **** 
+ 202:monitor.c     **** 
+ 203:monitor.c     **** 	for (;;) {
+ 204:monitor.c     **** 		c = xgetc();
+ 205:monitor.c     **** 		if (c == '\r') break;
+ 206:monitor.c     **** 		if ((c == '\b') && idx) {
+ 207:monitor.c     **** 			idx--; xputc(c);
+ 208:monitor.c     **** 		}
+ 209:monitor.c     **** 		if (((BYTE)c >= ' ') && (idx < len - 1)) {
+ 219              	0
+ 220 0010 015041E2 		cmp	r0, #13
+ 221              		beq	.L30
+ 222 0014 0040A0E3 	.L38:
+ 223              		.loc 1 206 0
+ 224              		cmp	r0, #8
+ 225              		movne	r3, #0
+ 226 0018 FEFFFFEB 		moveq	r3, #1
+ 227              		cmp	r4, #0
+ 228              		moveq	r3, #0
+ 229 001c 0D0050E3 		cmp	r3, #0
+ 230 0020 1000000A 		bne	.L37
+ 231              		.loc 1 209 0
+ 232              		cmp	r0, #31
+ 233 0024 080050E3 		bls	.L36
+ 234 0028 0030A013 		cmp	r4, r5
+ 235 002c 0130A003 		bge	.L36
+ 236 0030 000054E3 		.loc 1 210 0
+ 237 0034 0030A003 		strb	r0, [r6, r4]
+ 238 0038 000053E3 		bl	uart_put
+ 239 003c 0E00001A 		.loc 1 204 0
+ 240              		bl	uart_get
+ 241 0040 1F0050E3 		.loc 1 205 0
+ 242 0044 F3FFFF9A 		cmp	r0, #13
+ 243 0048 050054E1 		.loc 1 210 0
+ 244 004c F1FFFFAA 		add	r4, r4, #1
+ 210:monitor.c     **** 				buff[idx++] = c; xputc(c);
+ 245              	30:
+ 246 0050 0400C6E7 		.loc 1 213 0
+ 247 0054 FEFFFFEB 		mov	r3, #0
+ 248              		.loc 1 214 0
+ 249 0058 FEFFFFEB 		mov	r0, #10
+ 250              		.loc 1 213 0
+ 251 005c 0D0050E3 		strb	r3, [r6, r4]
+ 252              		.loc 1 215 0
+ 253 0060 014084E2 		ldmfd	sp, {r4, r5, r6, fp, sp, lr}
+ 254              		.loc 1 214 0
+ 255 0064 EEFFFF1A 		b	uart_put
+ 256              	.L37:
+ 211:monitor.c     **** 		}
+ 212:monitor.c     **** 	}
+ 213:monitor.c     **** 	buff[idx] = 0;
+ 257              	0
+ 258 0068 0030A0E3 		mov	r0, #8
+ 214:monitor.c     **** 	xputc('\n');
+ 259              	ub	r4, r4, #1
+ 260 006c 0A00A0E3 		bl	uart_put
+ 261              		b	.L36
+ 262 0070 0430C6E7 	.LFE7:
+ 215:monitor.c     **** }
+ 263              	ze	get_line, .-get_line
+ 264 0074 70689DE8 		.global	__umodsi3
+ 265              		.global	__udivsi3
+ 266 0078 FEFFFFEA 		.section	.text.xitoa,"ax",%progbits
+ 267              		.align	2
+ 268              		.global	xitoa
+ 270 0080 014044E2 	xitoa:
+ 271 0084 FEFFFFEB 	.LFB4:
+ 272 0088 E2FFFFEA 		.loc 1 81 0
+ 273              		@ args = 0, pretend = 0, frame = 20
+ 274              		@ frame_needed = 1, uses_anonymous_args = 0
+ 275              	.LVL37:
+ 276              		mov	ip, sp
+ 277              	.LCFI6:
+ 278              		stmfd	sp!, {r4, r5, r6, r7, r8, sl, fp, ip, lr, pc}
+ 279              	.LCFI7:
+ 280              		mov	r1, r1, asl #24
+ 281              	.LVL38:
+ 282              		sub	fp, ip, #4
+ 283              	.LCFI8:
+ 284              		sub	sp, sp, #20
+ 285              	.LCFI9:
+ 286              		mov	r2, r2, asl #24
+ 287 0000 0DC0A0E1 	.LVL39:
+ 288              		.loc 1 87 0
+ 289 0004 F0DD2DE9 		movs	r1, r1, asr #24
+ 290              	.LVL40:
+ 291 0008 011CA0E1 		.loc 1 81 0
+ 292              		.loc 1 81 0
+ 293 000c 04B04CE2 		mov	r7, r2, asr #24
+ 294              	.LVL41:
+ 295 0010 14D04DE2 		.loc 1 87 0
+ 296              		bmi	.L56
+ 297 0014 022CA0E1 	.LVL42:
+ 298              	.L40:
+ 299              		.loc 1 90 0
+ 300 0018 411CB0E1 		mov	sl, #0
+ 301              	.LVL43:
+ 302              	.L41:
+ 303              		.loc 1 96 0
+ 304 001c 427CA0E1 		cmp	r7, #0
+ 305              		.loc 1 97 0
+ 306              		rsblt	r3, r7, #0
+ 307 0020 3700004A 		movlt	r3, r3, asl #24
+ 308              		movlt	r7, r3, asr #24
+ 309              	.LVL44:
+ 310              		.loc 1 96 0
+ 311 0024 00A0A0E3 		movge	r8, #32
+ 312              	.LVL45:
+ 313              		.loc 1 97 0
+ 314              		movlt	r8, #48
+ 315 0028 000057E3 	.LVL46:
+ 316              		.loc 1 100 0
+ 317 002c 003067B2 		cmp	r7, #20
+ 318 0030 033CA0B1 		bgt	.L50
+ 319 0034 437CA0B1 		.loc 1 94 0
+ 320              		mov	r5, r0
+ 321              	.LVL47:
+ 322 0038 2080A0A3 		and	r6, r1, #255
+ 323              		mov	r4, #0
+ 324              	.LVL48:
+ 325 003c 3080A0B3 	.L46:
+ 326              		.loc 1 102 0
+ 327              		mov	r0, r5
+ 328 0040 140057E3 	.LVL49:
+ 329 0044 2C0000CA 		mov	r1, r6
+ 330              	.LVL50:
+ 331 0048 0050A0E1 		bl	__umodsi3
+ 332              		mov	r2, r0
+ 333 004c FF6001E2 		and	r2, r2, #255
+ 334 0050 0040A0E3 	.LVL51:
+ 335              		.loc 1 105 0
+ 336              		add	r3, r4, #1
+ 337              		sub	r1, fp, #36
+ 338 0054 0500A0E1 		add	ip, r1, r4
+ 339              		.loc 1 103 0
+ 340 0058 0610A0E1 		cmp	r2, #9
+ 341              		.loc 1 105 0
+ 342 005c FEFFFFEB 		and	r4, r3, #255
+ 343 0060 0020A0E1 	.LVL52:
+ 344 0064 FF2002E2 		.loc 1 103 0
+ 345              		add	r3, r2, #7
+ 346              		andhi	r2, r3, #255
+ 347 0068 013084E2 	.LVL53:
+ 348 006c 24104BE2 		.loc 1 105 0
+ 349 0070 04C081E0 		add	r3, r2, #48
+ 350              		.loc 1 106 0
+ 351 0074 090052E3 		mov	r0, r5
+ 352              		mov	r1, r6
+ 353 0078 FF4003E2 		.loc 1 105 0
+ 354              		strb	r3, [ip, #-20]
+ 355              		.loc 1 106 0
+ 356 007c 073082E2 		bl	__udivsi3
+ 357 0080 FF200382 	.LVL54:
+ 358              		.loc 1 107 0
+ 359              		subs	r5, r0, #0
+ 360 0084 303082E2 		bne	.L46
+ 361              		.loc 1 108 0
+ 362 0088 0500A0E1 		cmp	sl, #0
+ 363 008c 0610A0E1 		subne	r2, fp, #36
+ 364              		addne	r3, r2, r4
+ 365 0090 14304CE5 		addne	r2, r4, #1
+ 366              		andne	r4, r2, #255
+ 367 0094 FEFFFFEB 	.LVL55:
+ 368              		strneb	sl, [r3, #-20]
+ 369              		.loc 1 109 0
+ 370 0098 005050E2 		cmp	r7, r4
+ 371 009c ECFFFF1A 		ble	.L51
+ 372              	.L52:
+ 373 00a0 00005AE3 		.loc 1 110 0
+ 374 00a4 24204B12 		add	r3, r4, #1
+ 375 00a8 04308210 		sub	r1, fp, #36
+ 376 00ac 01208412 		add	r2, r1, r4
+ 377 00b0 FF400212 		and	r4, r3, #255
+ 378              	.LVL56:
+ 379 00b4 14A04315 		.loc 1 109 0
+ 380              		cmp	r4, r7
+ 381 00b8 040057E1 		.loc 1 110 0
+ 382 00bc 060000DA 		strb	r8, [r2, #-20]
+ 383              		.loc 1 109 0
+ 384              		blt	.L52
+ 385 00c0 013084E2 	.L51:
+ 386 00c4 24104BE2 		.loc 1 112 0
+ 387 00c8 042081E0 		sub	r3, r4, #1
+ 388 00cc FF4003E2 		and	r4, r3, #255
+ 389              	.LVL57:
+ 390              		sub	r3, fp, #36
+ 391 00d0 070054E1 		add	r2, r3, r4
+ 392              		ldrb	r0, [r2, #-20]	@ zero_extendqisi2
+ 393 00d4 148042E5 		bl	uart_put
+ 394              		.loc 1 113 0
+ 395 00d8 F8FFFFBA 		cmp	r4, #0
+ 396              		bne	.L51
+ 397              	.LVL58:
+ 398 00dc 013044E2 	.L50:
+ 399 00e0 FF4003E2 		.loc 1 114 0
+ 400              		sub	sp, fp, #36
+ 401 00e4 24304BE2 		ldmfd	sp, {r4, r5, r6, r7, r8, sl, fp, sp, pc}
+ 402 00e8 042083E0 	.LVL59:
+ 403 00ec 140052E5 	.L56:
+ 404 00f0 FEFFFFEB 		.loc 1 88 0
+ 405              		rsb	r3, r1, #0
+ 406 00f4 000054E3 		.loc 1 89 0
+ 407 00f8 F7FFFF1A 		cmp	r0, #0
+ 408              		.loc 1 88 0
+ 409              		mov	r3, r3, asl #24
+ 410              		mov	r1, r3, asr #24
+ 411 00fc 24D04BE2 	.LVL60:
+ 412 0100 F0AD9DE8 		.loc 1 90 0
+ 413              		rsblt	r0, r0, #0
+ 414              	.LVL61:
+ 415              		movlt	sl, #45
+ 416 0104 003061E2 	.LVL62:
+ 417              		.loc 1 89 0
+ 418 0108 000050E3 		bge	.L40
+ 419              		b	.L41
+ 420 010c 033CA0E1 	.LFE4:
+ 422              		.section	.text.xputs,"ax",%progbits
+ 423              		.align	2
+ 424 0114 000060B2 		.global	xputs
+ 426 0118 2DA0A0B3 	xputs:
+ 427              	.LFB3:
+ 428              		.loc 1 72 0
+ 429 011c C0FFFFAA 		@ args = 0, pretend = 0, frame = 0
+ 430 0120 C0FFFFEA 		@ frame_needed = 1, uses_anonymous_args = 0
+ 431              	.LVL63:
+ 432              		mov	ip, sp
+ 433              	.LCFI10:
+ 434              		stmfd	sp!, {r4, fp, ip, lr, pc}
+ 435              	.LCFI11:
+ 436              		mov	r3, r0
+ 437              		.loc 1 73 0
+ 438              		ldrb	r0, [r0, #0]	@ zero_extendqisi2
+ 439              	.LVL64:
+ 440              		cmp	r0, #0
+ 441              		.loc 1 72 0
+ 442              		sub	fp, ip, #4
+ 443 0000 0DC0A0E1 	.LCFI12:
+ 444              		.loc 1 73 0
+ 445 0004 10D82DE9 		ldmeqfd	sp, {r4, fp, sp, pc}
+ 446              		mov	r4, r3
+ 447 0008 0030A0E1 	.L59:
+ 448              		.loc 1 74 0
+ 449 000c 0000D0E5 		bl	uart_put
+ 450              	.LVL65:
+ 451 0010 000050E3 		.loc 1 73 0
+ 452              		ldrb	r0, [r4, #1]!	@ zero_extendqisi2
+ 453 0014 04B04CE2 		cmp	r0, #0
+ 454              		bne	.L59
+ 455              		ldmfd	sp, {r4, fp, sp, pc}
+ 456 0018 10A89D08 	.LFE3:
+ 458              		.section	.text.xprintf,"ax",%progbits
+ 459              		.align	2
+ 460 0020 FEFFFFEB 		.global	xprintf
+ 462              	xprintf:
+ 463 0024 0100F4E5 	.LFB5:
+ 464 0028 000050E3 		.loc 1 120 0
+ 465 002c FBFFFF1A 		@ args = 4, pretend = 16, frame = 0
+ 466 0030 10A89DE8 		@ frame_needed = 1, uses_anonymous_args = 1
+ 467              	.LVL66:
+ 468              		mov	ip, sp
+ 469              	.LCFI13:
+ 470              		stmfd	sp!, {r0, r1, r2, r3}
+ 471              	.LCFI14:
+ 472              		stmfd	sp!, {r4, r5, r6, r7, fp, ip, lr, pc}
+ 473              	.LCFI15:
+ 474              		sub	fp, ip, #20
+ 475              	.LCFI16:
+ 476              		.loc 1 120 0
+ 477              		ldr	r5, [fp, #4]
+ 478              		.loc 1 127 0
+ 479 0000 0DC0A0E1 		ldrb	r0, [r5, #0]	@ zero_extendqisi2
+ 480              	.LVL67:
+ 481 0004 0F002DE9 		cmp	r0, #0
+ 482              		.loc 1 120 0
+ 483 0008 F0D82DE9 		add	r6, fp, #8
+ 484              	.LVL68:
+ 485 000c 14B04CE2 		.loc 1 127 0
+ 486              		beq	.L87
+ 487              	.LVL69:
+ 488 0010 04509BE5 	.L86:
+ 489              		.loc 1 128 0
+ 490 0014 0000D5E5 		cmp	r0, #37
+ 491              		.loc 1 127 0
+ 492 0018 000050E3 		add	r5, r5, #1
+ 493              		.loc 1 128 0
+ 494 001c 08608BE2 		beq	.L64
+ 495              		.loc 1 129 0
+ 496              		bl	uart_put
+ 497 0020 0800000A 	.LVL70:
+ 498              		mov	r4, r6
+ 499              		.loc 1 164 0
+ 500              		mov	r6, r4
+ 501 0024 250050E3 	.L92:
+ 502              		.loc 1 127 0
+ 503 0028 015085E2 		ldrb	r0, [r5, #0]	@ zero_extendqisi2
+ 504              	.LVL71:
+ 505 002c 0700000A 		cmp	r0, #0
+ 506              		bne	.L86
+ 507 0030 FEFFFFEB 	.LVL72:
+ 508              	.L87:
+ 509 0034 0640A0E1 		.loc 1 171 0
+ 510              		sub	sp, fp, #28
+ 511 0038 0460A0E1 		ldmfd	sp, {r4, r5, r6, r7, fp, sp, pc}
+ 512              	.LVL73:
+ 513              	.L64:
+ 514 003c 0000D5E5 		.loc 1 131 0
+ 515              		mov	r4, r5
+ 516 0040 000050E3 		ldrb	r0, [r4], #1	@ zero_extendqisi2
+ 517 0044 F6FFFF1A 	.LVL74:
+ 518              		.loc 1 132 0
+ 519              		cmp	r0, #48
+ 520              		.loc 1 133 0
+ 521 0048 1CD04BE2 		ldreqb	r0, [r5, #1]	@ zero_extendqisi2
+ 522 004c F0A89DE8 	.LVL75:
+ 523              		.loc 1 135 0
+ 524              		sub	r3, r0, #48
+ 525              		.loc 1 133 0
+ 526 0050 0540A0E1 		addeq	r4, r4, #1
+ 527 0054 0100D4E4 	.LVL76:
+ 528              		.loc 1 132 0
+ 529              		movne	r7, #0
+ 530 0058 300050E3 	.LVL77:
+ 531              		.loc 1 133 0
+ 532 005c 0100D505 		moveq	r7, #1
+ 533              	.LVL78:
+ 534              		.loc 1 135 0
+ 535 0060 303040E2 		cmp	r3, #9
+ 536              		movhi	r3, #0
+ 537 0064 01408402 	.LVL79:
+ 538              		movhi	r5, r4
+ 539              		movhi	ip, r3
+ 540 0068 0070A013 		bhi	.L69
+ 541              	.LVL80:
+ 542              		mov	ip, #0
+ 543 006c 0170A003 	.LVL81:
+ 544              	.L70:
+ 545              		.loc 1 136 0
+ 546 0070 090053E3 		add	r1, ip, r0
+ 547 0074 0030A083 		.loc 1 137 0
+ 548              		ldrb	r0, [r4], #1	@ zero_extendqisi2
+ 549 0078 0450A081 	.LVL82:
+ 550 007c 03C0A081 		.loc 1 136 0
+ 551 0080 0D00008A 		mov	r3, ip, asl #3
+ 552              		mov	r2, ip, asl #1
+ 553 0084 00C0A0E3 		add	r2, r2, r3
+ 554              		sub	r1, r1, #48
+ 555              		.loc 1 135 0
+ 556              		sub	r3, r0, #48
+ 557 0088 00108CE0 		.loc 1 136 0
+ 558              		add	r1, r1, r2
+ 559 008c 0100D4E4 		.loc 1 135 0
+ 560              		cmp	r3, #9
+ 561              		.loc 1 136 0
+ 562 0090 8C31A0E1 		and	ip, r1, #255
+ 563 0094 8C20A0E1 	.LVL83:
+ 564 0098 032082E0 		.loc 1 135 0
+ 565 009c 301041E2 		bls	.L70
+ 566              	.LVL84:
+ 567 00a0 303040E2 		mov	r3, ip
+ 568              		mov	r5, r4
+ 569 00a4 021081E0 	.LVL85:
+ 570              	.L69:
+ 571 00a8 090053E3 		.loc 1 139 0
+ 572              		cmp	r7, #0
+ 573 00ac FFC001E2 		rsbne	r3, r3, #0
+ 574              	.LVL86:
+ 575              		andne	ip, r3, #255
+ 576 00b0 F4FFFF9A 	.LVL87:
+ 577              		.loc 1 140 0
+ 578 00b4 0C30A0E1 		cmp	r0, #108
+ 579 00b8 0450A0E1 		.loc 1 142 0
+ 580              		moveq	r5, r4
+ 581              		ldreqb	r0, [r5], #1	@ zero_extendqisi2
+ 582              	.LVL88:
+ 583 00bc 000057E3 		.loc 1 144 0
+ 584 00c0 00306312 		cmp	r0, #0
+ 585              		beq	.L87
+ 586 00c4 FFC00312 		.loc 1 145 0
+ 587              		cmp	r0, #115
+ 588              		beq	.L89
+ 589 00c8 6C0050E3 		.loc 1 149 0
+ 590              		cmp	r0, #99
+ 591 00cc 0450A001 		beq	.L90
+ 592 00d0 0100D504 		.loc 1 154 0
+ 593              		cmp	r0, #117
+ 594              		beq	.L77
+ 595 00d4 000050E3 		.loc 1 155 0
+ 596 00d8 DAFFFF0A 		cmp	r0, #100
+ 597              		moveq	r3, #246
+ 598 00dc 730050E3 	.LVL89:
+ 599 00e0 1400000A 		beq	.L81
+ 600              		.loc 1 156 0
+ 601 00e4 630050E3 		cmp	r0, #88
+ 602 00e8 1700000A 		moveq	r3, #16
+ 603              	.LVL90:
+ 604 00ec 750050E3 		bne	.L91
+ 605 00f0 0E00000A 	.L81:
+ 606              		.loc 1 159 0
+ 607 00f4 640050E3 		mov	r3, r3, asl #24
+ 608 00f8 F630A003 	.LVL91:
+ 609              		mov	r1, r3, asr #24
+ 610 00fc 0200000A 	.LVL92:
+ 611              	.L83:
+ 612 0100 580050E3 		.loc 1 164 0
+ 613 0104 1030A003 		mov	r2, ip, asl #24
+ 614              		ldr	r0, [r6, #0]
+ 615 0108 1400001A 	.LVL93:
+ 616              		mov	r2, r2, asr #24
+ 617              		add	r4, r6, #4
+ 618 010c 033CA0E1 	.LVL94:
+ 619              		bl	xitoa
+ 620 0110 431CA0E1 	.LVL95:
+ 621              		mov	r6, r4
+ 622              		b	.L92
+ 623              	.LVL96:
+ 624 0114 0C2CA0E1 	.L77:
+ 625 0118 000096E5 		.loc 1 171 0
+ 626              		mov	r3, #10
+ 627 011c 422CA0E1 	.LVL97:
+ 628 0120 044086E2 		b	.L81
+ 629              	.LVL98:
+ 630 0124 FEFFFFEB 	.L89:
+ 631              		.loc 1 146 0
+ 632 0128 0460A0E1 		ldr	r0, [r6, #0]
+ 633 012c C2FFFFEA 	.LVL99:
+ 634              		add	r4, r6, #4
+ 635              	.LVL100:
+ 636              		bl	xputs
+ 637 0130 0A30A0E3 	.LVL101:
+ 638              		.loc 1 164 0
+ 639 0134 F4FFFFEA 		mov	r6, r4
+ 640              		b	.L92
+ 641              	.LVL102:
+ 642              	.L90:
+ 643 0138 000096E5 		.loc 1 151 0
+ 644              		ldrb	r0, [r6, #0]	@ zero_extendqisi2
+ 645 013c 044086E2 	.LVL103:
+ 646              		add	r4, r6, #4
+ 647 0140 FEFFFFEB 	.LVL104:
+ 648              		bl	uart_put
+ 649              	.LVL105:
+ 650 0144 0460A0E1 		.loc 1 164 0
+ 651 0148 BBFFFFEA 		mov	r6, r4
+ 652              		b	.L92
+ 653              	.LVL106:
+ 654              	.L91:
+ 655 014c 0000D6E5 		.loc 1 157 0
+ 656              		cmp	r0, #120
+ 657 0150 044086E2 		moveq	r1, #16
+ 658              		beq	.L83
+ 659 0154 FEFFFFEB 		.loc 1 158 0
+ 660              		cmp	r0, #98
+ 661              		bne	.L87
+ 662 0158 0460A0E1 		mov	r1, #2
+ 663 015c B6FFFFEA 		b	.L83
+ 664              	.LFE5:
+ 666              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 667 0160 780050E3 		.align	2
+ 668 0164 1010A003 	.LC0:
+ 669 0168 E9FFFF0A 		.ascii	"%08lX \000"
+ 670              		.align	2
+ 671 016c 620050E3 	.LC1:
+ 672 0170 B4FFFF1A 		.ascii	" %02X\000"
+ 673 0174 0210A0E3 		.section	.text.put_dump,"ax",%progbits
+ 674 0178 E5FFFFEA 		.align	2
+ 675              		.global	put_dump
+ 677              	put_dump:
+ 678              	.LFB6:
+ 679              		.loc 1 177 0
+ 680 0000 2530386C 		@ args = 0, pretend = 0, frame = 0
+ 680      582000
+ 681 0007 00       		@ frame_needed = 1, uses_anonymous_args = 0
+ 682              	.LVL107:
+ 683 0008 20253032 		mov	ip, sp
+ 683      5800
+ 684 000e 0000     	.LCFI17:
+ 685              		stmfd	sp!, {r4, r5, r6, fp, ip, lr, pc}
+ 686              	.LCFI18:
+ 687              		mov	r5, r2
+ 688              		sub	fp, ip, #4
+ 689              	.LCFI19:
+ 690              		.loc 1 177 0
+ 691              		mov	r6, r0
+ 692              		.loc 1 181 0
+ 693              		ldr	r0, .L104
+ 694 0000 0DC0A0E1 	.LVL108:
+ 695              		bl	xprintf
+ 696 0004 70D82DE9 	.LVL109:
+ 697              		.loc 1 182 0
+ 698 0008 0250A0E1 		cmp	r5, #0
+ 699 000c 04B04CE2 		ble	.L94
+ 700              		mov	r4, #0
+ 701              	.LVL110:
+ 702 0010 0060A0E1 	.L95:
+ 703              		.loc 1 183 0
+ 704 0014 8C009FE5 		ldrb	r1, [r6, r4]	@ zero_extendqisi2
+ 705              		ldr	r0, .L104+4
+ 706 0018 FEFFFFEB 		bl	xprintf
+ 707              		.loc 1 182 0
+ 708              		add	r3, r4, #1
+ 709 001c 000055E3 		and	r4, r3, #255
+ 710 0020 1D0000DA 	.LVL111:
+ 711 0024 0040A0E3 		cmp	r4, r5
+ 712              		blt	.L95
+ 713              		.loc 1 184 0
+ 714              		mov	r0, #32
+ 715 0028 0410D6E7 		bl	uart_put
+ 716 002c 78009FE5 		mov	r4, #0
+ 717 0030 FEFFFFEB 	.LVL112:
+ 718              		b	.L98
+ 719 0034 013084E2 	.L103:
+ 720 0038 FF4003E2 		.loc 1 187 0
+ 721              		mov	r0, #46
+ 722 003c 050054E1 		bl	uart_put
+ 723 0040 F8FFFFBA 		.loc 1 185 0
+ 724              		add	r3, r4, #1
+ 725 0044 2000A0E3 		and	r4, r3, #255
+ 726 0048 FEFFFFEB 	.LVL113:
+ 727 004c 0040A0E3 		cmp	r5, r4
+ 728              		ble	.L99
+ 729 0050 050000EA 	.L98:
+ 730              		.loc 1 186 0
+ 731              		ldrb	r0, [r6, r4]	@ zero_extendqisi2
+ 732 0054 2E00A0E3 		sub	r3, r0, #32
+ 733 0058 FEFFFFEB 		cmp	r3, #94
+ 734              		bhi	.L103
+ 735 005c 013084E2 		.loc 1 189 0
+ 736 0060 FF4003E2 		bl	uart_put
+ 737              		.loc 1 185 0
+ 738 0064 040055E1 		add	r3, r4, #1
+ 739 0068 080000DA 		and	r4, r3, #255
+ 740              	.LVL114:
+ 741              		cmp	r5, r4
+ 742 006c 0400D6E7 		bgt	.L98
+ 743 0070 203040E2 	.L99:
+ 744 0074 5E0053E3 		.loc 1 191 0
+ 745 0078 F5FFFF8A 		mov	r0, #10
+ 746              		.loc 1 192 0
+ 747 007c FEFFFFEB 		ldmfd	sp, {r4, r5, r6, fp, sp, lr}
+ 748              		.loc 1 191 0
+ 749 0080 013084E2 		b	uart_put
+ 750 0084 FF4003E2 	.LVL115:
+ 751              	.L94:
+ 752 0088 040055E1 		.loc 1 184 0
+ 753 008c F6FFFFCA 		mov	r0, #32
+ 754              		bl	uart_put
+ 755              		b	.L99
+ 756 0090 0A00A0E3 	.L105:
+ 757              		.align	2
+ 758 0094 70689DE8 	.L104:
+ 759              		.word	.LC0
+ 760 0098 FEFFFFEA 		.word	.LC1
+ 761              	.LFE6:
+ 763              		.section	.debug_frame,"",%progbits
+ 764 009c 2000A0E3 	.Lframe0:
+ 765 00a0 FEFFFFEB 		.4byte	.LECIE0-.LSCIE0
+ 766 00a4 F9FFFFEA 	.LSCIE0:
+ 767              		.4byte	0xffffffff
+ 768              		.byte	0x1
+ 769              		.ascii	"\000"
+ 770 00a8 00000000 		.uleb128 0x1
+ 771 00ac 08000000 		.sleb128 -4
+ 772              		.byte	0xe
+ 773              		.byte	0xc
+ 990              		.byte	0x5c
+DEFINED SYMBOLS
+                            *ABS*:00000000 monitor.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:14     .text.xatoi:00000000 xatoi
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:21     .text.xatoi:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:205    .text.get_line:00000000 get_line
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:211    .text.get_line:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:281    .text.xitoa:00000000 xitoa
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:287    .text.xitoa:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:437    .text.xputs:00000000 xputs
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:443    .text.xputs:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:473    .text.xprintf:00000000 xprintf
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:479    .text.xprintf:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:688    .text.put_dump:00000000 put_dump
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:694    .text.put_dump:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:770    .text.put_dump:000000a8 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccLtFDuL.s:994    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+uart_get
+uart_put
+__umodsi3
+__udivsi3

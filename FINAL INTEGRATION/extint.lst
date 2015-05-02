@@ -1,0 +1,405 @@
+   1              		.file	"extint.c"
+   9              	.Ltext0:
+  10              		.section	.text.EINT3_Handler,"ax",%progbits
+  11              		.align	2
+  12              		.global	EINT3_Handler
+  14              	EINT3_Handler:
+  15              	.LFB8:
+  16              		.file 1 "extint.c"
+   1:extint.c      **** /*****************************************************************************
+   2:extint.c      ****  *   extint.c:  Target C file for Philips LPC214x Family Microprocessors
+   3:extint.c      ****  *
+   4:extint.c      ****  *   Copyright(C) 2006, Philips Semiconductor
+   5:extint.c      ****  *   All rights reserved.
+   6:extint.c      ****  *
+   7:extint.c      ****  *   History
+   8:extint.c      ****  *   2005.10.01  ver 1.00    Prelimnary version, first Release
+   9:extint.c      ****  *
+  10:extint.c      **** *****************************************************************************/
+  11:extint.c      **** #include "LPC24xx.h"                        /* LPC21xx definitions */
+  12:extint.c      **** #include "type.h"
+  13:extint.c      **** #include "irq.h"
+  14:extint.c      **** #include "extint.h"
+  15:extint.c      **** #include "target.h"
+  16:extint.c      **** #include "uart.h"
+  17:extint.c      **** #include "monitor.h"
+  18:extint.c      **** #include "spi.h"
+  19:extint.c      **** #include "FAT.h"
+  20:extint.c      **** 
+  21:extint.c      **** #define IO0PIN (*(volatile unsigned long *)0xE0028000)
+  22:extint.c      **** /*****************************************************************************
+  23:extint.c      **** ** Function name:		EINT3_Handler
+  24:extint.c      **** **
+  25:extint.c      **** ** Descriptions:		external INT handler
+  26:extint.c      **** **
+  27:extint.c      **** ** parameters:			None
+  28:extint.c      **** ** Returned value:		None
+  29:extint.c      **** ** 
+  30:extint.c      **** *****************************************************************************/
+  31:extint.c      **** void EINT3_Handler (void)
+  32:extint.c      **** {
+  17              	Interrupt Service Routine.
+  18              		@ args = 0, pretend = 0, frame = 0
+  19              		@ frame_needed = 1, uses_anonymous_args = 0
+  20              		str	ip, [sp, #-4]!
+  21 0000 04C02DE5 		mov	ip, sp
+  22 0004 0DC0A0E1 	.LCFI0:
+  23              		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+  24 0008 0FD82DE9 	.LCFI1:
+  25              		.loc 1 33 0
+  33:extint.c      **** 	EXTINT = EINT3;		/* clear interrupt */
+  26              	#-536870912
+  27 000c 0E32A0E3 		add	r3, r3, #2080768
+  28 0010 7F3983E2 		mov	r2, #8
+  29 0014 0820A0E3 		str	r2, [r3, #320]
+  30 0018 402183E5 		.loc 1 34 0
+  34:extint.c      **** 	IO0_INT_CLR |= 15<<6;
+  31              	r1, #-536870912
+  32 001c 0E12A0E3 		add	r1, r1, #163840
+  33 0020 0A1981E2 		ldr	r3, [r1, #140]
+  34 0024 8C3091E5 		orr	r3, r3, #960
+  35 0028 0F3D83E3 		str	r3, [r1, #140]
+  36 002c 8C3081E5 		.loc 1 36 0
+  35:extint.c      **** 	int d0, d1, d2, d3;
+  36:extint.c      **** 	d0 = (IO0PIN >>6)&1;
+  37              	2, [r1, #0]
+  38 0030 002091E5 		.loc 1 40 0
+  37:extint.c      **** 	d1 = (IO0PIN >>7)&1;
+  38:extint.c      **** 	d2 = (IO0PIN >>8)&1;
+  39:extint.c      **** 	d3 = (IO0PIN >>9)&1;
+  40:extint.c      **** 	if(!d0){
+  39              	st	r2, #64
+  40 0034 400012E3 		.loc 1 37 0
+  41              		ldr	r0, [r1, #0]
+  42 0038 000091E5 		.loc 1 32 0
+  43              		sub	fp, ip, #4
+  44 003c 04B04CE2 	.LCFI2:
+  45              		.loc 1 38 0
+  46              		ldr	ip, [r1, #0]
+  47 0040 00C091E5 		.loc 1 39 0
+  48              		ldr	r3, [r1, #0]
+  49 0044 003091E5 		.loc 1 40 0
+  50              		bne	.L2
+  51 0048 0600001A 		.loc 1 42 0
+  41:extint.c      **** //	  	uart0Puts("d0\r\n");
+  42:extint.c      **** 	  	takeSnapshot=1;
+  52              	
+  53 004c 8C309FE5 		mov	r2, #1
+  54 0050 0120A0E3 		str	r2, [r3, #0]
+  55 0054 002083E5 		.loc 1 44 0
+  43:extint.c      **** 	  	while(!d0)
+  44:extint.c      **** 	  		d0 = (IO0PIN >>6)&1;
+  56              	v	r2, r1
+  57 0058 0120A0E1 	.L3:
+  58              		ldr	r3, [r2, #0]
+  59 005c 003092E5 		.loc 1 43 0
+  60              		tst	r3, #64
+  61 0060 400013E3 		beq	.L3
+  62 0064 FCFFFF0A 	.L2:
+  63              		.loc 1 46 0
+  45:extint.c      **** 	  	}
+  46:extint.c      **** 	if(!d1){
+  64              	 #128
+  65 0068 800010E3 		bne	.L4
+  66 006c 0700001A 		.loc 1 48 0
+  47:extint.c      **** //		uart0Puts("d1\r\n");
+  48:extint.c      **** 		startRecording=1;
+  67              	r	r3, .L13+4
+  68 0070 6C309FE5 		mov	r2, #1
+  69 0074 0120A0E3 		str	r2, [r3, #0]
+  70 0078 002083E5 		.loc 1 50 0
+  49:extint.c      **** 		while(!d1)
+  50:extint.c      **** 			d1 = (IO0PIN >>7)&1;
+  71              		r2, r2, #536870913
+  72 007c 122242E2 		add	r2, r2, #163840
+  73 0080 0A2982E2 	.L5:
+  74              		ldr	r3, [r2, #0]
+  75 0084 003092E5 		.loc 1 49 0
+  76              		tst	r3, #128
+  77 0088 800013E3 		beq	.L5
+  78 008c FCFFFF0A 	.L4:
+  79              		.loc 1 52 0
+  51:extint.c      **** 	}
+  52:extint.c      **** 	if(!d2){
+  80              	#256
+  81 0090 010C1CE3 		bne	.L6
+  82 0094 0700001A 		.loc 1 53 0
+  53:extint.c      **** 		stopRecording=1;
+  83              	r	r3, .L13+8
+  84 0098 48309FE5 		mov	r2, #1
+  85 009c 0120A0E3 		str	r2, [r3, #0]
+  86 00a0 002083E5 		.loc 1 56 0
+  54:extint.c      **** //		uart0Puts("d2\r\n");
+  55:extint.c      **** 		while(!d2)
+  56:extint.c      **** 			d2 = (IO0PIN >>8)&1;
+  87              		r2, r2, #536870913
+  88 00a4 122242E2 		add	r2, r2, #163840
+  89 00a8 0A2982E2 	.L7:
+  90              		ldr	r3, [r2, #0]
+  91 00ac 003092E5 		.loc 1 55 0
+  92              		tst	r3, #256
+  93 00b0 010C13E3 		beq	.L7
+  94 00b4 FCFFFF0A 	.L6:
+  95              	.LBB12:
+  96              	.LBB13:
+  97              	.LBB14:
+  98              	.LBB15:
+  99              		.file 2 "common_nxp/inc/irq.h"
+ 100              		.loc 2 99 0
+   1:common_nxp/inc/irq.h **** /******************************************************************************
+   2:common_nxp/inc/irq.h ****  *   irq.h:  Interrupt related Header file for NXP LPC23xx/24xx Family 
+   3:common_nxp/inc/irq.h ****  *   Microprocessors
+   4:common_nxp/inc/irq.h ****  *
+   5:common_nxp/inc/irq.h ****  *   Copyright(C) 2006, NXP Semiconductor
+   6:common_nxp/inc/irq.h ****  *   All rights reserved.
+   7:common_nxp/inc/irq.h ****  *
+   8:common_nxp/inc/irq.h ****  *   History
+   9:common_nxp/inc/irq.h ****  *   2006.09.01  ver 1.00    Prelimnary version, first Release
+  10:common_nxp/inc/irq.h ****  *   2011.05.03  ver 2.00    Edits and additions for use with Eclipse/GCC
+  11:common_nxp/inc/irq.h ****  *
+  12:common_nxp/inc/irq.h **** ******************************************************************************/
+  13:common_nxp/inc/irq.h **** #ifndef __IRQ_H 
+  14:common_nxp/inc/irq.h **** #define __IRQ_H
+  15:common_nxp/inc/irq.h **** #include "type.h"
+  16:common_nxp/inc/irq.h **** 
+  17:common_nxp/inc/irq.h **** #define I_Bit			0x80
+  18:common_nxp/inc/irq.h **** #define F_Bit			0x40
+  19:common_nxp/inc/irq.h **** 
+  20:common_nxp/inc/irq.h **** #define SYS32Mode		0x1F
+  21:common_nxp/inc/irq.h **** #define IRQ32Mode		0x12
+  22:common_nxp/inc/irq.h **** #define FIQ32Mode		0x11
+  23:common_nxp/inc/irq.h **** 
+  24:common_nxp/inc/irq.h **** /* To use FIQ, set below to 1;  otherwise, it's 0 */
+  25:common_nxp/inc/irq.h **** #define FIQ				0
+  26:common_nxp/inc/irq.h **** 
+  27:common_nxp/inc/irq.h **** #define HIGHEST_PRIORITY	0x01
+  28:common_nxp/inc/irq.h **** #define MID_PRIORITY		0x04
+  29:common_nxp/inc/irq.h **** #define LOWEST_PRIORITY		0x0F
+  30:common_nxp/inc/irq.h **** 
+  31:common_nxp/inc/irq.h **** #define	WDT_INT			0
+  32:common_nxp/inc/irq.h **** #define SWI_INT			1
+  33:common_nxp/inc/irq.h **** #define ARM_CORE0_INT	2
+  34:common_nxp/inc/irq.h **** #define	ARM_CORE1_INT	3
+  35:common_nxp/inc/irq.h **** #define	TIMER0_INT		4
+  36:common_nxp/inc/irq.h **** #define TIMER1_INT		5
+  37:common_nxp/inc/irq.h **** #define UART0_INT		6
+  38:common_nxp/inc/irq.h **** #define	UART1_INT		7
+  39:common_nxp/inc/irq.h **** #define	PWM0_1_INT		8
+  40:common_nxp/inc/irq.h **** #define I2C0_INT		9
+  41:common_nxp/inc/irq.h **** #define SPI0_INT		10		/* SPI and SSP0 share VIC slot */
+  42:common_nxp/inc/irq.h **** #define SSP0_INT		10
+  43:common_nxp/inc/irq.h **** #define	SSP1_INT		11
+  44:common_nxp/inc/irq.h **** #define	PLL_INT			12
+  45:common_nxp/inc/irq.h **** #define RTC_INT			13
+  46:common_nxp/inc/irq.h **** #define EINT0_INT		14
+  47:common_nxp/inc/irq.h **** #define EINT1_INT		15
+  48:common_nxp/inc/irq.h **** #define EINT2_INT		16
+  49:common_nxp/inc/irq.h **** #define LCD_INT			16
+  50:common_nxp/inc/irq.h **** #define EINT3_INT		17
+  51:common_nxp/inc/irq.h **** #define	ADC0_INT		18
+  52:common_nxp/inc/irq.h **** #define I2C1_INT		19
+  53:common_nxp/inc/irq.h **** #define BOD_INT			20
+  54:common_nxp/inc/irq.h **** #define EMAC_INT		21
+  55:common_nxp/inc/irq.h **** #define USB_INT			22
+  56:common_nxp/inc/irq.h **** #define CAN_INT			23
+  57:common_nxp/inc/irq.h **** #define MCI_INT			24
+  58:common_nxp/inc/irq.h **** #define GPDMA_INT		25
+  59:common_nxp/inc/irq.h **** #define TIMER2_INT		26
+  60:common_nxp/inc/irq.h **** #define TIMER3_INT		27
+  61:common_nxp/inc/irq.h **** #define UART2_INT		28
+  62:common_nxp/inc/irq.h **** #define UART3_INT		29
+  63:common_nxp/inc/irq.h **** #define I2C2_INT		30
+  64:common_nxp/inc/irq.h **** #define I2S_INT			31
+  65:common_nxp/inc/irq.h **** 
+  66:common_nxp/inc/irq.h **** #define VIC_SIZE		32
+  67:common_nxp/inc/irq.h **** 
+  68:common_nxp/inc/irq.h **** #define VECT_ADDR_INDEX	0x100
+  69:common_nxp/inc/irq.h **** #define VECT_PRIO_INDEX 0x200
+  70:common_nxp/inc/irq.h **** 
+  71:common_nxp/inc/irq.h **** extern void FIQ_Handler( void )  __attribute__ ((interrupt ("FIQ"))) ;    // __irq;
+  72:common_nxp/inc/irq.h **** void init_VIC( void );
+  73:common_nxp/inc/irq.h **** DWORD install_irq( DWORD IntNumber, void *HandlerAddr, DWORD Priority );
+  74:common_nxp/inc/irq.h **** 
+  75:common_nxp/inc/irq.h **** /* Be aware that, from compiler to compiler, nested interrupt will have to
+  76:common_nxp/inc/irq.h ****    be handled differently. More details can be found in Philips LPC2000
+  77:common_nxp/inc/irq.h ****    family app-note AN10381 */
+  78:common_nxp/inc/irq.h ****  
+  79:common_nxp/inc/irq.h **** /* unlike Keil CARM Compiler, in ARM's RealView compiler, don't save and 
+  80:common_nxp/inc/irq.h ****    restore registers into the stack in RVD as the compiler does that for you.
+  81:common_nxp/inc/irq.h ****    See RVD ARM compiler Inline and embedded assemblers, "Rules for
+  82:common_nxp/inc/irq.h ****    using __asm and asm keywords. */
+  83:common_nxp/inc/irq.h **** 
+  84:common_nxp/inc/irq.h **** #if 0       // below 3 lines are for Keil compilers only
+  85:common_nxp/inc/irq.h **** static DWORD sysreg;		/* used as LR register */
+  86:common_nxp/inc/irq.h **** #define IENABLE __asm { MRS sysreg, SPSR; MSR CPSR_c, #SYS32Mode }
+  87:common_nxp/inc/irq.h **** #define IDISABLE __asm { MSR CPSR_c, #(IRQ32Mode|I_Bit); MSR SPSR_cxsf, sysreg }
+  88:common_nxp/inc/irq.h **** 
+  89:common_nxp/inc/irq.h **** #else	// for Eclipse/GCC use enable_interrupt() and disable_interrupt() below
+  90:common_nxp/inc/irq.h **** 
+  91:common_nxp/inc/irq.h **** // -------------- Additions to be used with Eclipse/GCC --------
+  92:common_nxp/inc/irq.h **** #include <stdint.h>
+  93:common_nxp/inc/irq.h **** //#include "inttypes.h"
+  94:common_nxp/inc/irq.h **** 
+  95:common_nxp/inc/irq.h **** #ifndef __thumb
+  96:common_nxp/inc/irq.h **** static inline uint32_t __get_CPSR(void)
+  97:common_nxp/inc/irq.h **** {
+  98:common_nxp/inc/irq.h **** 	uint32_t temp;
+  99:common_nxp/inc/irq.h **** 	asm volatile ("mrs %0,CPSR":"=r" (temp):) ;
+ 101              	xp/inc/irq.h" 1
+ 102              		mrs r3,CPSR
+ 103 00b8 00300FE1 	@ 0 "" 2
+ 104              	.LVL0:
+ 105              	.LBE15:
+ 106              	.LBE14:
+ 107              	.LBB16:
+ 108              	.LBB17:
+ 109              		.loc 2 105 0
+ 100:common_nxp/inc/irq.h **** 	return temp;
+ 101:common_nxp/inc/irq.h **** }
+ 102:common_nxp/inc/irq.h **** 
+ 103:common_nxp/inc/irq.h **** static inline void __set_CPSR(uint32_t save_cpsr)
+ 104:common_nxp/inc/irq.h **** {
+ 105:common_nxp/inc/irq.h **** 	asm volatile (" msr CPSR_cxsf,%0"::"r"(save_cpsr) );
+ 110              	r3, #192
+ 111 00bc C03083E3 	.LVL1:
+ 112              	@ 105 "common_nxp/inc/irq.h" 1
+ 113              		 msr CPSR_cxsf,r3
+ 114 00c0 03F02FE1 	@ 0 "" 2
+ 115              	.LBE17:
+ 116              	.LBE16:
+ 117              	.LBE13:
+ 118              	.LBE12:
+ 119              		.loc 1 64 0
+  57:extint.c      **** 	}
+  58:extint.c      **** /*	if(!d3){
+  59:extint.c      **** 		uart0Puts("d3\r\n");
+  60:extint.c      **** 		while(!d3)
+  61:extint.c      **** 			d3 = (IO0PIN >>9)&1;
+  62:extint.c      **** 	}*/
+  63:extint.c      ****     disable_interrupt();
+  64:extint.c      ****     VICVectAddr = 0;		/* Acknowledge Interrupt */
+ 120              	0
+ 121 00c4 0020A0E3 		mvn	r3, #0
+ 122 00c8 0030E0E3 		str	r2, [r3, #-255]
+ 123 00cc FF2003E5 		.loc 1 65 0
+  65:extint.c      **** }
+ 124              		sp, fp, #28
+ 125 00d0 1CD04BE2 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 126 00d4 0F689DE8 		ldmfd	sp!, {ip}
+ 127 00d8 0010BDE8 		subs	pc, lr, #4
+ 128 00dc 04F05EE2 	.L14:
+ 129              		.align	2
+ 130              	.L13:
+ 131              		.word	takeSnapshot
+ 132 00e0 00000000 		.word	startRecording
+ 133 00e4 00000000 		.word	stopRecording
+ 134 00e8 00000000 	.LFE8:
+ 136              		.section	.text.EINTInit,"ax",%progbits
+ 137              		.align	2
+ 138              		.global	EINTInit
+ 140              	EINTInit:
+ 141              	.LFB9:
+ 142              		.loc 1 81 0
+  66:extint.c      **** 
+  67:extint.c      **** /*****************************************************************************
+  68:extint.c      **** ** Function name:		EINTInit
+  69:extint.c      **** **
+  70:extint.c      **** ** Descriptions:		Initialize external interrupt pin and
+  71:extint.c      **** **				install interrupt handler
+  72:extint.c      **** **
+  73:extint.c      **** ** parameters:			None
+  74:extint.c      **** ** Returned value:		true or false, return false if the interrupt
+  75:extint.c      **** **				handler can't be installed to the VIC table.
+  76:extint.c      **** ** 
+  77:extint.c      **** *****************************************************************************/
+  78:extint.c      **** #define IO0DIR (*(volatile unsigned long *)0xE0028008)
+  79:extint.c      **** #define IO0PIN (*(volatile unsigned long *)0xE0028000)
+  80:extint.c      **** DWORD EINTInit( void )
+  81:extint.c      **** {
+ 143              	d = 0, frame = 0
+ 144              		@ frame_needed = 1, uses_anonymous_args = 0
+ 145              		.loc 1 82 0
+  82:extint.c      **** 	PINSEL0 &= 0xFFF00FFF;
+ 146              	v	r2, #-536870912
+ 147 0000 0E22A0E3 		add	r2, r2, #180224
+ 148 0004 0B2982E2 		ldr	r3, [r2, #0]
+ 149 0008 003092E5 		.loc 1 81 0
+ 150              		mov	ip, sp
+ 151 000c 0DC0A0E1 	.LCFI3:
+ 152              		.loc 1 82 0
+ 153              		bic	r3, r3, #1044480
+ 154 0010 FF3AC3E3 		str	r3, [r2, #0]
+ 155 0014 003082E5 		.loc 1 81 0
+ 156              		stmfd	sp!, {r4, fp, ip, lr, pc}
+ 157 0018 10D82DE9 	.LCFI4:
+ 158              		.loc 1 83 0
+  83:extint.c      ****     IO0DIR &= 0xFFF00FFF;				/* input */
+ 159              	6870912
+ 160 001c 0E42A0E3 		add	r4, r4, #163840
+ 161 0020 0A4984E2 		ldr	r3, [r4, #8]
+ 162 0024 083094E5 		bic	r3, r3, #1044480
+ 163 0028 FF3AC3E3 		str	r3, [r4, #8]
+ 164 002c 083084E5 		.loc 1 84 0
+  84:extint.c      ****     SCS&=~1;
+ 165              	1, #-536870912
+ 166 0030 0E12A0E3 		add	r1, r1, #2080768
+ 167 0034 7F1981E2 		ldr	r3, [r1, #416]
+ 168 0038 A03191E5 		bic	r3, r3, #1
+ 169 003c 0130C3E3 		str	r3, [r1, #416]
+ 170 0040 A03181E5 		.loc 1 85 0
+  85:extint.c      ****     EXTMODE = EINT3_EDGE;		/* INT1 edge trigger */
+ 171              	2, #8
+ 172 0044 0820A0E3 		.loc 1 86 0
+  86:extint.c      ****     EXTPOLAR = 0;			/* INT1 is falling edge by default */
+ 173              	ov	r3, #0
+ 174 0048 0030A0E3 		.loc 1 85 0
+ 175              		str	r2, [r1, #328]
+ 176 004c 482181E5 		.loc 1 81 0
+ 177              		sub	fp, ip, #4
+ 178 0050 04B04CE2 	.LCFI5:
+ 179              		.loc 1 86 0
+ 180              		str	r3, [r1, #332]
+ 181 0054 4C3181E5 		.loc 1 89 0
+  87:extint.c      **** 
+  88:extint.c      **** 
+  89:extint.c      ****     if ( install_irq( EINT3_INT, (void *)EINT3_Handler, MID_PRIORITY) == FALSE )
+ 182              	r2, #4
+ 183 0058 042042E2 		ldr	r1, .L19
+ 184 005c 1C109FE5 		mov	r0, #17
+ 185 0060 1100A0E3 		bl	install_irq
+ 186 0064 FEFFFFEB 		cmp	r0, #0
+ 187 0068 000050E3 		.loc 1 93 0
+  90:extint.c      ****     {
+  91:extint.c      **** 	return (FALSE);
+  92:extint.c      ****     }
+  93:extint.c      ****     IO0_INT_EN_F  |= 15<<6;		/*set falling edge*/
+ 188              		r3, [r4, #148]
+ 189 006c 94309415 		orrne	r3, r3, #960
+ 190 0070 0F3D8313 		strne	r3, [r4, #148]
+ 191 0074 94308415 		movne	r0, #1
+ 192 0078 0100A013 		.loc 1 95 0
+  94:extint.c      ****     return( TRUE );
+  95:extint.c      **** }
+ 193              	d	sp, {r4, fp, sp, pc}
+ 194 007c 10A89DE8 	.L20:
+ 195              		.align	2
+ 196              	.L19:
+ 197              		.word	EINT3_Handler
+ 198 0080 00000000 	.LFE9:
+ 200              		.section	.debug_frame,"",%progbits
+ 277              		.section	.debug_loc,"",%progbits
+DEFINED SYMBOLS
+                            *ABS*:00000000 extint.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccPFdfk5.s:14     .text.EINT3_Handler:00000000 EINT3_Handler
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccPFdfk5.s:21     .text.EINT3_Handler:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccPFdfk5.s:132    .text.EINT3_Handler:000000e0 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccPFdfk5.s:141    .text.EINTInit:00000000 EINTInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccPFdfk5.s:147    .text.EINTInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccPFdfk5.s:198    .text.EINTInit:00000080 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccPFdfk5.s:281    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+takeSnapshot
+startRecording
+stopRecording
+install_irq

@@ -1,0 +1,281 @@
+   1              	# 1 "crt0.S"
+   1              	/* 
+   0              	
+   0              	
+   2              	 crt0.S for LPC2xxx
+   3              	 - based on examples from R O Software
+   4              	 - based on examples from newlib-lpc
+   5              	 - based on an example from Anglia Designs
+   6              	
+   7              	 collected and modified by Martin Thomas
+   8              	*/
+   9              	
+  10              	        .global _etext                  // -> .data initial values in ROM
+  11              	        .global _data                   // -> .data area in RAM
+  12              	        .global _edata                  // end of .data area
+  13              	        .global __bss_start             // -> .bss area in RAM
+  14              	        .global __bss_end__             // end of .bss area
+  15              	        .global _stack                  // top of stack
+  16              	
+  17              	// Stack Sizes
+  18              	        .set  UND_STACK_SIZE, 0x00000004
+  19              	        .set  ABT_STACK_SIZE, 0x00000004
+  20              	        .set  FIQ_STACK_SIZE, 0x00000004
+  21              	        .set  IRQ_STACK_SIZE, 0X00000080
+  22              	        .set  SVC_STACK_SIZE, 0x00000004
+  23              	
+  24              	// Standard definitions of Mode bits and Interrupt (I & F) flags in PSRs
+  25              	        .set  MODE_USR, 0x10            // User Mode
+  26              	        .set  MODE_FIQ, 0x11            // FIQ Mode
+  27              	        .set  MODE_IRQ, 0x12            // IRQ Mode
+  28              	        .set  MODE_SVC, 0x13            // Supervisor Mode
+  29              	        .set  MODE_ABT, 0x17            // Abort Mode
+  30              	        .set  MODE_UND, 0x1B            // Undefined Mode
+  31              	        .set  MODE_SYS, 0x1F            // System Mode
+  32              	
+  33              	        .equ  I_BIT, 0x80               // when I bit is set, IRQ is disabled
+  34              	        .equ  F_BIT, 0x40               // when F bit is set, FIQ is disabled
+  35              	
+  36              	        .text
+  37              		.arm
+  38              		.section .init, "ax"
+  39              	
+  40              	        .code 32
+  41              	        .align 2
+  42              	
+  43              	        .global _boot
+  44              	        .func   _boot
+  45              	_boot:
+  46              	
+  47              	// Runtime Interrupt Vectors
+  48              	// -------------------------
+  49              	Vectors:
+  50 0000 FEFFFFEA 	        b     _start                    // reset - _start
+  51 0004 14F09FE5 	        ldr   pc,_undf                  // undefined - _undf
+  52 0008 14F09FE5 	        ldr   pc,_swi                   // SWI - _swi
+  53 000c 14F09FE5 	        ldr   pc,_pabt                  // program abort - _pabt
+  54 0010 14F09FE5 	        ldr   pc,_dabt                  // data abort - _dabt
+  55 0014 0000A0E1 	        nop                             // reserved
+  56 0018 20F11FE5 	        ldr   pc,[pc,#-0x120]           // IRQ - read the VIC
+  57 001c 10F09FE5 	        ldr   pc,_fiq                   // FIQ - _fiq
+  58              	
+  59              	#if 0
+  60              	// Use this group for production
+  61              	_undf:  .word _reset                    // undefined - _reset
+  62              	_swi:   .word _reset                    // SWI - _reset
+  63              	_pabt:  .word _reset                    // program abort - _reset
+  64              	_dabt:  .word _reset                    // data abort - _reset
+  65              	_irq:   .word _reset                    // IRQ - _reset
+  66              	_fiq:   .word _reset                    // FIQ - _reset
+  67              	
+  68              	#else
+  69              	// Use this group for development
+  70 0020 38000000 	_undf:  .word __undf                    // undefined
+  71 0024 3C000000 	_swi:   .word __swi                     // SWI
+  72 0028 40000000 	_pabt:  .word __pabt                    // program abort
+  73 002c 44000000 	_dabt:  .word __dabt                    // data abort
+  74 0030 48000000 	_irq:   .word __irq                     // IRQ
+  75 0034 4C000000 	_fiq:   .word __fiq                     // FIQ
+  76              	
+  77 0038 FEFFFFEA 	__undf: b     .                         // undefined
+  78 003c FEFFFFEA 	__swi:  b     .                         // SWI
+  79 0040 FEFFFFEA 	__pabt: b     .                         // program abort
+  80 0044 FEFFFFEA 	__dabt: b     .                         // data abort
+  81 0048 FEFFFFEA 	__irq:  b     .                         // IRQ
+  82 004c FEFFFFEA 	__fiq:  b     .                         // FIQ
+  83              	#endif
+  85              	        .endfunc
+  86              	
+  87              	
+  88              	// Setup the operating mode & stack.
+  89              	// ---------------------------------
+  90              	        .global _start, start, _mainCRTStartup
+  91              	        .func   _start
+  92              	
+  93              	_start:
+  94              	start:
+  95              	_mainCRTStartup:
+  96              	
+  97              	// Initialize Interrupt System
+  98              	// - Set stack location for each mode
+  99              	// - Leave in System Mode with Interrupts Disabled
+ 100              	// -----------------------------------------------
+ 101 0050 C0009FE5 	        ldr   r0,=_stack
+ 102 0054 DBF021E3 	        msr   CPSR_c,#MODE_UND|I_BIT|F_BIT // Undefined Instruction Mode
+ 103 0058 00D0A0E1 	        mov   sp,r0
+ 104 005c 040040E2 	        sub   r0,r0,#UND_STACK_SIZE
+ 105 0060 D7F021E3 	        msr   CPSR_c,#MODE_ABT|I_BIT|F_BIT // Abort Mode
+ 106 0064 00D0A0E1 	        mov   sp,r0
+ 107 0068 040040E2 	        sub   r0,r0,#ABT_STACK_SIZE
+ 108 006c D1F021E3 	        msr   CPSR_c,#MODE_FIQ|I_BIT|F_BIT // FIQ Mode
+ 109 0070 00D0A0E1 	        mov   sp,r0
+ 110 0074 040040E2 	        sub   r0,r0,#FIQ_STACK_SIZE
+ 111 0078 D2F021E3 	        msr   CPSR_c,#MODE_IRQ|I_BIT|F_BIT // IRQ Mode
+ 112 007c 00D0A0E1 	        mov   sp,r0
+ 113 0080 800040E2 	        sub   r0,r0,#IRQ_STACK_SIZE
+ 114 0084 D3F021E3 	        msr   CPSR_c,#MODE_SVC|I_BIT|F_BIT // Supervisor Mode
+ 115 0088 00D0A0E1 	        mov   sp,r0
+ 116 008c 040040E2 	        sub   r0,r0,#SVC_STACK_SIZE
+ 117 0090 DFF021E3 	        msr   CPSR_c,#MODE_SYS|I_BIT|F_BIT // System Mode
+ 118 0094 00D0A0E1 	        mov   sp,r0
+ 119              	
+ 120              	// Clear .bss
+ 121              	// ----------
+ 122 0098 0000A0E3 	        mov   r0,#0                     // get a zero
+ 123 009c 78109FE5 	        ldr   r1,=__bss_start           // -> bss start
+ 124 00a0 78209FE5 	        ldr   r2,=__bss_end__           // -> bss end
+ 125 00a4 020051E1 	2:      cmp   r1,r2                     // check if data to clear
+ 126 00a8 04008134 	        strlo r0,[r1],#4                // clear 4 bytes
+ 127 00ac FCFFFF3A 	        blo   2b                        // loop until done
+ 128              	
+ 129              	// Copy initialized data to its execution address in RAM
+ 130              	// -----------------------------------------------------
+ 131              	#ifdef ROM_RUN
+ 132 00b0 6C109FE5 	        ldr   r1,=_etext                // -> ROM data start
+ 133 00b4 6C209FE5 	        ldr   r2,=_data                 // -> data start
+ 134 00b8 6C309FE5 	        ldr   r3,=_edata                // -> end of data
+ 135 00bc 030052E1 	1:      cmp   r2,r3                     // check if data to move
+ 136 00c0 04009134 	        ldrlo r0,[r1],#4                // copy it
+ 137 00c4 04008234 	        strlo r0,[r2],#4
+ 138 00c8 FBFFFF3A 	        blo   1b                        // loop until done
+ 139              	#endif
+ 140              		
+ 141              	/*
+ 142              	   Call C++ constructors (for objects in "global scope")
+ 143              	   ctor loop added by Martin Thomas 4/2005 
+ 144              	   based on a Anglia Design example-application for ST ARM
+ 145              	*/
+ 146              	
+ 147 00cc 5C009FE5 			LDR 	r0, =__ctors_start__
+ 148 00d0 5C109FE5 			LDR 	r1, =__ctors_end__
+ 149              	ctor_loop:
+ 150 00d4 010050E1 			CMP 	r0, r1
+ 151 00d8 0500000A 			BEQ 	ctor_end
+ 152 00dc 042090E4 			LDR 	r2, [r0], #4
+ 153 00e0 03002DE9 			STMFD 	sp!, {r0-r1}
+ 154 00e4 0FE0A0E1 			MOV 	lr, pc
+ 155 00e8 02F0A0E1 			MOV 	pc, r2
+ 156 00ec 0300BDE8 			LDMFD 	sp!, {r0-r1}
+ 157 00f0 F7FFFFEA 			B 		ctor_loop
+ 158              	ctor_end:
+ 159              	
+ 160              	// Call main program: main(0)
+ 161              	// --------------------------
+ 162 00f4 0000A0E3 	        mov   r0,#0                     // no arguments (argc = 0)
+ 163 00f8 0010A0E1 	        mov   r1,r0
+ 164 00fc 0020A0E1 	        mov   r2,r0
+ 165 0100 00B0A0E1 	        mov   fp,r0                     // null frame pointer
+ 166 0104 0070A0E1 	        mov   r7,r0                     // null frame pointer for thumb
+ 167 0108 28A09FE5 	        ldr   r10,=main
+ 168 010c 0FE0A0E1 	        mov   lr,pc
+ 169              	
+ 170              	/* Enter the C code, use BX instruction so as to never return */
+ 171              	/* use BLX (?) main if you want to use c++ destructors below */
+ 172              	
+ 173 0110 1AFF2FE1 	        bx    r10                       // enter main()
+ 174              	
+ 175              	/* "global object"-dtors are never called and it should not be 
+ 176              	   needed since there is no OS to exit to. */
+ 177              	/* Call destructors */
+ 178              	#		LDR		r0, =__dtors_start__
+ 179              	#		LDR		r1, =__dtors_end__
+ 180              	dtor_loop:
+ 181              	#		CMP		r0, r1
+ 182              	#		BEQ		dtor_end
+ 183              	#		LDR		r2, [r0], #4
+ 184              	#		STMFD	sp!, {r0-r1}
+ 185              	#		MOV		lr, pc
+ 186              	#		MOV		pc, r2
+ 187              	#		LDMFD	sp!, {r0-r1}
+ 188              	#		B		dtor_loop
+ 189              	dtor_end:
+ 190              	   
+ 192              	        .endfunc
+ 193              	
+ 194              	        .global _reset, reset, exit, abort
+ 195              	        .func   _reset
+ 196              	_reset:
+ 197              	reset:
+ 198              	exit:
+ 199              	abort:
+ 200              	#if 0
+ 201              	// Disable interrupts, then force a hardware reset by driving P23 low
+ 202              	// -------------------------------------------------------------------
+ 203              	        mrs   r0,cpsr                   // get PSR
+ 204              	        orr   r0,r0,#I_BIT|F_BIT        // disable IRQ and FIQ
+ 205              	        msr   cpsr,r0                   // set up status register
+ 206              	
+ 207              	        ldr   r1,=(PS_BASE)             // PS Base Address
+ 208              	        ldr   r0,=(PS_PIO)              // PIO Module
+ 209              	        str   r0,[r1,#PS_PCER_OFF]      // enable its clock
+ 210              	        ldr   r1,=(PIO_BASE)            // PIO Base Address
+ 211              	        ldr   r0,=(1<<23)               // P23
+ 212              	        str   r0,[r1,#PIO_PER_OFF]      // make sure pin is contolled by PIO
+ 213              	        str   r0,[r1,#PIO_CODR_OFF]     // set the pin low
+ 214              	        str   r0,[r1,#PIO_OER_OFF]      // make it an output
+ 215              	#endif
+ 216 0114 FEFFFFEA 	        b     .                         // loop until reset
+ 217              	
+ 219              	        .endfunc
+ 220              	
+ 221 0118 00000000 	        .end
+ 221      00000000 
+ 221      00000000 
+ 221      00000000 
+ 221      00000000 
+DEFINED SYMBOLS
+              crt0.S:18     *ABS*:00000004 UND_STACK_SIZE
+              crt0.S:19     *ABS*:00000004 ABT_STACK_SIZE
+              crt0.S:20     *ABS*:00000004 FIQ_STACK_SIZE
+              crt0.S:21     *ABS*:00000080 IRQ_STACK_SIZE
+              crt0.S:22     *ABS*:00000004 SVC_STACK_SIZE
+              crt0.S:25     *ABS*:00000010 MODE_USR
+              crt0.S:26     *ABS*:00000011 MODE_FIQ
+              crt0.S:27     *ABS*:00000012 MODE_IRQ
+              crt0.S:28     *ABS*:00000013 MODE_SVC
+              crt0.S:29     *ABS*:00000017 MODE_ABT
+              crt0.S:30     *ABS*:0000001b MODE_UND
+              crt0.S:31     *ABS*:0000001f MODE_SYS
+              crt0.S:33     *ABS*:00000080 I_BIT
+              crt0.S:34     *ABS*:00000040 F_BIT
+              crt0.S:37     .text:00000000 $a
+              crt0.S:40     .init:00000000 $a
+              crt0.S:45     .init:00000000 _boot
+              crt0.S:49     .init:00000000 Vectors
+              crt0.S:93     .init:00000050 _start
+              crt0.S:70     .init:00000020 _undf
+              crt0.S:71     .init:00000024 _swi
+              crt0.S:72     .init:00000028 _pabt
+              crt0.S:73     .init:0000002c _dabt
+              crt0.S:75     .init:00000034 _fiq
+              crt0.S:70     .init:00000020 $d
+              crt0.S:77     .init:00000038 __undf
+              crt0.S:78     .init:0000003c __swi
+              crt0.S:79     .init:00000040 __pabt
+              crt0.S:80     .init:00000044 __dabt
+              crt0.S:74     .init:00000030 _irq
+              crt0.S:81     .init:00000048 __irq
+              crt0.S:82     .init:0000004c __fiq
+              crt0.S:77     .init:00000038 $a
+              crt0.S:94     .init:00000050 start
+              crt0.S:95     .init:00000050 _mainCRTStartup
+              crt0.S:149    .init:000000d4 ctor_loop
+              crt0.S:158    .init:000000f4 ctor_end
+              crt0.S:180    .init:00000114 dtor_loop
+              crt0.S:189    .init:00000114 dtor_end
+              crt0.S:196    .init:00000114 _reset
+              crt0.S:197    .init:00000114 reset
+              crt0.S:198    .init:00000114 exit
+              crt0.S:199    .init:00000114 abort
+              crt0.S:221    .init:00000118 $d
+
+UNDEFINED SYMBOLS
+_etext
+_data
+_edata
+__bss_start
+__bss_end__
+_stack
+__ctors_start__
+__ctors_end__
+main

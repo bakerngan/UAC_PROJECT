@@ -1,0 +1,375 @@
+   1              	# 1 "startup_gnu.S"
+   1              	@/*****************************************************************************
+   0              	
+   0              	
+   2              	@*   startup.s: startup file for NXP LPC230x Family Microprocessors
+   3              	@*
+   4              	@*   Copyright(C) 2006, NXP Semiconductor
+   5              	@*   All rights reserved.
+   6              	@*
+   7              	@*   History
+   8              	@*   2006.09.01  ver 1.00    Prelimnary version, first Release
+   9              	@*
+  10              	@*****************************************************************************/
+  11              	
+  12              	@ modified by Martin Thomas:
+  13              	@  - changed comment char to @ for GNU assembler (arm-elf-as)
+  14              	@    "The line comment character is [...] ‘@’ on the ARM [...]"
+  15              	@    (GNU-as manual from binutils V 2.17)
+  16              	@  - ported RV-ASM to GNU-ASM (sections, import/export equ, 
+  17              	@    :OR:, Labels etc.)
+  18              	@  - added .data and .bss inits
+  19              	@  - call main instead for "RV runtime-init" __main
+  20              	@  - call main with bx so it can be thumb-code
+  21              	@  - added IRQ-Wrapper for easier porting of IAR, RV etc. ISR-codes.
+  22              	@  - TargetResetInit can be a thumb-function (using BX instead of BL)
+  23              	@  - moved TargetResetInit call before the stack-inits and use 
+  24              	@    a temporary stack-pointer
+  25              	
+  26              	@@	PRESERVE8
+  27              	
+  28              	@/*
+  29              	@ *  The STARTUP.S code is executed after CPU Reset. This file may be 
+  30              	@ *  translated with the following SET symbols. In uVision these SET 
+  31              	@ *  symbols are entered under Options - ASM - Define.
+  32              	@ *
+  33              	@ *  REMAP: when set the startup code initializes the register MEMMAP 
+  34              	@ *  which overwrites the settings of the CPU configuration pins. The 
+  35              	@ *  startup and interrupt vectors are remapped from:
+  36              	@ *     0x00000000  default setting (not remapped)
+  37              	@ *     0x40000000  when RAM_MODE is used
+  38              	@ *
+  39              	@ *  RAM_MODE: when set the device is configured for code execution
+  40              	@ *  from on-chip RAM starting at address 0x40000000. 
+  41              	@ */
+  42              	
+  43              	
+  44              	@ Standard definitions of Mode bits and Interrupt (I & F) flags in PSRs
+  45              	
+  46              	.equ Mode_USR,            0x10
+  47              	.equ Mode_FIQ,            0x11
+  48              	.equ Mode_IRQ,            0x12
+  49              	.equ Mode_SVC,            0x13
+  50              	.equ Mode_ABT,            0x17
+  51              	.equ Mode_UND,            0x1B
+  52              	.equ Mode_SYS,            0x1F
+  53              	
+  54              	.equ I_Bit,               0x80            @ when I bit is set, IRQ is disabled
+  55              	.equ F_Bit,               0x40            @ when F bit is set, FIQ is disabled
+  56              	
+  57              	
+  58              	@// <h> Stack Configuration (Stack Sizes in Bytes)
+  59              	@//   <o0> Undefined Mode      <0x0-0xFFFFFFFF:8>
+  60              	@//   <o1> Supervisor Mode     <0x0-0xFFFFFFFF:8>
+  61              	@//   <o2> Abort Mode          <0x0-0xFFFFFFFF:8>
+  62              	@//   <o3> Fast Interrupt Mode <0x0-0xFFFFFFFF:8>
+  63              	@//   <o4> Interrupt Mode      <0x0-0xFFFFFFFF:8>
+  64              	@//   <o5> User/System Mode    <0x0-0xFFFFFFFF:8>
+  65              	@// </h>
+  66              	
+  67              	.equ UND_Stack_Size,     0x00000000
+  68              	.equ SVC_Stack_Size,     0x00000400
+  69              	.equ ABT_Stack_Size,     0x00000000
+  70              	.equ FIQ_Stack_Size,     0x00000000
+  71              	.equ IRQ_Stack_Size,     0x00000400
+  72              	.equ USR_Stack_Size,     0x00002000
+  73              	
+  74              	.equ Stack_Size,        (UND_Stack_Size + SVC_Stack_Size + ABT_Stack_Size + FIQ_Stack_Size + IRQ_St
+  75              	
+  76              	@@                AREA    STACK, NOINIT, READWRITE, ALIGN=3
+  77              	@@
+  78              	@@Stack_Mem       SPACE   Stack_Size
+  79              	@@Stack_Top       EQU     Stack_Mem + Stack_Size
+  80              	
+  81              	.arm
+  82              	.section .STACK, "w"
+  83              	.align 3
+  84              	Stack_Mem:
+  85 0000 00000000 	.space Stack_Size
+  85      00000000 
+  85      00000000 
+  85      00000000 
+  85      00000000 
+  86              	.equ Stack_Top, Stack_Mem + Stack_Size
+  87              	
+  88              	
+  89              	@// <h> Heap Configuration
+  90              	@//   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF>
+  91              	@// </h>
+  92              	
+  93              	@@Heap_Size       EQU     0x00000000
+  94              	@@                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
+  95              	@@Heap_Mem        SPACE   Heap_Size
+  96              	
+  97              	.equ Heap_Size,   0x00000000
+  98              	.section .HEAP, "w"
+  99              	.align 3
+ 100              	HeapMem:
+ 101              	.if (Heap_Size>0)
+ 102              	.space Heap_Size
+ 103              	.endif
+ 104              	
+ 105              	
+ 106              	@ Area Definition and Entry Point
+ 107              	@  Startup Code must be linked first at Address at which it expects to run.
+ 108              	
+ 109              	@@                AREA    RESET, CODE, READONLY
+ 110              	@@                ARM
+ 111              	.section .RESET, "ax"
+ 112              	.arm
+ 113              	
+ 114              	@ Exception Vectors
+ 115              	@  Mapped to Address 0.
+ 116              	@  Absolute addressing mode must be used.
+ 117              	@  Dummy Handlers are implemented as infinite loops which can be modified.
+ 118              	
+ 119 0000 18F09FE5 	Vectors:        LDR     PC, Reset_Addr
+ 120 0004 18F09FE5 	                LDR     PC, Undef_Addr
+ 121 0008 18F09FE5 	                LDR     PC, SWI_Addr
+ 122 000c 18F09FE5 	                LDR     PC, PAbt_Addr
+ 123 0010 18F09FE5 	                LDR     PC, DAbt_Addr
+ 124              	@@                NOP                            @ Reserved Vector 
+ 125 0014 586FA0B8 	               .word    0xb8a06f58               @ valid checksum to make openocd's verify happy
+ 126 0018 18F09FE5 	                LDR     PC, IRQ_Addr
+ 127              	@@                LDR     PC, [PC, #-0x0120]     @ Vector from VicVectAddr
+ 128 001c 18F09FE5 	                LDR     PC, FIQ_Addr
+ 129              	
+ 130 0020 54000000 	Reset_Addr:      .word     Reset_Handler
+ 131 0024 40000000 	Undef_Addr:      .word     Undef_Handler
+ 132 0028 44000000 	SWI_Addr:        .word     SWI_Handler
+ 133 002c 48000000 	PAbt_Addr:       .word     PAbt_Handler
+ 134 0030 4C000000 	DAbt_Addr:       .word     DAbt_Handler
+ 135 0034 286E20B9 	                 .word     0xB9206E28             @ Reserved Address 
+ 136 0038 FC000000 	IRQ_Addr:        .word     IRQ_Handler
+ 137 003c 50000000 	FIQ_Addr:        .word     FIQ_Handler
+ 138              	
+ 139 0040 FEFFFFEA 	Undef_Handler:   B       Undef_Handler
+ 140 0044 FEFFFFEA 	SWI_Handler:     B       SWI_Handler
+ 141 0048 FEFFFFEA 	PAbt_Handler:    B       PAbt_Handler
+ 142 004c FEFFFFEA 	DAbt_Handler:    B       DAbt_Handler
+ 143              	@@ handled thru assembler wrapper (see below)
+ 144              	@@ IRQ_Handler:    B       IRQ_Handler
+ 145 0050 FEFFFFEA 	FIQ_Handler:     B       FIQ_Handler
+ 146              	
+ 147              	
+ 148              	@ Reset Handler
+ 149              	@                EXPORT  Reset_Handler
+ 150              	.global Reset_handler
+ 151              	Reset_Handler:
+ 152              	
+ 153              	@  Call low-level init C-function
+ 154              	@                IMPORT TargetResetInit
+ 155              	@                BL   TargetResetInit
+ 156              	
+ 157              	                 .extern TargetResetInit
+ 158 0054 E4D09FE5 	                 ldr     SP, =Stack_Top    @ temporary stack at Stack_Top
+ 159 0058 E4009FE5 	                 LDR R0, =TargetResetInit
+ 160 005c 0FE0A0E1 	                 MOV LR, PC
+ 161 0060 10FF2FE1 	                 BX R0
+ 162              	
+ 163              	
+ 164              	@  Setup Stack for each mode
+ 165 0064 D4009FE5 	                LDR     R0, =Stack_Top
+ 166              	
+ 167              	@  Enter Undefined Instruction Mode and set its Stack Pointer
+ 168 0068 DBF021E3 	                MSR     CPSR_c, #Mode_UND | I_Bit | F_Bit
+ 169 006c 00D0A0E1 	                MOV     SP, R0
+ 170 0070 000040E2 	                SUB     R0, R0, #UND_Stack_Size
+ 171              	
+ 172              	@  Enter Abort Mode and set its Stack Pointer
+ 173 0074 D7F021E3 	                MSR     CPSR_c, #Mode_ABT | I_Bit | F_Bit
+ 174 0078 00D0A0E1 	                MOV     SP, R0
+ 175 007c 000040E2 	                SUB     R0, R0, #ABT_Stack_Size
+ 176              	
+ 177              	@  Enter FIQ Mode and set its Stack Pointer
+ 178 0080 D1F021E3 	                MSR     CPSR_c, #Mode_FIQ | I_Bit | F_Bit
+ 179 0084 00D0A0E1 	                MOV     SP, R0
+ 180 0088 000040E2 	                SUB     R0, R0, #FIQ_Stack_Size
+ 181              	
+ 182              	@  Enter IRQ Mode and set its Stack Pointer
+ 183 008c D2F021E3 	                MSR     CPSR_c, #Mode_IRQ | I_Bit | F_Bit
+ 184 0090 00D0A0E1 	                MOV     SP, R0
+ 185 0094 010B40E2 	                SUB     R0, R0, #IRQ_Stack_Size
+ 186              	
+ 187              	@  Enter Supervisor Mode and set its Stack Pointer
+ 188 0098 D3F021E3 	                MSR     CPSR_c, #Mode_SVC | I_Bit | F_Bit
+ 189 009c 00D0A0E1 	                MOV     SP, R0
+ 190 00a0 010B40E2 	                SUB     R0, R0, #SVC_Stack_Size
+ 191              	
+ 192              	@  Enter User Mode and set its Stack Pointer
+ 193 00a4 10F021E3 	                MSR     CPSR_c, #Mode_USR
+ 194 00a8 00D0A0E1 	                MOV     SP, R0
+ 195 00ac 02AA4DE2 	                SUB     SL, SP, #USR_Stack_Size
+ 196              	
+ 197              	
+ 198              	@  Relocate .data section (Copy from ROM to RAM)
+ 199 00b0 90109FE5 	                LDR     R1, =_etext 
+ 200 00b4 90209FE5 	                LDR     R2, =_data 
+ 201 00b8 90309FE5 	                LDR     R3, =_edata 
+ 202 00bc 030052E1 	                CMP     R2, R3
+ 203 00c0 0300000A 	                BEQ     DataIsEmpty
+ 204 00c4 030052E1 	LoopRel:        CMP     R2, R3 
+ 205 00c8 04009134 	                LDRLO   R0, [R1], #4 
+ 206 00cc 04008234 	                STRLO   R0, [R2], #4 
+ 207 00d0 FBFFFF3A 	                BLO     LoopRel 
+ 208              	DataIsEmpty:
+ 209              	 
+ 210              	@  Clear .bss section (Zero init)
+ 211 00d4 0000A0E3 	                MOV     R0, #0 
+ 212 00d8 74109FE5 	                LDR     R1, =__bss_start__ 
+ 213 00dc 74209FE5 	                LDR     R2, =__bss_end__ 
+ 214 00e0 020051E1 	                CMP     R1,R2
+ 215 00e4 0200000A 	                BEQ     BSSIsEmpty
+ 216 00e8 020051E1 	LoopZI:         CMP     R1, R2 
+ 217 00ec 04008134 	                STRLO   R0, [R1], #4 
+ 218 00f0 FCFFFF3A 	                BLO     LoopZI 
+ 219              	BSSIsEmpty:
+ 220              	
+ 221              	
+ 222              	@  Enter the C code
+ 223              	@                IMPORT  __main
+ 224              	@                LDR     R0, =__main
+ 225              	                .extern main
+ 226 00f4 60009FE5 	                LDR R0, =main
+ 227 00f8 10FF2FE1 	                BX      R0
+ 228              	
+ 229              	
+ 230              	@ User Initial Stack & Heap (not used in GNU port)
+ 231              	@@                AREA    |.text|, CODE, READONLY
+ 232              	
+ 233              	@@                IMPORT  __use_two_region_memory
+ 234              	@@                EXPORT  __user_initial_stackheap
+ 235              	@@__user_initial_stackheap
+ 236              	
+ 237              	@@                LDR     R0, =  Heap_Mem
+ 238              	@@                LDR     R1, =(Stack_Mem + USR_Stack_Size)
+ 239              	@@                LDR     R2, = (Heap_Mem +      Heap_Size)
+ 240              	@@                LDR     R3, = Stack_Mem
+ 241              	@@                BX      LR
+ 242              	
+ 243              	
+ 244              	@@ IRQ_Wrapper based on Examples for
+ 245              	@@ AT91-ARM7TDMI AIC from Atmel,
+ 246              	@@ adapted to LPC23xx/24xx VIC by M. Thomas
+ 247              	@@ This wrapper avoids compiler-dependencies.
+ 248              	
+ 249              	.set LPC_BASE_VIC, 0xFFFFF000
+ 250              	.set VIC_VectAddr, 0xF00
+ 251              	
+ 252              	.arm
+ 253              	IRQ_Handler:
+ 254              	
+ 255              	@- Manage Exception Entry
+ 256              	@- Adjust and save LR_irq in IRQ stack
+ 257 00fc 04E04EE2 	            sub         lr, lr, #4
+ 258 0100 00402DE9 	            stmfd       sp!, {lr}
+ 259              	
+ 260              	@- Save SPSR need to be saved for nested interrupt
+ 261 0104 00E04FE1 	            mrs         r14, SPSR
+ 262 0108 00402DE9 	            stmfd       sp!, {r14}
+ 263              	
+ 264              	@- Save r0 in IRQ stack
+ 265 010c 01002DE9 	            stmfd       sp!, {r0}
+ 266              	
+ 267              	@- Load the ISR-Address from VICVectAddr
+ 268 0110 48E09FE5 	            ldr         r14, =LPC_BASE_VIC
+ 269 0114 000F9EE5 	            ldr         r0 , [r14, #VIC_VectAddr]
+ 270              	
+ 271              	@- Enable Interrupt and Switch in Supervisor Mode
+ 272 0118 13F021E3 	            msr         CPSR_c, #Mode_SVC
+ 273              	
+ 274              	@- Save scratch/used registers and LR in User Stack
+ 275 011c 0E502DE9 	            stmfd       sp!, { r1-r3, r12, r14 }
+ 276              	
+ 277              	@- Branch to the routine pointed by the VIC_VectAddr
+ 278 0120 0FE0A0E1 	            mov         r14, pc
+ 279 0124 10FF2FE1 	            bx          r0
+ 280              	
+ 281              	@- Restore scratch/used registers and LR from User Stack
+ 282 0128 0E50BDE8 	            ldmia       sp!, { r1-r3, r12, r14 }
+ 283              	
+ 284              	@- Disable Interrupt and switch back in IRQ mode
+ 285 012c 92F021E3 	            msr         CPSR_c, #I_Bit | Mode_IRQ
+ 286              	
+ 287              	@-  Mark the End of Interrupt on the VIC
+ 288              	@   by writing to VICVectAddr - not needed 
+ 289              	@   here since already done in the ISRs
+ 290              	@@           ldr         r14, =LPC_BASE_VIC
+ 291              	@@           str         r14, [r14, #VIC_VectAddr]
+ 292              	
+ 293              	@- Restore R0
+ 294 0130 0100BDE8 	            ldmia       sp!, {r0}
+ 295              	
+ 296              	@- Restore SPSR_irq and r0 from IRQ stack
+ 297 0134 0040BDE8 	            ldmia       sp!, {r14}
+ 298 0138 0EF06FE1 	            msr         SPSR_cxsf, r14
+ 299              	
+ 300              	@- Restore adjusted  LR_irq from IRQ stack directly in the PC
+ 301 013c 0080FDE8 	            ldmia       sp!, {pc}^
+ 302              	
+ 303              	
+ 304              	@                END
+ 305 0140 00280000 	.end
+ 305      00000000 
+ 305      00000000 
+ 305      00000000 
+ 305      00000000 
+DEFINED SYMBOLS
+       startup_gnu.S:46     *ABS*:00000010 Mode_USR
+       startup_gnu.S:47     *ABS*:00000011 Mode_FIQ
+       startup_gnu.S:48     *ABS*:00000012 Mode_IRQ
+       startup_gnu.S:49     *ABS*:00000013 Mode_SVC
+       startup_gnu.S:50     *ABS*:00000017 Mode_ABT
+       startup_gnu.S:51     *ABS*:0000001b Mode_UND
+       startup_gnu.S:52     *ABS*:0000001f Mode_SYS
+       startup_gnu.S:54     *ABS*:00000080 I_Bit
+       startup_gnu.S:55     *ABS*:00000040 F_Bit
+       startup_gnu.S:67     *ABS*:00000000 UND_Stack_Size
+       startup_gnu.S:68     *ABS*:00000400 SVC_Stack_Size
+       startup_gnu.S:69     *ABS*:00000000 ABT_Stack_Size
+       startup_gnu.S:70     *ABS*:00000000 FIQ_Stack_Size
+       startup_gnu.S:71     *ABS*:00000400 IRQ_Stack_Size
+       startup_gnu.S:72     *ABS*:00002000 USR_Stack_Size
+       startup_gnu.S:74     *ABS*:00002800 Stack_Size
+       startup_gnu.S:81     .text:00000000 $a
+       startup_gnu.S:84     .STACK:00000000 Stack_Mem
+       startup_gnu.S:84     .STACK:00002800 Stack_Top
+       startup_gnu.S:97     *ABS*:00000000 Heap_Size
+       startup_gnu.S:100    .HEAP:00000000 HeapMem
+       startup_gnu.S:112    .RESET:00000000 $a
+       startup_gnu.S:119    .RESET:00000000 Vectors
+       startup_gnu.S:130    .RESET:00000020 Reset_Addr
+       startup_gnu.S:131    .RESET:00000024 Undef_Addr
+       startup_gnu.S:132    .RESET:00000028 SWI_Addr
+       startup_gnu.S:133    .RESET:0000002c PAbt_Addr
+       startup_gnu.S:134    .RESET:00000030 DAbt_Addr
+       startup_gnu.S:125    .RESET:00000014 $d
+       startup_gnu.S:126    .RESET:00000018 $a
+       startup_gnu.S:136    .RESET:00000038 IRQ_Addr
+       startup_gnu.S:137    .RESET:0000003c FIQ_Addr
+       startup_gnu.S:130    .RESET:00000020 $d
+       startup_gnu.S:151    .RESET:00000054 Reset_Handler
+       startup_gnu.S:139    .RESET:00000040 Undef_Handler
+       startup_gnu.S:140    .RESET:00000044 SWI_Handler
+       startup_gnu.S:141    .RESET:00000048 PAbt_Handler
+       startup_gnu.S:142    .RESET:0000004c DAbt_Handler
+       startup_gnu.S:253    .RESET:000000fc IRQ_Handler
+       startup_gnu.S:145    .RESET:00000050 FIQ_Handler
+       startup_gnu.S:139    .RESET:00000040 $a
+       startup_gnu.S:208    .RESET:000000d4 DataIsEmpty
+       startup_gnu.S:204    .RESET:000000c4 LoopRel
+       startup_gnu.S:219    .RESET:000000f4 BSSIsEmpty
+       startup_gnu.S:216    .RESET:000000e8 LoopZI
+       startup_gnu.S:249    *ABS*:fffff000 LPC_BASE_VIC
+       startup_gnu.S:250    *ABS*:00000f00 VIC_VectAddr
+       startup_gnu.S:305    .RESET:00000140 $d
+
+UNDEFINED SYMBOLS
+Reset_handler
+TargetResetInit
+_etext
+_data
+_edata
+__bss_start__
+__bss_end__
+main

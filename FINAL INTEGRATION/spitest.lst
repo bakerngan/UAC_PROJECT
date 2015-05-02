@@ -1,0 +1,1341 @@
+   1              		.file	"spitest.c"
+   9              	.Ltext0:
+  10              		.section	.text.isAck,"ax",%progbits
+  11              		.align	2
+  12              		.global	isAck
+  14              	isAck:
+  15              	.LFB8:
+  16              		.file 1 "spitest.c"
+   1:spitest.c     **** /*****************************************************************************
+   2:spitest.c     ****  *   spitest.c:  main C entry file for NXP LPC23xx/24xx Family Microprocessors
+   3:spitest.c     ****  *
+   4:spitest.c     ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:spitest.c     ****  *   All rights reserved.
+   6:spitest.c     ****  *
+   7:spitest.c     ****  *   History
+   8:spitest.c     ****  *   2006.07.20  ver 1.00    Preliminary version, first Release
+   9:spitest.c     ****  *
+  10:spitest.c     **** ******************************************************************************/
+  11:spitest.c     **** #include "LPC24xx.h"                        /* LPC23xx/24xx definitions */
+  12:spitest.c     **** #include "type.h"
+  13:spitest.c     **** #include "irq.h"
+  14:spitest.c     **** #include "spi.h"
+  15:spitest.c     **** #include "monitor.h"
+  16:spitest.c     **** #include "FAT.h"
+  17:spitest.c     **** 
+  18:spitest.c     **** BYTE SPICmd[BUFSIZE];
+  19:spitest.c     **** BYTE SPIWRData[BUFSIZE];
+  20:spitest.c     **** BYTE SPIRDData[BUFSIZE];
+  21:spitest.c     **** BYTE AckCounter = 0;
+  22:spitest.c     **** 
+  23:spitest.c     **** //#define print
+  24:spitest.c     **** 
+  25:spitest.c     **** extern BYTE recv[];
+  26:spitest.c     **** 
+  27:spitest.c     **** BYTE powerOff[8]={0xFF, 0xFF, 0xFF, 0x09, 0, 0, 0, 0};
+  28:spitest.c     **** BYTE sync[8]={0xFF, 0xFF, 0xFF, 0x0D, 0, 0, 0, 0};
+  29:spitest.c     **** BYTE ack[8]={0xFF, 0xFF, 0xFF, 0x0E, 0, 0, 0, 0};
+  30:spitest.c     **** BYTE nAck[8]={0xFF, 0xFF, 0xFF, 0x0F, 0, 0, 0, 0};
+  31:spitest.c     **** BYTE resetCmd[8]={0xFF, 0xFF, 0xFF, 0x08, 0, 0, 0, 0};
+  32:spitest.c     **** BYTE camInit[8]={0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x87, 0x07, 0x05};
+  33:spitest.c     **** 
+  34:spitest.c     **** //Colour Type: Compression Preview     Preview Resolution: 640x480   Compression Resolution: 640x48
+  35:spitest.c     **** BYTE picQuality[8]={0xFF, 0xFF, 0xFF, 0x10, 0, 0, 0, 0}; //set for best pic quality level
+  36:spitest.c     **** BYTE snapshot[8]={0xFF, 0xFF, 0xFF, 0x05, 0, 0, 0, 0};
+  37:spitest.c     **** BYTE getPicture[8] = {0xFF, 0xFF, 0xFF, 0x04, 0x05, 0, 0, 0};
+  38:spitest.c     **** BYTE resetcamera[8] = {0xFF, 0xFF, 0xFF, 0x08, 0x01, 0, 0, 0};
+  39:spitest.c     **** BYTE acksync[8]={0xFF, 0xFF, 0xFF, 0x0E, 0x0D, 0, 0, 0};
+  40:spitest.c     **** BYTE ackinit[8]={0xFF, 0xFF, 0xFF, 0x0E, 0x01, 0, 0, 0};
+  41:spitest.c     **** BYTE acksnap[8]={0xFF, 0xFF, 0xFF, 0x0E, 0x05, 0, 0, 0};
+  42:spitest.c     **** BYTE ackimgqual[8]={0xFF, 0xFF, 0xFF, 0x0E, 0x10, 0, 0, 0};
+  43:spitest.c     **** BYTE ackreset[8]={0xFF, 0xFF, 0xFF, 0x0E, 0x08, 0, 0, 0xFF};
+  44:spitest.c     **** int global=0;
+  45:spitest.c     **** 
+  46:spitest.c     **** char isAck(BYTE * resp, BYTE cmd)
+  47:spitest.c     **** {
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              	.LVL0:
+  20              		mov	ip, sp
+  21 0000 0DC0A0E1 	.LCFI0:
+  22              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+  23 0004 30D82DE9 	.LCFI1:
+  24              		sub	fp, ip, #4
+  25 0008 04B04CE2 	.LCFI2:
+  26              		.loc 1 47 0
+  27              		and	r4, r1, #255
+  28 000c FF4001E2 	.LVL1:
+  29              		mov	ip, #0
+  30 0010 00C0A0E3 		mov	r1, #1
+  31 0014 0110A0E3 		.loc 1 64 0
+  48:spitest.c     **** 	int i;
+  49:spitest.c     **** 	for(i=0; i<8; i++)
+  50:spitest.c     **** 	{
+  51:spitest.c     **** 		switch(i)
+  52:spitest.c     **** 		{
+  53:spitest.c     **** 		case(3):if(resp[i]==0x0F)
+  54:spitest.c     **** 		{
+  55:spitest.c     **** #ifdef print
+  56:spitest.c     **** 			xprintf("\ra nak was returned!!!\n");
+  57:spitest.c     **** #endif
+  58:spitest.c     **** 			return 0;}
+  59:spitest.c     **** 		break;
+  60:spitest.c     **** 
+  61:spitest.c     **** 		case(4): if(resp[i]!=cmd) return 0;
+  62:spitest.c     **** 				 break;
+  63:spitest.c     **** 		case(5): break;
+  64:spitest.c     **** 		default: if(resp[i]!=ack[i]) return 0;
+  32              	b	.L2
+  33 0018 64509FE5 	.L15:
+  34 001c 0B0000EA 		.loc 1 51 0
+  35              		cmp	ip, #5
+  36              		beq	.L6
+  37 0020 05005CE3 		cmp	ip, #3
+  38 0024 0500000A 		beq	.L13
+  39 0028 03005CE3 		.loc 1 64 0
+  40 002c 0E00000A 		ldrb	r2, [r0, ip]	@ zero_extendqisi2
+  41              		ldrb	r3, [r5, ip]	@ zero_extendqisi2
+  42 0030 0C20D0E7 		cmp	r2, r3
+  43 0034 0C30D5E7 		bne	.L7
+  44 0038 030052E1 	.L6:
+  45 003c 0800001A 		.loc 1 49 0
+  46              		cmp	r1, #7
+  47              		bgt	.L14
+  48 0040 070051E3 	.L8:
+  49 0044 0C0000CA 		.loc 1 47 0
+  50              		add	ip, ip, #1
+  51              		add	r1, r1, #1
+  52 0048 01C08CE2 	.L2:
+  53 004c 011081E2 		.loc 1 51 0
+  54              		cmp	ip, #4
+  55              		bne	.L15
+  56 0050 04005CE3 		.loc 1 61 0
+  57 0054 F1FFFF1A 		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+  58              		cmp	r3, r4
+  59 0058 0430D0E5 		beq	.L8
+  60 005c 040053E1 	.L7:
+  61 0060 F8FFFF0A 		.loc 1 49 0
+  62              		mov	r0, #0
+  63              	.LVL2:
+  64 0064 0000A0E3 		.loc 1 68 0
+  65              		ldmfd	sp, {r4, r5, fp, sp, pc}
+  65:spitest.c     **** 		}
+  66:spitest.c     **** 	}
+  67:spitest.c     **** 	return 1;
+  68:spitest.c     **** }
+  66              	, [r0, #3]	@ zero_extendqisi2
+  67 0068 30A89DE8 		cmp	r3, #15
+  68              		bne	.L8
+  69              		b	.L7
+  70              	.L14:
+  71 006c 0330D0E5 		.loc 1 49 0
+  72 0070 0F0053E3 		mov	r0, #1
+  73 0074 F3FFFF1A 	.LVL4:
+  74 0078 F9FFFFEA 		ldmfd	sp, {r4, r5, fp, sp, pc}
+  75              	.L17:
+  76              		.align	2
+  77 007c 0100A0E3 	.L16:
+  78              		.word	ack
+  79 0080 30A89DE8 	.LFE8:
+  81              		.section	.text.stopRec,"ax",%progbits
+  82              		.align	2
+  83 0084 00000000 		.global	stopRec
+  85              	stopRec:
+  86              	.LFB15:
+  87              		.loc 1 362 0
+  88              		@ args = 0, pretend = 0, frame = 0
+  89              		@ frame_needed = 1, uses_anonymous_args = 0
+  90              		.loc 1 363 0
+  91              		ldr	r3, .L20
+  69:spitest.c     **** 
+  70:spitest.c     **** 
+  71:spitest.c     **** /*****************************************************************************
+  72:spitest.c     **** ** Function name:		SPI0_Test
+  73:spitest.c     **** **
+  74:spitest.c     **** ** Descriptions:		Test SPI0 as master interfacing with a Atmel
+  75:spitest.c     **** **						SPI based Serial EEPROM 25080
+  76:spitest.c     **** **
+  77:spitest.c     **** ** parameters:			None
+  78:spitest.c     **** ** Returned value:		None
+  79:spitest.c     **** **
+  80:spitest.c     **** *****************************************************************************/
+  81:spitest.c     **** /*
+  82:spitest.c     **** void SPI0_Test()
+  83:spitest.c     **** {
+  84:spitest.c     **** 	while(1)
+  85:spitest.c     **** 	{
+  86:spitest.c     **** 		int i=0;
+  87:spitest.c     **** 		SPICmd[0]=i;
+  88:spitest.c     **** 		SPISend(SPICmd, 1);
+  89:spitest.c     **** 		SPIReceive(SPIRDData, 1);
+  90:spitest.c     **** 		i++;
+  91:spitest.c     **** 
+  92:spitest.c     **** 	}
+  93:spitest.c     **** 	}
+  94:spitest.c     **** */
+  95:spitest.c     **** 
+  96:spitest.c     **** void sendSync()
+  97:spitest.c     **** 	{
+  98:spitest.c     ****     int i = 0;
+  99:spitest.c     ****     int j=0;
+ 100:spitest.c     **** 
+ 101:spitest.c     **** 	IODIR0 = (IODIR0&~0x01800000)|0x01000000;
+ 102:spitest.c     **** 	IOPIN0 &= ~0x1000000;		// drive CS low
+ 103:spitest.c     **** 
+ 104:spitest.c     ****     //sync loop
+ 105:spitest.c     **** 	while(i++!=60)
+ 106:spitest.c     **** 		{
+ 107:spitest.c     **** #ifdef print
+ 108:spitest.c     **** 			xprintf("SYNC: (try #%d)   ", i);
+ 109:spitest.c     **** #endif
+ 110:spitest.c     **** 			//if the OV529 is not ready, loop
+ 111:spitest.c     **** 			while((volatile int)IOPIN0 & (1<<23)) ;
+ 112:spitest.c     **** 
+ 113:spitest.c     **** 			SPISend(sync, 8);
+ 114:spitest.c     **** 
+ 115:spitest.c     **** 			//for(j=0; j<100000; j++);	// delay approx 25msec
+ 116:spitest.c     **** 
+ 117:spitest.c     **** 			SPIReceive(SPIRDData, 8);
+ 118:spitest.c     **** #ifdef print
+ 119:spitest.c     **** 			xprintf("MISO: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 120:spitest.c     **** 					SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 121:spitest.c     **** 					SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 122:spitest.c     **** #endif
+ 123:spitest.c     **** 			if(isAck(SPIRDData, 0x0D))
+ 124:spitest.c     **** 				{
+ 125:spitest.c     **** #ifdef print
+ 126:spitest.c     **** 					xprintf("ack sync was received\n");
+ 127:spitest.c     **** #endif
+ 128:spitest.c     **** 					SPIReceive(SPIRDData, 8);		// receive SYNC cmd from camera
+ 129:spitest.c     **** 					for(j=0; j<8; j++) {
+ 130:spitest.c     **** 						if(SPIRDData[j] != sync[j]) {
+ 131:spitest.c     **** #ifdef print
+ 132:spitest.c     **** 							xprintf("Expected SYNC, got: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 133:spitest.c     **** 									SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 134:spitest.c     **** 									SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 135:spitest.c     **** #endif
+ 136:spitest.c     **** 							// don't exactly know what should be done in this case
+ 137:spitest.c     **** 							// for the moment, let's send ACK and try to continue ....
+ 138:spitest.c     **** 						}
+ 139:spitest.c     **** 					}
+ 140:spitest.c     **** #ifdef print
+ 141:spitest.c     **** 					if(j==8) xprintf("Got SYNC from camera\n");
+ 142:spitest.c     **** #endif
+ 143:spitest.c     **** 					SPISend(acksync, 8);
+ 144:spitest.c     **** 					AckCounter++;
+ 145:spitest.c     **** 					acksync[5] = AckCounter;
+ 146:spitest.c     **** 					break;
+ 147:spitest.c     **** 				}
+ 148:spitest.c     **** 		}
+ 149:spitest.c     **** 	IOPIN0 |= 0x1000000;	// drive CS high
+ 150:spitest.c     **** 	}
+ 151:spitest.c     **** 
+ 152:spitest.c     **** void resetCam()
+ 153:spitest.c     **** 	{
+ 154:spitest.c     ****     int i = 0;
+ 155:spitest.c     ****     int j = 0;
+ 156:spitest.c     **** 	IODIR0 = (IODIR0&~0x01800000)|0x01000000;
+ 157:spitest.c     **** 	IOPIN0 &= ~0x1000000;		// drive CS low
+ 158:spitest.c     **** 
+ 159:spitest.c     ****     //reset loop
+ 160:spitest.c     ****     while(i++ != 10)
+ 161:spitest.c     ****     {
+ 162:spitest.c     **** #ifdef print
+ 163:spitest.c     **** 		xprintf("RESET: (try #%d)   ",i);
+ 164:spitest.c     **** #endif
+ 165:spitest.c     **** 		//if the OV529 is not ready, loop
+ 166:spitest.c     **** 		while((volatile int)IOPIN0 & (1<<23)) ;
+ 167:spitest.c     **** 
+ 168:spitest.c     **** 		SPISend(resetcamera, 8);
+ 169:spitest.c     **** 		//for(j=0; j<100000; j++);
+ 170:spitest.c     **** 		SPIReceive(SPIRDData, 8);
+ 171:spitest.c     **** #ifdef print
+ 172:spitest.c     **** 		xprintf("MISO: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 173:spitest.c     **** 				SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 174:spitest.c     **** 				SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 175:spitest.c     **** #endif
+ 176:spitest.c     **** 		if(isAck(SPIRDData, 0x08))
+ 177:spitest.c     **** 			{
+ 178:spitest.c     **** #ifdef print
+ 179:spitest.c     **** 				xprintf("ack reset was received\n");
+ 180:spitest.c     **** #endif
+ 181:spitest.c     **** 				break;
+ 182:spitest.c     **** 			}
+ 183:spitest.c     ****     }
+ 184:spitest.c     **** 	IOPIN0 |= 0x1000000;	// drive CS high
+ 185:spitest.c     **** }
+ 186:spitest.c     **** 
+ 187:spitest.c     **** void getInit()
+ 188:spitest.c     **** 	{
+ 189:spitest.c     ****     int j=0;
+ 190:spitest.c     ****     int i=0;
+ 191:spitest.c     ****     IODIR0 = (IODIR0&~0x01800000)|0x01000000;
+ 192:spitest.c     ****     IOPIN0 &= ~0x1000000;		// drive CS low
+ 193:spitest.c     **** 
+ 194:spitest.c     **** while(i++!=15)
+ 195:spitest.c     **** {
+ 196:spitest.c     **** #ifdef print
+ 197:spitest.c     **** 	xprintf("INIT:   " );
+ 198:spitest.c     **** #endif
+ 199:spitest.c     **** 	//if the OV529 is not ready, loop
+ 200:spitest.c     **** 	while((volatile int)IOPIN0 & (1<<23)) ;
+ 201:spitest.c     **** 
+ 202:spitest.c     **** 	SPISend(camInit, 8);
+ 203:spitest.c     **** 	//for(j=0; j<100000; j++);
+ 204:spitest.c     **** 	SPIReceive(SPIRDData, 8);
+ 205:spitest.c     **** #ifdef print
+ 206:spitest.c     **** 	xprintf("MISO: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 207:spitest.c     **** 			SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 208:spitest.c     **** 			SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 209:spitest.c     **** #endif
+ 210:spitest.c     **** 	if(isAck(SPIRDData, 0x01))
+ 211:spitest.c     **** 		{
+ 212:spitest.c     **** #ifdef print
+ 213:spitest.c     **** 			xprintf("ack camera init was received\n");
+ 214:spitest.c     **** #endif
+ 215:spitest.c     **** 			break;
+ 216:spitest.c     **** 		}
+ 217:spitest.c     **** }
+ 218:spitest.c     **** 	IOPIN0 |= 0x1000000;	// drive CS high
+ 219:spitest.c     **** }
+ 220:spitest.c     **** 
+ 221:spitest.c     **** void getImageQuality()
+ 222:spitest.c     **** 	{
+ 223:spitest.c     ****     int j = 0;
+ 224:spitest.c     ****     int i=0;
+ 225:spitest.c     ****     IODIR0 = (IODIR0&~0x01800000)|0x01000000;
+ 226:spitest.c     ****     IOPIN0 &= ~0x1000000;		// drive CS low
+ 227:spitest.c     **** #ifdef print
+ 228:spitest.c     **** 	xprintf("IMAGE QUALITY:   ");
+ 229:spitest.c     **** #endif
+ 230:spitest.c     **** 	//if the OV529 is not ready, loop
+ 231:spitest.c     **** 	while((volatile int)IOPIN0 & (1<<23)) ;
+ 232:spitest.c     **** 
+ 233:spitest.c     **** 	SPISend(picQuality, 8);
+ 234:spitest.c     **** 	//for(j=0; j<100000; j++);
+ 235:spitest.c     **** 
+ 236:spitest.c     **** 	SPIReceive(SPIRDData, 8);
+ 237:spitest.c     **** #ifdef print
+ 238:spitest.c     **** 	xprintf("MISO: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 239:spitest.c     **** 			SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 240:spitest.c     **** 			SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 241:spitest.c     **** #endif
+ 242:spitest.c     **** 	if(isAck(SPIRDData, 0x10))
+ 243:spitest.c     **** 		{
+ 244:spitest.c     **** #ifdef print
+ 245:spitest.c     **** 			xprintf("ack image quality was received\n");
+ 246:spitest.c     **** #endif
+ 247:spitest.c     **** 			SPISend(ackimgqual, 8);
+ 248:spitest.c     **** 
+ 249:spitest.c     **** 		}
+ 250:spitest.c     **** 
+ 251:spitest.c     **** 	IOPIN0 |= 0x1000000;	// drive CS high
+ 252:spitest.c     **** }
+ 253:spitest.c     **** 
+ 254:spitest.c     **** void getSnapshot()
+ 255:spitest.c     **** 	{
+ 256:spitest.c     ****     int i = 0;
+ 257:spitest.c     ****     int j=0;
+ 258:spitest.c     **** 
+ 259:spitest.c     **** 	IODIR0 = (IODIR0&~0x01800000)|0x01000000;
+ 260:spitest.c     **** 	IOPIN0 &= ~0x1000000;	// drive CS low
+ 261:spitest.c     **** while(i++!=15)
+ 262:spitest.c     **** {
+ 263:spitest.c     **** #ifdef print
+ 264:spitest.c     **** 	xprintf("GET SNAPSHOT: (try #%d)   ", i);
+ 265:spitest.c     **** #endif
+ 266:spitest.c     **** 	//if the OV529 is not ready, loop
+ 267:spitest.c     **** 	while((volatile int)IOPIN0 & (1<<23)) ;
+ 268:spitest.c     **** 
+ 269:spitest.c     **** 	SPISend(snapshot, 8);
+ 270:spitest.c     **** 	//for(j=0; j<100000; j++);
+ 271:spitest.c     **** 
+ 272:spitest.c     **** 	SPIReceive(SPIRDData, 8);
+ 273:spitest.c     **** #ifdef print
+ 274:spitest.c     **** 	xprintf("MISO: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 275:spitest.c     **** 			SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 276:spitest.c     **** 			SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 277:spitest.c     **** #endif
+ 278:spitest.c     **** 	if(isAck(SPIRDData, 0x05))
+ 279:spitest.c     **** 		{
+ 280:spitest.c     **** #ifdef print
+ 281:spitest.c     **** 			xprintf("ack snapshot was received\n");
+ 282:spitest.c     **** #endif
+ 283:spitest.c     **** 			break;
+ 284:spitest.c     **** 		}
+ 285:spitest.c     **** }
+ 286:spitest.c     **** 	IOPIN0 |= 0x1000000;	// drive CS high
+ 287:spitest.c     **** }
+ 288:spitest.c     **** 
+ 289:spitest.c     **** int getPic()  //return image size
+ 290:spitest.c     **** {
+ 291:spitest.c     ****     int i = 0;
+ 292:spitest.c     ****     int j = 0;
+ 293:spitest.c     ****     int imgsz;
+ 294:spitest.c     ****     int size;
+ 295:spitest.c     **** //    BYTE *imagebuf = (BYTE*)0x80000000;	// SRAM area starting address (used for image buffer)
+ 296:spitest.c     ****     BYTE *imagebuf = (BYTE*)0x40004000;	// ON-CHIP SRAM area starting address (used for image buffe
+ 297:spitest.c     **** 
+ 298:spitest.c     **** 	IODIR0 = (IODIR0&~0x01800000)|0x01000000;
+ 299:spitest.c     **** 	IOPIN0 &= ~0x1000000;	// drive CS low
+ 300:spitest.c     **** 
+ 301:spitest.c     **** 	    while(i++ != 30)
+ 302:spitest.c     **** 	    {
+ 303:spitest.c     **** #ifdef print
+ 304:spitest.c     **** 			xprintf("GET PICTURE: (try #%d) \n  ", i);
+ 305:spitest.c     **** #endif
+ 306:spitest.c     **** 			//if the OV529 is not ready, loop
+ 307:spitest.c     **** 			while((volatile int)IOPIN0 & (1<<23)) ;
+ 308:spitest.c     **** 
+ 309:spitest.c     **** 			SPISend(getPicture, 8);
+ 310:spitest.c     **** 			//for(j=0; j<100000; j++);
+ 311:spitest.c     **** 
+ 312:spitest.c     **** 			SPIReceive(SPIRDData, 8);
+ 313:spitest.c     **** #ifdef print
+ 314:spitest.c     **** 			xprintf("MISO: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 315:spitest.c     **** 					SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 316:spitest.c     **** 					SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 317:spitest.c     **** #endif
+ 318:spitest.c     **** 			if(isAck(SPIRDData, 0x04))
+ 319:spitest.c     **** 				{
+ 320:spitest.c     **** #ifdef print
+ 321:spitest.c     **** 					xprintf("ack getPic was received\n");
+ 322:spitest.c     **** #endif
+ 323:spitest.c     **** 					SPIReceive(SPIRDData, 8);
+ 324:spitest.c     **** #ifdef print
+ 325:spitest.c     **** 					xprintf("MISO: %02x %02x %02x %02x %02x %02x %02x %02x\r\n ",
+ 326:spitest.c     **** 							SPIRDData[0], SPIRDData[1], SPIRDData[2], SPIRDData[3],
+ 327:spitest.c     **** 							SPIRDData[4], SPIRDData[5], SPIRDData[6], SPIRDData[7]);
+ 328:spitest.c     **** #endif
+ 329:spitest.c     **** 					for(j=0; j<4; j++) {
+ 330:spitest.c     **** 						if((j!=3 && SPIRDData[j] != 0xff) ||
+ 331:spitest.c     **** 						   (j==3 && SPIRDData[j] != 0x0A) ) {
+ 332:spitest.c     **** #ifdef print
+ 333:spitest.c     **** 							xprintf("Expected FFFFFF0A... \n");
+ 334:spitest.c     **** #endif
+ 335:spitest.c     **** 							break;
+ 336:spitest.c     **** 						}
+ 337:spitest.c     **** 					}
+ 338:spitest.c     **** 					if(j==4) {
+ 339:spitest.c     **** #ifdef print
+ 340:spitest.c     **** 						xprintf("Data size: %d\r\n",
+ 341:spitest.c     **** 								imgsz = (SPIRDData[5] + (SPIRDData[6]<<8) + (SPIRDData[7]<<16)));
+ 342:spitest.c     **** #endif
+ 343:spitest.c     **** 						imgsz = (SPIRDData[5] + (SPIRDData[6]<<8) + (SPIRDData[7]<<16));
+ 344:spitest.c     **** 						        size=imgsz;
+ 345:spitest.c     **** 						/*int index = 0;                // position where next 8 byte chunk goes in overall image
+ 346:spitest.c     **** 						while (imgsz> 0) {
+ 347:spitest.c     **** 						    SPIReceive(&imagebuf[index], 8); // read in next 8 bytes (including driving CS low, readi
+ 348:spitest.c     **** 						    imgsz -= 8;
+ 349:spitest.c     **** 						    index += 8;
+ 350:spitest.c     **** 						}*/
+ 351:spitest.c     **** 
+ 352:spitest.c     **** 
+ 353:spitest.c     **** 						SPIReceive(imagebuf, imgsz);
+ 354:spitest.c     **** 						break;
+ 355:spitest.c     **** 					}
+ 356:spitest.c     **** 				}
+ 357:spitest.c     **** 	    }
+ 358:spitest.c     **** 		IOPIN0 |= 0x1000000;	// drive CS high
+ 359:spitest.c     **** 		return size;
+ 360:spitest.c     **** }
+ 361:spitest.c     **** 
+ 362:spitest.c     **** void stopRec(){
+  92              	.LCFI3:
+  93              		.loc 1 363 0
+  94              		mov	r2, #1
+ 363:spitest.c     **** 	global=1;
+  95              	oc 1 362 0
+  96 0000 14309FE5 		stmfd	sp!, {fp, ip, lr, pc}
+  97              	.LCFI4:
+  98 0004 0DC0A0E1 		.loc 1 363 0
+  99              		str	r2, [r3, #0]
+ 100              		.loc 1 362 0
+ 101 0008 0120A0E3 		sub	fp, ip, #4
+ 102              	.LCFI5:
+ 103 000c 00D82DE9 		.loc 1 364 0
+ 104              		ldmfd	sp, {fp, sp, pc}
+ 105              	.L21:
+ 106 0010 002083E5 		.align	2
+ 107              	.L20:
+ 108 0014 04B04CE2 		.word	global
+ 109              	.LFE15:
+ 364:spitest.c     **** }
+ 110              	 .-stopRec
+ 111 0018 00A89DE8 		.section	.text.getPic,"ax",%progbits
+ 112              		.align	2
+ 113              		.global	getPic
+ 115 001c 00000000 	getPic:
+ 116              	.LFB14:
+ 117              		.loc 1 290 0
+ 118              		@ args = 0, pretend = 0, frame = 0
+ 119              		@ frame_needed = 1, uses_anonymous_args = 0
+ 120              		.loc 1 298 0
+ 121              		mov	r3, #-536870912
+ 122              		add	r3, r3, #163840
+ 123              		ldr	r2, [r3, #8]
+ 124              		bic	r2, r2, #25165824
+ 125              		orr	r2, r2, #16777216
+ 126              		str	r2, [r3, #8]
+ 127              		.loc 1 299 0
+ 128 0000 0E32A0E3 		ldr	r1, [r3, #0]
+ 129 0004 0A3983E2 		.loc 1 290 0
+ 130 0008 082093E5 		mov	ip, sp
+ 131 000c 0625C2E3 	.LCFI6:
+ 132 0010 012482E3 		.loc 1 299 0
+ 133 0014 082083E5 		bic	r1, r1, #16777216
+ 134              		.loc 1 290 0
+ 135 0018 001093E5 		stmfd	sp!, {r4, r5, r6, r7, fp, ip, lr, pc}
+ 136              	.LCFI7:
+ 137 001c 0DC0A0E1 		.loc 1 299 0
+ 138              		str	r1, [r3, #0]
+ 139              		.loc 1 312 0
+ 140 0020 0114C1E3 		ldr	r7, .L31
+ 141              		.loc 1 290 0
+ 142 0024 F0D82DE9 		sub	fp, ip, #4
+ 143              	.LCFI8:
+ 144              		.loc 1 307 0
+ 145 0028 001083E5 		mov	r6, r3
+ 146              		.loc 1 299 0
+ 147 002c EC709FE5 		mov	r4, #1
+ 148              	.LVL5:
+ 149 0030 04B04CE2 	.L29:
+ 150              		.loc 1 307 0
+ 151              		ldr	r3, [r6, #0]
+ 152 0034 0360A0E1 		tst	r3, #8388608
+ 153              		bne	.L29
+ 154 0038 0140A0E3 		.loc 1 312 0
+ 155              		ldr	r5, .L31
+ 156              		.loc 1 309 0
+ 157              		ldr	r0, .L31+4
+ 158 003c 003096E5 		mov	r1, #8
+ 159 0040 020513E3 		bl	SPISend
+ 160 0044 FCFFFF1A 		.loc 1 312 0
+ 161              		mov	r0, r5
+ 162 0048 D0509FE5 		mov	r1, #8
+ 163              		bl	SPIReceive
+ 164 004c D0009FE5 		.loc 1 318 0
+ 165 0050 0810A0E3 		mov	r0, r5
+ 166 0054 FEFFFFEB 		mov	r1, #4
+ 167              		bl	isAck
+ 168 0058 0500A0E1 		cmp	r0, #0
+ 169 005c 0810A0E3 		bne	.L30
+ 170 0060 FEFFFFEB 	.L24:
+ 171              		.loc 1 301 0
+ 172 0064 0500A0E1 		cmp	r4, #30
+ 173 0068 0410A0E3 		add	r4, r4, #1
+ 174 006c FEFFFFEB 		bne	.L29
+ 175 0070 000050E3 		.loc 1 358 0
+ 176 0074 0800001A 		mov	r2, #-536870912
+ 177              		add	r2, r2, #163840
+ 178              		ldr	r3, [r2, #0]
+ 179 0078 1E0054E3 		orr	r3, r3, #16777216
+ 180 007c 014084E2 		str	r3, [r2, #0]
+ 181 0080 EDFFFF1A 		.loc 1 360 0
+ 182              		ldmfd	sp, {r4, r5, r6, r7, fp, sp, pc}
+ 183 0084 0E22A0E3 	.L30:
+ 184 0088 0A2982E2 		.loc 1 323 0
+ 185 008c 003092E5 		mov	r0, r5
+ 186 0090 013483E3 		mov	r1, #8
+ 187 0094 003082E5 		bl	SPIReceive
+ 188              		.loc 1 330 0
+ 189 0098 F0A89DE8 		ldrb	r3, [r7, #0]	@ zero_extendqisi2
+ 190              		cmp	r3, #255
+ 191              		bne	.L24
+ 192 009c 0500A0E1 		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 193 00a0 0810A0E3 		cmp	r3, #255
+ 194 00a4 FEFFFFEB 		bne	.L24
+ 195              		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 196 00a8 0030D7E5 		cmp	r3, #255
+ 197 00ac FF0053E3 		bne	.L24
+ 198 00b0 F0FFFF1A 		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 199 00b4 0130D7E5 		cmp	r3, #10
+ 200 00b8 FF0053E3 		bne	.L24
+ 201 00bc EDFFFF1A 		.loc 1 343 0
+ 202 00c0 0230D7E5 		ldrb	r4, [r5, #6]	@ zero_extendqisi2
+ 203 00c4 FF0053E3 	.LVL6:
+ 204 00c8 EAFFFF1A 		ldrb	r3, [r5, #7]	@ zero_extendqisi2
+ 205 00cc 0330D7E5 		ldrb	r2, [r5, #5]	@ zero_extendqisi2
+ 206 00d0 0A0053E3 		mov	r3, r3, asl #16
+ 207 00d4 E7FFFF1A 		mov	r4, r4, asl #8
+ 208              		add	r4, r4, r3
+ 209 00d8 0640D5E5 		add	r4, r4, r2
+ 210              	.LVL7:
+ 211 00dc 0730D5E5 		.loc 1 353 0
+ 212 00e0 0520D5E5 		mov	r0, #1073741824
+ 213 00e4 0338A0E1 		add	r0, r0, #16384
+ 214 00e8 0444A0E1 		mov	r1, r4
+ 215 00ec 034084E0 		bl	SPIReceive
+ 216 00f0 024084E0 		.loc 1 358 0
+ 217              		mov	r2, #-536870912
+ 218              		add	r2, r2, #163840
+ 219 00f4 0101A0E3 		ldr	r3, [r2, #0]
+ 220 00f8 010980E2 		orr	r3, r3, #16777216
+ 221 00fc 0410A0E1 		.loc 1 353 0
+ 222 0100 FEFFFFEB 		mov	r0, r4
+ 223              	.LVL8:
+ 224 0104 0E22A0E3 		.loc 1 358 0
+ 225 0108 0A2982E2 		str	r3, [r2, #0]
+ 226 010c 003092E5 	.LVL9:
+ 227 0110 013483E3 		.loc 1 360 0
+ 228              		ldmfd	sp, {r4, r5, r6, r7, fp, sp, pc}
+ 229 0114 0400A0E1 	.L32:
+ 230              		.align	2
+ 231              	.L31:
+ 232 0118 003082E5 		.word	SPIRDData
+ 233              		.word	getPicture
+ 234              	.LFE14:
+ 236              		.section	.text.getSnapshot,"ax",%progbits
+ 237              		.align	2
+ 238              		.global	getSnapshot
+ 240 0124 00000000 	getSnapshot:
+ 241              	.LFB13:
+ 242              		.loc 1 255 0
+ 243              		@ args = 0, pretend = 0, frame = 0
+ 244              		@ frame_needed = 1, uses_anonymous_args = 0
+ 245              		.loc 1 259 0
+ 246              		mov	r3, #-536870912
+ 247              		add	r3, r3, #163840
+ 248              		ldr	r2, [r3, #8]
+ 249              		bic	r2, r2, #25165824
+ 250              		orr	r2, r2, #16777216
+ 251              		str	r2, [r3, #8]
+ 252              		.loc 1 260 0
+ 253 0000 0E32A0E3 		ldr	r1, [r3, #0]
+ 254 0004 0A3983E2 		bic	r1, r1, #16777216
+ 255 0008 082093E5 		.loc 1 255 0
+ 256 000c 0625C2E3 		mov	ip, sp
+ 257 0010 012482E3 	.LCFI9:
+ 258 0014 082083E5 		.loc 1 260 0
+ 259              		str	r1, [r3, #0]
+ 260 0018 001093E5 		.loc 1 255 0
+ 261 001c 0114C1E3 		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 262              	.LCFI10:
+ 263 0020 0DC0A0E1 		sub	fp, ip, #4
+ 264              	.LCFI11:
+ 265              		.loc 1 267 0
+ 266 0024 001083E5 		mov	r5, r3
+ 267              		.loc 1 260 0
+ 268 0028 30D82DE9 		mov	r4, #1
+ 269              	.LVL10:
+ 270 002c 04B04CE2 	.L39:
+ 271              		.loc 1 267 0
+ 272              		ldr	r3, [r5, #0]
+ 273 0030 0350A0E1 		tst	r3, #8388608
+ 274              		bne	.L39
+ 275 0034 0140A0E3 		.loc 1 269 0
+ 276              		ldr	r0, .L40
+ 277              		mov	r1, #8
+ 278              		bl	SPISend
+ 279 0038 003095E5 		.loc 1 272 0
+ 280 003c 020513E3 		ldr	r0, .L40+4
+ 281 0040 FCFFFF1A 		mov	r1, #8
+ 282              		bl	SPIReceive
+ 283 0044 48009FE5 		.loc 1 278 0
+ 284 0048 0810A0E3 		mov	r1, #5
+ 285 004c FEFFFFEB 		ldr	r0, .L40+4
+ 286              		bl	isAck
+ 287 0050 40009FE5 		cmp	r0, #0
+ 288 0054 0810A0E3 		bne	.L35
+ 289 0058 FEFFFFEB 		.loc 1 261 0
+ 290              		cmp	r4, #15
+ 291 005c 0510A0E3 		add	r4, r4, #1
+ 292 0060 30009FE5 		bne	.L39
+ 293 0064 FEFFFFEB 	.L35:
+ 294 0068 000050E3 		.loc 1 286 0
+ 295 006c 0200001A 		mov	r2, #-536870912
+ 296              		add	r2, r2, #163840
+ 297 0070 0F0054E3 		ldr	r3, [r2, #0]
+ 298 0074 014084E2 		orr	r3, r3, #16777216
+ 299 0078 EEFFFF1A 		str	r3, [r2, #0]
+ 300              		.loc 1 287 0
+ 301              		ldmfd	sp, {r4, r5, fp, sp, pc}
+ 302 007c 0E22A0E3 	.L41:
+ 303 0080 0A2982E2 		.align	2
+ 304 0084 003092E5 	.L40:
+ 305 0088 013483E3 		.word	snapshot
+ 306 008c 003082E5 		.word	SPIRDData
+ 307              	.LFE13:
+ 309              		.section	.text.record,"ax",%progbits
+ 310              		.align	2
+ 311              		.global	record
+ 313 0098 00000000 	record:
+ 314              	.LFB18:
+ 315              		.loc 1 378 0
+ 316              		@ args = 0, pretend = 0, frame = 0
+ 317              		@ frame_needed = 1, uses_anonymous_args = 0
+ 318              		mov	ip, sp
+ 319              	.LCFI12:
+ 320              		stmfd	sp!, {r4, fp, ip, lr, pc}
+ 321              	.LCFI13:
+ 365:spitest.c     **** void setupCamera()
+ 366:spitest.c     **** {
+ 367:spitest.c     **** 	sendSync();
+ 368:spitest.c     **** 	getInit();
+ 369:spitest.c     **** 	getImageQuality();
+ 370:spitest.c     **** }
+ 371:spitest.c     **** int takePicture()
+ 372:spitest.c     **** {
+ 373:spitest.c     **** 	getSnapshot();
+ 374:spitest.c     **** 	return getPic();
+ 375:spitest.c     **** }
+ 376:spitest.c     **** 
+ 377:spitest.c     **** void record()
+ 378:spitest.c     **** {
+ 322              	0
+ 323              		ldr	r3, [r4, #0]
+ 324              		cmp	r3, #1
+ 325 0000 0DC0A0E1 		bne	.L46
+ 326              	.L43:
+ 327 0004 10D82DE9 		.loc 1 384 0
+ 328              		mov	r3, #0
+ 379:spitest.c     **** 	while(global!=1)
+ 329              	, [r4, #0]
+ 330 0008 34409FE5 		.loc 1 386 0
+ 331 000c 003094E5 		ldmfd	sp, {r4, fp, sp, lr}
+ 332 0010 010053E3 		.loc 1 385 0
+ 333              		b	closeFile
+ 334 0014 04B04CE2 	.L49:
+ 335              		.align	2
+ 336              	.L48:
+ 337 0018 0500000A 		.word	global
+ 338              	.LFE18:
+ 380:spitest.c     **** 	{
+ 381:spitest.c     **** 		getSnapshot();
+ 339              	ord, .-record
+ 340 001c FEFFFFEB 		.section	.text.takePicture,"ax",%progbits
+ 382:spitest.c     **** 		writeToSDCard(getPic());
+ 341              	align	2
+ 342 0020 FEFFFFEB 		.global	takePicture
+ 344              	takePicture:
+ 345 0028 003094E5 	.LFB17:
+ 346 002c 010053E3 		.loc 1 372 0
+ 347 0030 F9FFFF1A 		@ args = 0, pretend = 0, frame = 0
+ 348              		@ frame_needed = 1, uses_anonymous_args = 0
+ 383:spitest.c     **** 	}
+ 384:spitest.c     **** 	global=0;
+ 349              	 sp
+ 350 0034 0030A0E3 	.LCFI15:
+ 351 0038 003084E5 		stmfd	sp!, {fp, ip, lr, pc}
+ 385:spitest.c     **** 	closeFile();
+ 386:spitest.c     **** }
+ 352              	FI16:
+ 353 003c 10689DE8 		sub	fp, ip, #4
+ 354              	.LCFI17:
+ 355 0040 FEFFFFEA 		.loc 1 373 0
+ 356              		bl	getSnapshot
+ 357              		.loc 1 375 0
+ 358              		ldmfd	sp, {fp, sp, lr}
+ 359 0044 00000000 		.loc 1 374 0
+ 360              		b	getPic
+ 361              	.LFE17:
+ 363              		.section	.text.getImageQuality,"ax",%progbits
+ 364              		.align	2
+ 365              		.global	getImageQuality
+ 367              	getImageQuality:
+ 368              	.LFB12:
+ 369              		.loc 1 222 0
+ 370              		@ args = 0, pretend = 0, frame = 0
+ 371 0000 0DC0A0E1 		@ frame_needed = 1, uses_anonymous_args = 0
+ 372              		.loc 1 225 0
+ 373 0004 00D82DE9 		mov	r3, #-536870912
+ 374              		add	r3, r3, #163840
+ 375 0008 04B04CE2 		ldr	r2, [r3, #8]
+ 376              		bic	r2, r2, #25165824
+ 377              		orr	r2, r2, #16777216
+ 378 000c FEFFFFEB 		str	r2, [r3, #8]
+ 379              		.loc 1 226 0
+ 380 0010 00689DE8 		ldr	r1, [r3, #0]
+ 381              		bic	r1, r1, #16777216
+ 382 0014 FEFFFFEA 		.loc 1 222 0
+ 383              		mov	ip, sp
+ 384              	.LCFI18:
+ 385              		.loc 1 226 0
+ 386              		str	r1, [r3, #0]
+ 387              		.loc 1 222 0
+ 388              		stmfd	sp!, {fp, ip, lr, pc}
+ 389              	.LCFI19:
+ 390              		.loc 1 231 0
+ 391              		mov	r2, r3
+ 392              		.loc 1 222 0
+ 393              		sub	fp, ip, #4
+ 394              	.LCFI20:
+ 395 0000 0E32A0E3 	.L53:
+ 396 0004 0A3983E2 		.loc 1 231 0
+ 397 0008 082093E5 		ldr	r3, [r2, #0]
+ 398 000c 0625C2E3 		tst	r3, #8388608
+ 399 0010 012482E3 		bne	.L53
+ 400 0014 082083E5 		.loc 1 233 0
+ 401              		ldr	r0, .L57
+ 402 0018 001093E5 		mov	r1, #8
+ 403 001c 0114C1E3 		bl	SPISend
+ 404              		.loc 1 236 0
+ 405 0020 0DC0A0E1 		ldr	r0, .L57+4
+ 406              		mov	r1, #8
+ 407              		bl	SPIReceive
+ 408 0024 001083E5 		.loc 1 242 0
+ 409              		ldr	r0, .L57+4
+ 410 0028 00D82DE9 		mov	r1, #16
+ 411              		bl	isAck
+ 412              		cmp	r0, #0
+ 413 002c 0320A0E1 		.loc 1 247 0
+ 414              		ldrne	r0, .L57+8
+ 415 0030 04B04CE2 		movne	r1, #8
+ 416              		blne	SPISend
+ 417              	.L54:
+ 418              		.loc 1 251 0
+ 419 0034 003092E5 		mov	r2, #-536870912
+ 420 0038 020513E3 		add	r2, r2, #163840
+ 421 003c FCFFFF1A 		ldr	r3, [r2, #0]
+ 422              		orr	r3, r3, #16777216
+ 423 0040 44009FE5 		str	r3, [r2, #0]
+ 424 0044 0810A0E3 		.loc 1 252 0
+ 425 0048 FEFFFFEB 		ldmfd	sp, {fp, sp, pc}
+ 426              	.L58:
+ 427 004c 3C009FE5 		.align	2
+ 428 0050 0810A0E3 	.L57:
+ 429 0054 FEFFFFEB 		.word	picQuality
+ 430              		.word	SPIRDData
+ 431 0058 30009FE5 		.word	ackimgqual
+ 432 005c 1010A0E3 	.LFE12:
+ 434 0064 000050E3 		.section	.text.getInit,"ax",%progbits
+ 435              		.align	2
+ 436 0068 24009F15 		.global	getInit
+ 438 0070 FEFFFF1B 	getInit:
+ 439              	.LFB11:
+ 440              		.loc 1 188 0
+ 441 0074 0E22A0E3 		@ args = 0, pretend = 0, frame = 0
+ 442 0078 0A2982E2 		@ frame_needed = 1, uses_anonymous_args = 0
+ 443 007c 003092E5 		.loc 1 191 0
+ 444 0080 013483E3 		mov	r3, #-536870912
+ 445 0084 003082E5 		add	r3, r3, #163840
+ 446              		ldr	r2, [r3, #8]
+ 447 0088 00A89DE8 		bic	r2, r2, #25165824
+ 448              		orr	r2, r2, #16777216
+ 449              		str	r2, [r3, #8]
+ 450              		.loc 1 192 0
+ 451 008c 00000000 		ldr	r1, [r3, #0]
+ 452 0090 00000000 		bic	r1, r1, #16777216
+ 453 0094 00000000 		.loc 1 188 0
+ 454              		mov	ip, sp
+ 455              	.LCFI21:
+ 456              		.loc 1 192 0
+ 457              		str	r1, [r3, #0]
+ 458              		.loc 1 188 0
+ 459              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 460              	.LCFI22:
+ 461              		sub	fp, ip, #4
+ 462              	.LCFI23:
+ 463              		.loc 1 200 0
+ 464              		mov	r5, r3
+ 465              		.loc 1 192 0
+ 466 0000 0E32A0E3 		mov	r4, #1
+ 467 0004 0A3983E2 	.LVL11:
+ 468 0008 082093E5 	.L65:
+ 469 000c 0625C2E3 		.loc 1 200 0
+ 470 0010 012482E3 		ldr	r3, [r5, #0]
+ 471 0014 082083E5 		tst	r3, #8388608
+ 472              		bne	.L65
+ 473 0018 001093E5 		.loc 1 202 0
+ 474 001c 0114C1E3 		ldr	r0, .L66
+ 475              		mov	r1, #8
+ 476 0020 0DC0A0E1 		bl	SPISend
+ 477              		.loc 1 204 0
+ 478              		ldr	r0, .L66+4
+ 479 0024 001083E5 		mov	r1, #8
+ 480              		bl	SPIReceive
+ 481 0028 30D82DE9 		.loc 1 210 0
+ 482              		mov	r1, #1
+ 483 002c 04B04CE2 		ldr	r0, .L66+4
+ 484              		bl	isAck
+ 485              		cmp	r0, #0
+ 486 0030 0350A0E1 		bne	.L61
+ 487              		.loc 1 194 0
+ 488 0034 0140A0E3 		cmp	r4, #15
+ 489              		add	r4, r4, #1
+ 490              		bne	.L65
+ 491              	.L61:
+ 492 0038 003095E5 		.loc 1 218 0
+ 493 003c 020513E3 		mov	r2, #-536870912
+ 494 0040 FCFFFF1A 		add	r2, r2, #163840
+ 495              		ldr	r3, [r2, #0]
+ 496 0044 48009FE5 		orr	r3, r3, #16777216
+ 497 0048 0810A0E3 		str	r3, [r2, #0]
+ 498 004c FEFFFFEB 		.loc 1 219 0
+ 499              		ldmfd	sp, {r4, r5, fp, sp, pc}
+ 500 0050 40009FE5 	.L67:
+ 501 0054 0810A0E3 		.align	2
+ 502 0058 FEFFFFEB 	.L66:
+ 503              		.word	camInit
+ 504 005c 0110A0E3 		.word	SPIRDData
+ 505 0060 30009FE5 	.LFE11:
+ 507 0068 000050E3 		.section	.text.resetCam,"ax",%progbits
+ 508 006c 0200001A 		.align	2
+ 509              		.global	resetCam
+ 511 0074 014084E2 	resetCam:
+ 512 0078 EEFFFF1A 	.LFB10:
+ 513              		.loc 1 153 0
+ 514              		@ args = 0, pretend = 0, frame = 0
+ 515 007c 0E22A0E3 		@ frame_needed = 1, uses_anonymous_args = 0
+ 516 0080 0A2982E2 		.loc 1 156 0
+ 517 0084 003092E5 		mov	r3, #-536870912
+ 518 0088 013483E3 		add	r3, r3, #163840
+ 519 008c 003082E5 		ldr	r2, [r3, #8]
+ 520              		bic	r2, r2, #25165824
+ 521 0090 30A89DE8 		orr	r2, r2, #16777216
+ 522              		str	r2, [r3, #8]
+ 523              		.loc 1 157 0
+ 524              		ldr	r1, [r3, #0]
+ 525 0094 00000000 		bic	r1, r1, #16777216
+ 526 0098 00000000 		.loc 1 153 0
+ 527              		mov	ip, sp
+ 528              	.LCFI24:
+ 529              		.loc 1 157 0
+ 530              		str	r1, [r3, #0]
+ 531              		.loc 1 153 0
+ 532              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 533              	.LCFI25:
+ 534              		sub	fp, ip, #4
+ 535              	.LCFI26:
+ 536              		.loc 1 166 0
+ 537              		mov	r5, r3
+ 538              		.loc 1 157 0
+ 539 0000 0E32A0E3 		mov	r4, #1
+ 540 0004 0A3983E2 	.LVL12:
+ 541 0008 082093E5 	.L74:
+ 542 000c 0625C2E3 		.loc 1 166 0
+ 543 0010 012482E3 		ldr	r3, [r5, #0]
+ 544 0014 082083E5 		tst	r3, #8388608
+ 545              		bne	.L74
+ 546 0018 001093E5 		.loc 1 168 0
+ 547 001c 0114C1E3 		ldr	r0, .L75
+ 548              		mov	r1, #8
+ 549 0020 0DC0A0E1 		bl	SPISend
+ 550              		.loc 1 170 0
+ 551              		ldr	r0, .L75+4
+ 552 0024 001083E5 		mov	r1, #8
+ 553              		bl	SPIReceive
+ 554 0028 30D82DE9 		.loc 1 176 0
+ 555              		mov	r1, #8
+ 556 002c 04B04CE2 		ldr	r0, .L75+4
+ 557              		bl	isAck
+ 558              		cmp	r0, #0
+ 559 0030 0350A0E1 		bne	.L70
+ 560              		.loc 1 160 0
+ 561 0034 0140A0E3 		cmp	r4, #10
+ 562              		add	r4, r4, #1
+ 563              		bne	.L74
+ 564              	.L70:
+ 565 0038 003095E5 		.loc 1 184 0
+ 566 003c 020513E3 		mov	r2, #-536870912
+ 567 0040 FCFFFF1A 		add	r2, r2, #163840
+ 568              		ldr	r3, [r2, #0]
+ 569 0044 48009FE5 		orr	r3, r3, #16777216
+ 570 0048 0810A0E3 		str	r3, [r2, #0]
+ 571 004c FEFFFFEB 		.loc 1 185 0
+ 572              		ldmfd	sp, {r4, r5, fp, sp, pc}
+ 573 0050 40009FE5 	.L76:
+ 574 0054 0810A0E3 		.align	2
+ 575 0058 FEFFFFEB 	.L75:
+ 576              		.word	resetcamera
+ 577 005c 0810A0E3 		.word	SPIRDData
+ 578 0060 30009FE5 	.LFE10:
+ 580 0068 000050E3 		.section	.text.sendSync,"ax",%progbits
+ 581 006c 0200001A 		.align	2
+ 582              		.global	sendSync
+ 584 0074 014084E2 	sendSync:
+ 585 0078 EEFFFF1A 	.LFB9:
+ 586              		.loc 1 97 0
+ 587              		@ args = 0, pretend = 0, frame = 0
+ 588 007c 0E22A0E3 		@ frame_needed = 1, uses_anonymous_args = 0
+ 589 0080 0A2982E2 		.loc 1 101 0
+ 590 0084 003092E5 		mov	r3, #-536870912
+ 591 0088 013483E3 		add	r3, r3, #163840
+ 592 008c 003082E5 		ldr	r2, [r3, #8]
+ 593              		bic	r2, r2, #25165824
+ 594 0090 30A89DE8 		orr	r2, r2, #16777216
+ 595              		str	r2, [r3, #8]
+ 596              		.loc 1 102 0
+ 597              		ldr	r1, [r3, #0]
+ 598 0094 00000000 		bic	r1, r1, #16777216
+ 599 0098 00000000 		.loc 1 97 0
+ 600              		mov	ip, sp
+ 601              	.LCFI27:
+ 602              		.loc 1 102 0
+ 603              		str	r1, [r3, #0]
+ 604              		.loc 1 97 0
+ 605              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 606              	.LCFI28:
+ 607              		sub	fp, ip, #4
+ 608              	.LCFI29:
+ 609              		.loc 1 111 0
+ 610              		mov	r5, r3
+ 611              		.loc 1 102 0
+ 612 0000 0E32A0E3 		mov	r4, #1
+ 613 0004 0A3983E2 	.LVL13:
+ 614 0008 082093E5 	.L84:
+ 615 000c 0625C2E3 		.loc 1 111 0
+ 616 0010 012482E3 		ldr	r3, [r5, #0]
+ 617 0014 082083E5 		tst	r3, #8388608
+ 618              		bne	.L84
+ 619 0018 001093E5 		.loc 1 113 0
+ 620 001c 0114C1E3 		ldr	r0, .L86
+ 621              		mov	r1, #8
+ 622 0020 0DC0A0E1 		bl	SPISend
+ 623              		.loc 1 117 0
+ 624              		ldr	r0, .L86+4
+ 625 0024 001083E5 		mov	r1, #8
+ 626              		bl	SPIReceive
+ 627 0028 30D82DE9 		.loc 1 123 0
+ 628              		mov	r1, #13
+ 629 002c 04B04CE2 		ldr	r0, .L86+4
+ 630              		bl	isAck
+ 631              		cmp	r0, #0
+ 632 0030 0350A0E1 		bne	.L85
+ 633              		.loc 1 105 0
+ 634 0034 0140A0E3 		cmp	r4, #60
+ 635              		add	r4, r4, #1
+ 636              		bne	.L84
+ 637              		.loc 1 149 0
+ 638 0038 003095E5 		mov	r2, #-536870912
+ 639 003c 020513E3 		add	r2, r2, #163840
+ 640 0040 FCFFFF1A 		ldr	r3, [r2, #0]
+ 641              		orr	r3, r3, #16777216
+ 642 0044 94009FE5 		str	r3, [r2, #0]
+ 643 0048 0810A0E3 		.loc 1 150 0
+ 644 004c FEFFFFEB 		ldmfd	sp, {r4, r5, fp, sp, pc}
+ 645              	.L85:
+ 646 0050 8C009FE5 		.loc 1 143 0
+ 647 0054 0810A0E3 		ldr	r4, .L86+8
+ 648 0058 FEFFFFEB 	.LVL14:
+ 649              		.loc 1 128 0
+ 650 005c 0D10A0E3 		ldr	r0, .L86+4
+ 651 0060 7C009FE5 		mov	r1, #8
+ 652 0064 FEFFFFEB 		bl	SPIReceive
+ 653 0068 000050E3 		.loc 1 143 0
+ 654 006c 0800001A 		mov	r0, r4
+ 655              		mov	r1, #8
+ 656 0070 3C0054E3 		bl	SPISend
+ 657 0074 014084E2 		.loc 1 144 0
+ 658 0078 EEFFFF1A 		ldr	r2, .L86+12
+ 659              		ldrb	r3, [r2, #0]	@ zero_extendqisi2
+ 660 007c 0E22A0E3 		add	r3, r3, #1
+ 661 0080 0A2982E2 		and	r3, r3, #255
+ 662 0084 003092E5 		strb	r3, [r2, #0]
+ 663 0088 013483E3 		.loc 1 145 0
+ 664 008c 003082E5 		strb	r3, [r4, #5]
+ 665              		.loc 1 149 0
+ 666 0090 30A89DE8 		mov	r2, #-536870912
+ 667              		add	r2, r2, #163840
+ 668              		ldr	r3, [r2, #0]
+ 669 0094 4C409FE5 		orr	r3, r3, #16777216
+ 670              		str	r3, [r2, #0]
+ 671              		.loc 1 150 0
+ 672 0098 44009FE5 		ldmfd	sp, {r4, r5, fp, sp, pc}
+ 673 009c 0810A0E3 	.L87:
+ 674 00a0 FEFFFFEB 		.align	2
+ 675              	.L86:
+ 676 00a4 0400A0E1 		.word	sync
+ 677 00a8 0810A0E3 		.word	SPIRDData
+ 678 00ac FEFFFFEB 		.word	acksync
+ 679              		.word	AckCounter
+ 680 00b0 34209FE5 	.LFE9:
+ 682 00b8 013083E2 		.section	.text.setupCamera,"ax",%progbits
+ 683 00bc FF3003E2 		.align	2
+ 684 00c0 0030C2E5 		.global	setupCamera
+ 686 00c4 0530C4E5 	setupCamera:
+ 687              	.LFB16:
+ 688 00c8 0E22A0E3 		.loc 1 366 0
+ 689 00cc 0A2982E2 		@ args = 0, pretend = 0, frame = 0
+ 690 00d0 003092E5 		@ frame_needed = 1, uses_anonymous_args = 0
+ 691 00d4 013483E3 		mov	ip, sp
+ 692 00d8 003082E5 	.LCFI30:
+ 693              		stmfd	sp!, {fp, ip, lr, pc}
+ 694 00dc 30A89DE8 	.LCFI31:
+ 695              		sub	fp, ip, #4
+ 696              	.LCFI32:
+ 697              		.loc 1 367 0
+ 698 00e0 00000000 		bl	sendSync
+ 699 00e4 00000000 		.loc 1 368 0
+ 700 00e8 00000000 		bl	getInit
+ 701 00ec 00000000 		.loc 1 370 0
+ 702              		ldmfd	sp, {fp, sp, lr}
+ 703              		.loc 1 369 0
+ 704              		b	getImageQuality
+ 705              	.LFE16:
+ 707              		.global	AckCounter
+ 708              		.section	.bss.AckCounter,"aw",%nobits
+ 711              	AckCounter:
+ 712              		.space	1
+ 713 0000 0DC0A0E1 		.global	powerOff
+ 714              		.section	.data.powerOff,"aw",%progbits
+ 717 0008 04B04CE2 	powerOff:
+ 718              		.byte	-1
+ 719              		.byte	-1
+ 720 000c FEFFFFEB 		.byte	-1
+ 721              		.byte	9
+ 722 0010 FEFFFFEB 		.byte	0
+ 723              		.byte	0
+ 724 0014 00689DE8 		.byte	0
+ 725              		.byte	0
+ 726 0018 FEFFFFEA 		.global	sync
+ 727              		.section	.data.sync,"aw",%progbits
+ 730              	sync:
+ 731              		.byte	-1
+ 732              		.byte	-1
+ 733              		.byte	-1
+ 734 0000 00       		.byte	13
+ 735              		.byte	0
+ 736              		.byte	0
+ 737              		.byte	0
+ 738              		.byte	0
+ 739              		.global	ack
+ 740 0000 FF       		.section	.data.ack,"aw",%progbits
+ 743 0003 09       	ack:
+ 744 0004 00       		.byte	-1
+ 745 0005 00       		.byte	-1
+ 746 0006 00       		.byte	-1
+ 747 0007 00       		.byte	14
+ 748              		.byte	0
+ 749              		.byte	0
+ 750              		.byte	0
+ 751              		.byte	0
+ 752              		.global	nAck
+ 753 0000 FF       		.section	.data.nAck,"aw",%progbits
+ 756 0003 0D       	nAck:
+ 757 0004 00       		.byte	-1
+ 758 0005 00       		.byte	-1
+ 759 0006 00       		.byte	-1
+ 760 0007 00       		.byte	15
+ 761              		.byte	0
+ 762              		.byte	0
+ 763              		.byte	0
+ 764              		.byte	0
+ 765              		.global	resetCmd
+ 766 0000 FF       		.section	.data.resetCmd,"aw",%progbits
+ 769 0003 0E       	resetCmd:
+ 770 0004 00       		.byte	-1
+ 771 0005 00       		.byte	-1
+ 772 0006 00       		.byte	-1
+ 773 0007 00       		.byte	8
+ 774              		.byte	0
+ 775              		.byte	0
+ 776              		.byte	0
+ 777              		.byte	0
+ 778              		.global	camInit
+ 779 0000 FF       		.section	.data.camInit,"aw",%progbits
+ 782 0003 0F       	camInit:
+ 783 0004 00       		.byte	-1
+ 784 0005 00       		.byte	-1
+ 785 0006 00       		.byte	-1
+ 786 0007 00       		.byte	1
+ 787              		.byte	0
+ 788              		.byte	-121
+ 789              		.byte	7
+ 790              		.byte	5
+ 791              		.global	picQuality
+ 792 0000 FF       		.section	.data.picQuality,"aw",%progbits
+ 795 0003 08       	picQuality:
+ 796 0004 00       		.byte	-1
+ 797 0005 00       		.byte	-1
+ 798 0006 00       		.byte	-1
+ 799 0007 00       		.byte	16
+ 800              		.byte	0
+ 801              		.byte	0
+ 802              		.byte	0
+ 803              		.byte	0
+ 804              		.global	snapshot
+ 805 0000 FF       		.section	.data.snapshot,"aw",%progbits
+ 808 0003 01       	snapshot:
+ 809 0004 00       		.byte	-1
+ 810 0005 87       		.byte	-1
+ 811 0006 07       		.byte	-1
+ 812 0007 05       		.byte	5
+ 813              		.byte	0
+ 814              		.byte	0
+ 815              		.byte	0
+ 816              		.byte	0
+ 817              		.global	getPicture
+ 818 0000 FF       		.section	.data.getPicture,"aw",%progbits
+ 821 0003 10       	getPicture:
+ 822 0004 00       		.byte	-1
+ 823 0005 00       		.byte	-1
+ 824 0006 00       		.byte	-1
+ 825 0007 00       		.byte	4
+ 826              		.byte	5
+ 827              		.byte	0
+ 828              		.byte	0
+ 829              		.byte	0
+ 830              		.global	resetcamera
+ 831 0000 FF       		.section	.data.resetcamera,"aw",%progbits
+ 834 0003 05       	resetcamera:
+ 835 0004 00       		.byte	-1
+ 836 0005 00       		.byte	-1
+ 837 0006 00       		.byte	-1
+ 838 0007 00       		.byte	8
+ 839              		.byte	1
+ 840              		.byte	0
+ 841              		.byte	0
+ 842              		.byte	0
+ 843              		.global	acksync
+ 844 0000 FF       		.section	.data.acksync,"aw",%progbits
+ 847 0003 04       	acksync:
+ 848 0004 05       		.byte	-1
+ 849 0005 00       		.byte	-1
+ 850 0006 00       		.byte	-1
+ 851 0007 00       		.byte	14
+ 852              		.byte	13
+ 853              		.byte	0
+ 854              		.byte	0
+ 855              		.byte	0
+ 856              		.global	ackinit
+ 857 0000 FF       		.section	.data.ackinit,"aw",%progbits
+ 860 0003 08       	ackinit:
+ 861 0004 01       		.byte	-1
+ 862 0005 00       		.byte	-1
+ 863 0006 00       		.byte	-1
+ 864 0007 00       		.byte	14
+ 865              		.byte	1
+ 866              		.byte	0
+ 867              		.byte	0
+ 868              		.byte	0
+ 869              		.global	acksnap
+ 870 0000 FF       		.section	.data.acksnap,"aw",%progbits
+ 873 0003 0E       	acksnap:
+ 874 0004 0D       		.byte	-1
+ 875 0005 00       		.byte	-1
+ 876 0006 00       		.byte	-1
+ 877 0007 00       		.byte	14
+ 878              		.byte	5
+ 879              		.byte	0
+ 880              		.byte	0
+ 881              		.byte	0
+ 882              		.global	ackimgqual
+ 883 0000 FF       		.section	.data.ackimgqual,"aw",%progbits
+ 886 0003 0E       	ackimgqual:
+ 887 0004 01       		.byte	-1
+ 888 0005 00       		.byte	-1
+ 889 0006 00       		.byte	-1
+ 890 0007 00       		.byte	14
+ 891              		.byte	16
+ 892              		.byte	0
+ 893              		.byte	0
+ 894              		.byte	0
+ 895              		.global	ackreset
+ 896 0000 FF       		.section	.data.ackreset,"aw",%progbits
+ 899 0003 0E       	ackreset:
+ 900 0004 05       		.byte	-1
+ 901 0005 00       		.byte	-1
+ 902 0006 00       		.byte	-1
+ 903 0007 00       		.byte	14
+ 904              		.byte	8
+ 905              		.byte	0
+ 906              		.byte	0
+ 907              		.byte	-1
+ 908              		.global	global
+ 909 0000 FF       		.section	.bss.global,"aw",%nobits
+ 910 0001 FF       		.align	2
+ 913 0004 10       	global:
+ 914 0005 00       		.space	4
+ 915 0006 00       		.comm	SPICmd,8,1
+ 916 0007 00       		.comm	SPIWRData,8,1
+ 917              		.comm	SPIRDData,8,1
+ 918              		.section	.debug_frame,"",%progbits
+ 919              	.Lframe0:
+ 920              		.4byte	.LECIE0-.LSCIE0
+ 921              	.LSCIE0:
+ 922 0000 FF       		.4byte	0xffffffff
+ 923 0001 FF       		.byte	0x1
+ 924 0002 FF       		.ascii	"\000"
+ 925 0003 0E       		.uleb128 0x1
+ 926 0004 08       		.sleb128 -4
+ 927 0005 00       		.byte	0xe
+ 928 0006 00       		.byte	0xc
+ 929 0007 FF       		.uleb128 0xd
+ 930              		.uleb128 0x0
+ 931              		.align	2
+ 932              	.LECIE0:
+ 933              	.LSFDE0:
+ 934              		.4byte	.LEFDE0-.LASFDE0
+ 935              	.LASFDE0:
+ 936 0000 00000000 		.4byte	.Lframe0
+ 937              		.4byte	.LFB8
+ 938              		.4byte	.LFE8-.LFB8
+ 939              		.byte	0x4
+ 1261              		.2byte	0x1
+DEFINED SYMBOLS
+                            *ABS*:00000000 spitest.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:14     .text.isAck:00000000 isAck
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:21     .text.isAck:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:83     .text.isAck:00000084 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:765    .data.ack:00000000 ack
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:90     .text.stopRec:00000000 stopRec
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:96     .text.stopRec:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:115    .text.stopRec:0000001c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:935    .bss.global:00000000 global
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:122    .text.getPic:00000000 getPic
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:128    .text.getPic:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:239    .text.getPic:00000120 $d
+                            *COM*:00000008 SPIRDData
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:843    .data.getPicture:00000000 getPicture
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:247    .text.getSnapshot:00000000 getSnapshot
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:253    .text.getSnapshot:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:312    .text.getSnapshot:00000094 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:830    .data.snapshot:00000000 snapshot
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:320    .text.record:00000000 record
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:325    .text.record:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:359    .text.record:00000044 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:366    .text.takePicture:00000000 takePicture
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:371    .text.takePicture:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:389    .text.getImageQuality:00000000 getImageQuality
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:395    .text.getImageQuality:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:451    .text.getImageQuality:0000008c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:817    .data.picQuality:00000000 picQuality
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:908    .data.ackimgqual:00000000 ackimgqual
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:460    .text.getInit:00000000 getInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:466    .text.getInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:525    .text.getInit:00000094 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:804    .data.camInit:00000000 camInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:533    .text.resetCam:00000000 resetCam
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:539    .text.resetCam:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:598    .text.resetCam:00000094 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:856    .data.resetcamera:00000000 resetcamera
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:606    .text.sendSync:00000000 sendSync
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:612    .text.sendSync:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:698    .text.sendSync:000000e0 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:752    .data.sync:00000000 sync
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:869    .data.acksync:00000000 acksync
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:733    .bss.AckCounter:00000000 AckCounter
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:708    .text.setupCamera:00000000 setupCamera
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:713    .text.setupCamera:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:739    .data.powerOff:00000000 powerOff
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:740    .data.powerOff:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:753    .data.sync:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:766    .data.ack:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:778    .data.nAck:00000000 nAck
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:779    .data.nAck:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:791    .data.resetCmd:00000000 resetCmd
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:792    .data.resetCmd:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:805    .data.camInit:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:818    .data.picQuality:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:831    .data.snapshot:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:844    .data.getPicture:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:857    .data.resetcamera:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:870    .data.acksync:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:882    .data.ackinit:00000000 ackinit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:883    .data.ackinit:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:895    .data.acksnap:00000000 acksnap
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:896    .data.acksnap:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:909    .data.ackimgqual:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:921    .data.ackreset:00000000 ackreset
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:922    .data.ackreset:00000000 $d
+                            *COM*:00000008 SPICmd
+                            *COM*:00000008 SPIWRData
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:942    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXlr4Oo.s:1265   .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+SPISend
+SPIReceive
+writeToSDCard
+closeFile

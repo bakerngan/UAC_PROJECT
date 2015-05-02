@@ -1,0 +1,172 @@
+   1              		.file	"SDCard.c"
+   9              	.Ltext0:
+  10              		.section	.text.SRAMInit,"ax",%progbits
+  11              		.align	2
+  12              		.global	SRAMInit
+  14              	SRAMInit:
+  15              	.LFB8:
+  16              		.file 1 "SDCard.c"
+   1:SDCard.c      **** #include "SDCard.h"
+   2:SDCard.c      **** int _rcopy(unsigned long*, long);
+   3:SDCard.c      **** extern unsigned long _S_romp;
+   4:SDCard.c      **** 
+   5:SDCard.c      **** DWORD acc_size;				/* Work register for fs command */
+   6:SDCard.c      **** WORD acc_files, acc_dirs;
+   7:SDCard.c      **** FILINFO finfo;
+   8:SDCard.c      **** volatile DWORD Timer;		/* 1kHz increment timer */
+   9:SDCard.c      **** char linebuf[120];			/* Console input buffer */
+  10:SDCard.c      **** 
+  11:SDCard.c      **** FATFS fatfs[_DRIVES];		/* File system object for each logical drive */
+  12:SDCard.c      **** BYTE Buff[4096];			/* Working buffer */
+  13:SDCard.c      **** 
+  14:SDCard.c      **** WORD rtcYear = 2007;
+  15:SDCard.c      **** BYTE rtcMon = 9, rtcMday = 6, rtcHour = 11, rtcMin = 55, rtcSec = 0;
+  16:SDCard.c      **** 
+  17:SDCard.c      **** void SRAMInit(){
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              		.loc 1 18 0
+  18:SDCard.c      **** 	  PINSEL6 = 0x55555555;
+  20              	r	r1, .L3
+  21 0000 84109FE5 		ldr	r2, .L3+4
+  22 0004 84209FE5 		str	r2, [r1, #24]
+  23 0008 182081E5 		.loc 1 19 0
+  19:SDCard.c      **** 	  PINSEL8 = PINSEL8 & 0x00000000;
+  24              		r0, #0
+  25 000c 0000A0E3 		ldr	r3, [r1, #32]
+  26 0010 203091E5 		str	r0, [r1, #32]
+  27 0014 200081E5 		.loc 1 20 0
+  20:SDCard.c      **** 	  PINSEL8 = PINSEL8 | 0x55555555; 	  //Set all 32:0 pins to 01 for address P4[0] - P4[15]
+  28              		r3, [r1, #32]
+  29 0018 203091E5 		orr	r3, r3, r2
+  30 001c 023083E1 		str	r3, [r1, #32]
+  31 0020 203081E5 		.loc 1 22 0
+  21:SDCard.c      **** 
+  22:SDCard.c      **** 	  PINSEL9 = PINSEL9 & 0x0F00FF00;	  //Set 7:0 pins to 01 for address P4[16] - P4[19]
+  32              		r3, .L3+8
+  33 0024 68309FE5 		ldr	r2, [r1, #36]
+  34 0028 242091E5 		and	r3, r2, r3
+  35 002c 033002E0 		str	r3, [r1, #36]
+  36 0030 243081E5 		.loc 1 23 0
+  23:SDCard.c      **** 	  PINSEL9 = PINSEL9 | 0x50550055;
+  37              	r3, .L3+12
+  38 0034 5C309FE5 		ldr	r2, [r1, #36]
+  39 0038 242091E5 		orr	r3, r2, r3
+  40 003c 033082E1 		str	r3, [r1, #36]
+  41 0040 243081E5 		.loc 1 25 0
+  24:SDCard.c      **** 
+  25:SDCard.c      **** 	  EMC_CTRL &= ~2;					// select normal memory map (enables CS0 operation)
+  42              	r2, .L3+16
+  43 0044 50209FE5 		ldr	r3, [r2, #-4095]
+  44 0048 FF3F12E5 		bic	r3, r3, #2
+  45 004c 0230C3E3 		str	r3, [r2, #-4095]
+  46 0050 FF3F02E5 		.loc 1 26 0
+  26:SDCard.c      **** 	  EMC_STA_CFG0 = 0x81;
+  47              	r3, #129
+  48 0054 8130A0E3 		str	r3, [r2, #-3583]
+  49 0058 FF3D02E5 		.loc 1 17 0
+  50              		mov	ip, sp
+  51 005c 0DC0A0E1 	.LCFI0:
+  52              		.loc 1 30 0
+  27:SDCard.c      **** 	  EMC_STA_WAITWEN0 = 0x0;			// Keil had 2
+  28:SDCard.c      **** 	  EMC_STA_WAITOEN0 = 0x0;			//          3
+  29:SDCard.c      **** 	  EMC_STA_WAITRD0 = 0x1;			//          2
+  30:SDCard.c      **** 	  EMC_STA_WAITPAGE0 = 0x2;
+  53              	1, #2
+  54 0060 0210A0E3 		.loc 1 29 0
+  55              		mov	r3, #1
+  56 0064 0130A0E3 		.loc 1 27 0
+  57              		str	r0, [r2, #-3579]
+  58 0068 FB0D02E5 		.loc 1 17 0
+  59              		stmfd	sp!, {fp, ip, lr, pc}
+  60 006c 00D82DE9 	.LCFI1:
+  61              		.loc 1 28 0
+  62              		str	r0, [r2, #-3575]
+  63 0070 F70D02E5 		.loc 1 17 0
+  64              		sub	fp, ip, #4
+  65 0074 04B04CE2 	.LCFI2:
+  66              		.loc 1 29 0
+  67              		str	r3, [r2, #-3571]
+  68 0078 F33D02E5 		.loc 1 30 0
+  69              		str	r1, [r2, #-3567]
+  70 007c EF1D02E5 		.loc 1 31 0
+  31:SDCard.c      **** 	  EMC_STA_WAITWR0 = 0x0;			//          2
+  71              	63]
+  72 0080 EB0D02E5 		.loc 1 32 0
+  32:SDCard.c      **** 	  EMC_STA_WAITTURN0 = 0x2;
+  73              	tr	r1, [r2, #-3559]
+  74 0084 E71D02E5 		.loc 1 33 0
+  33:SDCard.c      **** }
+  75              	dmfd	sp, {fp, sp, pc}
+  76 0088 00A89DE8 	.L4:
+  77              		.align	2
+  78              	.L3:
+  79              		.word	-536690688
+  80 008c 00C002E0 		.word	1431655765
+  81 0090 55555555 		.word	251723520
+  82 0094 00FF000F 		.word	1347747925
+  83 0098 55005550 		.word	-2060289
+  84 009c FF8FE0FF 	.LFE8:
+  86              		.global	rtcYear
+  87              		.section	.data.rtcYear,"aw",%progbits
+  88              		.align	1
+  91              	rtcYear:
+  92              		.short	2007
+  93 0000 D707     		.global	rtcMon
+  94              		.section	.data.rtcMon,"aw",%progbits
+  97              	rtcMon:
+  98              		.byte	9
+  99 0000 09       		.global	rtcMday
+ 100              		.section	.data.rtcMday,"aw",%progbits
+ 103              	rtcMday:
+ 104              		.byte	6
+ 105 0000 06       		.global	rtcHour
+ 106              		.section	.data.rtcHour,"aw",%progbits
+ 109              	rtcHour:
+ 110              		.byte	11
+ 111 0000 0B       		.global	rtcMin
+ 112              		.section	.data.rtcMin,"aw",%progbits
+ 115              	rtcMin:
+ 116              		.byte	55
+ 117 0000 37       		.global	rtcSec
+ 118              		.section	.bss.rtcSec,"aw",%nobits
+ 121              	rtcSec:
+ 122              		.space	1
+ 123 0000 00       		.comm	acc_size,4,4
+ 124              		.comm	acc_files,2,2
+ 125              		.comm	acc_dirs,2,2
+ 126              		.comm	finfo,24,4
+ 127              		.comm	Timer,4,4
+ 128              		.comm	linebuf,120,1
+ 129              		.comm	fatfs,560,4
+ 130              		.comm	Buff,4096,1
+ 131              		.section	.debug_frame,"",%progbits
+ 173              		.section	.debug_loc,"",%progbits
+DEFINED SYMBOLS
+                            *ABS*:00000000 SDCard.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:14     .text.SRAMInit:00000000 SRAMInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:21     .text.SRAMInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:80     .text.SRAMInit:0000008c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:92     .data.rtcYear:00000000 rtcYear
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:93     .data.rtcYear:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:98     .data.rtcMon:00000000 rtcMon
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:99     .data.rtcMon:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:104    .data.rtcMday:00000000 rtcMday
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:105    .data.rtcMday:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:110    .data.rtcHour:00000000 rtcHour
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:111    .data.rtcHour:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:116    .data.rtcMin:00000000 rtcMin
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:117    .data.rtcMin:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:122    .bss.rtcSec:00000000 rtcSec
+                            *COM*:00000004 acc_size
+                            *COM*:00000002 acc_files
+                            *COM*:00000002 acc_dirs
+                            *COM*:00000018 finfo
+                            *COM*:00000004 Timer
+                            *COM*:00000078 linebuf
+                            *COM*:00000230 fatfs
+                            *COM*:00001000 Buff
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:134    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc1V8Nwo.s:177    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

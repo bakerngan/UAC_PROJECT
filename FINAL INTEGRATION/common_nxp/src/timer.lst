@@ -1,0 +1,990 @@
+   1              		.file	"timer.c"
+   9              	.Ltext0:
+  10              		.section	.text.registercallback_timer,"ax",%progbits
+  11              		.align	2
+  12              		.global	registercallback_timer
+  14              	registercallback_timer:
+  15              	.LFB8:
+  16              		.file 1 "common_nxp/src/timer.c"
+   1:common_nxp/src/timer.c **** /*****************************************************************************
+   2:common_nxp/src/timer.c ****  *   timer.c:  Timer C file for NXP LPC23xx/24xx Family Microprocessors
+   3:common_nxp/src/timer.c ****  *
+   4:common_nxp/src/timer.c ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:common_nxp/src/timer.c ****  *   All rights reserved.
+   6:common_nxp/src/timer.c ****  *
+   7:common_nxp/src/timer.c ****  *   History
+   8:common_nxp/src/timer.c ****  *   2006.09.01  ver 1.00    Prelimnary version, first Release
+   9:common_nxp/src/timer.c ****  *
+  10:common_nxp/src/timer.c **** ******************************************************************************/
+  11:common_nxp/src/timer.c **** #include "LPC23xx.h"		/* LPC23xx/24xx Peripheral Registers	*/
+  12:common_nxp/src/timer.c **** #include "type.h"
+  13:common_nxp/src/timer.c **** #include "irq.h"
+  14:common_nxp/src/timer.c **** #include "target.h"
+  15:common_nxp/src/timer.c **** #include "timer.h"
+  16:common_nxp/src/timer.c **** 
+  17:common_nxp/src/timer.c **** volatile DWORD timer0_counter = 0;
+  18:common_nxp/src/timer.c **** volatile DWORD timer1_counter = 0;
+  19:common_nxp/src/timer.c **** 
+  20:common_nxp/src/timer.c **** #ifdef MTHOMAS_MOD
+  21:common_nxp/src/timer.c **** volatile Timer_Callback_Func timer0CallbackFunction = NULL;
+  22:common_nxp/src/timer.c **** volatile Timer_Callback_Func timer1CallbackFunction = NULL;
+  23:common_nxp/src/timer.c **** 
+  24:common_nxp/src/timer.c **** DWORD registercallback_timer( BYTE timer_num, Timer_Callback_Func pFunction)
+  25:common_nxp/src/timer.c **** {
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              	.LVL0:
+  20              		mov	ip, sp
+  21 0000 0DC0A0E1 	.LCFI0:
+  22              		.loc 1 28 0
+  26:common_nxp/src/timer.c **** 	BYTE ret;
+  27:common_nxp/src/timer.c **** 
+  28:common_nxp/src/timer.c **** 	if ( pFunction != NULL ) {
+  23              	1, #0
+  24 0004 000051E3 		.loc 1 25 0
+  25              		stmfd	sp!, {fp, ip, lr, pc}
+  26 0008 00D82DE9 	.LCFI1:
+  27              		and	r0, r0, #255
+  28 000c FF0000E2 	.LVL1:
+  29              		sub	fp, ip, #4
+  30 0010 04B04CE2 	.LCFI2:
+  31              		.loc 1 28 0
+  32              		beq	.L2
+  33 0014 0800000A 		.loc 1 29 0
+  29:common_nxp/src/timer.c **** 		if ( timer_num == 0 ) {
+  34              	
+  35 0018 000050E3 		.loc 1 30 0
+  30:common_nxp/src/timer.c **** 			timer0CallbackFunction = pFunction;
+  36              	ldreq	r3, .L7
+  37 001c 20309F05 		addeq	r0, r0, #1
+  38 0020 01008002 	.LVL2:
+  39              		streq	r1, [r3, #0]
+  40 0024 00108305 		.loc 1 29 0
+  41              		ldmeqfd	sp, {fp, sp, pc}
+  42 0028 00A89D08 		.loc 1 33 0
+  31:common_nxp/src/timer.c **** 			ret = TRUE;
+  32:common_nxp/src/timer.c **** 		}
+  33:common_nxp/src/timer.c **** 		else if ( timer_num == 1 ) {
+  43              	, #1
+  44 002c 010050E3 	.LVL3:
+  45              		.loc 1 34 0
+  34:common_nxp/src/timer.c **** 			timer1CallbackFunction = pFunction;
+  46              	req	r3, .L7+4
+  47 0030 10309F05 		streq	r1, [r3, #0]
+  48 0034 00108305 		.loc 1 33 0
+  49              		ldmeqfd	sp, {fp, sp, pc}
+  50 0038 00A89D08 	.L2:
+  51              		.loc 1 34 0
+  52              		mov	r0, #0
+  53 003c 0000A0E3 	.LVL4:
+  54              		.loc 1 46 0
+  35:common_nxp/src/timer.c **** 			ret = TRUE;
+  36:common_nxp/src/timer.c **** 		}
+  37:common_nxp/src/timer.c **** 		else {
+  38:common_nxp/src/timer.c **** 			ret = FALSE;
+  39:common_nxp/src/timer.c **** 		}
+  40:common_nxp/src/timer.c **** 	}
+  41:common_nxp/src/timer.c **** 	else {
+  42:common_nxp/src/timer.c **** 		ret = FALSE;
+  43:common_nxp/src/timer.c **** 	}
+  44:common_nxp/src/timer.c **** 
+  45:common_nxp/src/timer.c **** 	return ret;
+  46:common_nxp/src/timer.c **** }
+  55              	, {fp, sp, pc}
+  56 0040 00A89DE8 	.L8:
+  57              		.align	2
+  58              	.L7:
+  59              		.word	timer0CallbackFunction
+  60 0044 00000000 		.word	timer1CallbackFunction
+  61 0048 00000000 	.LFE8:
+  63              		.section	.text.delayMs,"ax",%progbits
+  64              		.align	2
+  65              		.global	delayMs
+  67              	delayMs:
+  68              	.LFB9:
+  69              		.loc 1 62 0
+  47:common_nxp/src/timer.c **** #endif
+  48:common_nxp/src/timer.c **** 
+  49:common_nxp/src/timer.c **** 
+  50:common_nxp/src/timer.c **** /*****************************************************************************
+  51:common_nxp/src/timer.c **** ** Function name:		delayMs
+  52:common_nxp/src/timer.c **** **
+  53:common_nxp/src/timer.c **** ** Descriptions:		Start the timer delay in milo seconds
+  54:common_nxp/src/timer.c **** **						until elapsed
+  55:common_nxp/src/timer.c **** **
+  56:common_nxp/src/timer.c **** ** parameters:			timer number, Delay value in milo second			 
+  57:common_nxp/src/timer.c **** ** 						
+  58:common_nxp/src/timer.c **** ** Returned value:		None
+  59:common_nxp/src/timer.c **** ** 
+  60:common_nxp/src/timer.c **** *****************************************************************************/
+  61:common_nxp/src/timer.c **** void delayMs(BYTE timer_num, DWORD delayInMs)
+  62:common_nxp/src/timer.c **** {
+  70              	etend = 0, frame = 0
+  71              		@ frame_needed = 1, uses_anonymous_args = 0
+  72              	.LVL5:
+  73              		mov	ip, sp
+  74 0000 0DC0A0E1 	.LCFI3:
+  75              		stmfd	sp!, {fp, ip, lr, pc}
+  76 0004 00D82DE9 	.LCFI4:
+  77              		sub	fp, ip, #4
+  78 0008 04B04CE2 	.LCFI5:
+  79              		.loc 1 63 0
+  63:common_nxp/src/timer.c ****   if ( timer_num == 0 )
+  80              	r0, #255
+  81 000c FFC010E2 	.LVL6:
+  82              		.loc 1 62 0
+  83              		mov	r3, r1
+  84 0010 0130A0E1 		.loc 1 63 0
+  85              		bne	.L10
+  86 0014 1600001A 	.LVL7:
+  87              		.loc 1 70 0
+  64:common_nxp/src/timer.c ****   {
+  65:common_nxp/src/timer.c **** 	/*
+  66:common_nxp/src/timer.c **** 	* setup timer #0 for delay
+  67:common_nxp/src/timer.c **** 	*/
+  68:common_nxp/src/timer.c **** 	T0TCR = 0x02;		/* reset timer */
+  69:common_nxp/src/timer.c **** 	T0PR  = 0x00;		/* set prescaler to zero */
+  70:common_nxp/src/timer.c **** 	T0MR0 = delayInMs * (Fpclk / 1000);
+  88              	 r1, asl #6
+  89 0018 0113A0E1 		mov	r3, r3, asl #4
+  90 001c 0332A0E1 	.LVL8:
+  91              		add	r3, r3, r1
+  92 0020 013083E0 		mov	r2, r3, asl #4
+  93 0024 0322A0E1 		rsb	r2, r3, r2
+  94 0028 022063E0 		.loc 1 68 0
+  95              		mov	r1, #-536870912
+  96 002c 0E12A0E3 		add	r1, r1, #16384
+  97 0030 011981E2 		.loc 1 70 0
+  98              		mov	r0, r2, asl #4
+  99 0034 0202A0E1 		.loc 1 68 0
+ 100              		mov	r3, #2
+ 101 0038 0230A0E3 		str	r3, [r1, #4]
+ 102 003c 043081E5 		.loc 1 70 0
+ 103              		rsb	r0, r2, r0
+ 104 0040 000062E0 		.loc 1 71 0
+  71:common_nxp/src/timer.c **** 	T0IR  = 0xff;		/* reset all interrrupts */
+ 105              	
+ 106 0044 FD3083E2 		.loc 1 69 0
+ 107              		str	ip, [r1, #12]
+ 108 0048 0CC081E5 		.loc 1 72 0
+  72:common_nxp/src/timer.c **** 	T0MCR = 0x04;		/* stop timer on match */
+ 109              	v	r2, #4
+ 110 004c 0420A0E3 		.loc 1 70 0
+ 111              		str	r0, [r1, #24]
+ 112 0050 180081E5 		.loc 1 71 0
+ 113              		str	r3, [r1, #0]
+ 114 0054 003081E5 		.loc 1 73 0
+  73:common_nxp/src/timer.c **** 	T0TCR = 0x01;		/* start timer */
+ 115              	3, r3, #254
+ 116 0058 FE3043E2 		.loc 1 72 0
+ 117              		str	r2, [r1, #20]
+ 118 005c 142081E5 		.loc 1 73 0
+ 119              		str	r3, [r1, #4]
+ 120 0060 043081E5 	.L11:
+ 121              		.loc 1 76 0
+  74:common_nxp/src/timer.c ****   
+  75:common_nxp/src/timer.c **** 	/* wait until delay time has elapsed */
+  76:common_nxp/src/timer.c **** 	while (T0TCR & 0x01);
+ 122              	, [r1, #4]
+ 123 0064 043091E5 		tst	r3, #1
+ 124 0068 010013E3 		bne	.L11
+ 125 006c FCFFFF1A 		ldmfd	sp, {fp, sp, pc}
+ 126 0070 00A89DE8 	.LVL9:
+ 127              	.L10:
+ 128              		.loc 1 78 0
+  77:common_nxp/src/timer.c ****   }
+  78:common_nxp/src/timer.c ****   else if ( timer_num == 1 )
+ 129              	, #1
+ 130 0074 01005CE3 		ldmnefd	sp, {fp, sp, pc}
+ 131 0078 00A89D18 		.loc 1 85 0
+  79:common_nxp/src/timer.c ****   {
+  80:common_nxp/src/timer.c **** 	/*
+  81:common_nxp/src/timer.c **** 	* setup timer #1 for delay
+  82:common_nxp/src/timer.c **** 	*/
+  83:common_nxp/src/timer.c **** 	T1TCR = 0x02;		/* reset timer */
+  84:common_nxp/src/timer.c **** 	T1PR  = 0x00;		/* set prescaler to zero */
+  85:common_nxp/src/timer.c **** 	T1MR0 = delayInMs * (Fpclk / 1000);
+ 132              	v	r1, r1, asl #6
+ 133 007c 0113A0E1 		mov	r3, r3, asl #4
+ 134 0080 0332A0E1 	.LVL10:
+ 135              		add	r3, r3, r1
+ 136 0084 013083E0 		mov	r2, r3, asl #4
+ 137 0088 0322A0E1 		rsb	r2, r3, r2
+ 138 008c 022063E0 		mov	r0, r2, asl #4
+ 139 0090 0202A0E1 		.loc 1 83 0
+ 140              		mov	r1, #-536870912
+ 141 0094 0E12A0E3 		add	r1, r1, #32768
+ 142 0098 021981E2 		.loc 1 85 0
+ 143              		rsb	r0, r2, r0
+ 144 009c 000062E0 		.loc 1 83 0
+ 145              		mov	r3, #2
+ 146 00a0 0230A0E3 		.loc 1 84 0
+ 147              		mov	r2, #0
+ 148 00a4 0020A0E3 		.loc 1 83 0
+ 149              		str	r3, [r1, #4]
+ 150 00a8 043081E5 		.loc 1 84 0
+ 151              		str	r2, [r1, #12]
+ 152 00ac 0C2081E5 		.loc 1 86 0
+  86:common_nxp/src/timer.c **** 	T1IR  = 0xff;		/* reset all interrrupts */
+ 153              	oc 1 87 0
+ 154 00b0 FD3083E2 		add	r2, r2, #4
+  87:common_nxp/src/timer.c **** 	T1MCR = 0x04;		/* stop timer on match */
+ 155              	loc 1 85 0
+ 156 00b4 042082E2 		str	r0, [r1, #24]
+ 157              		.loc 1 86 0
+ 158 00b8 180081E5 		str	r3, [r1, #0]
+ 159              		.loc 1 87 0
+ 160 00bc 003081E5 		str	r2, [r1, #20]
+ 161              		.loc 1 88 0
+ 162 00c0 142081E5 		str	ip, [r1, #4]
+  88:common_nxp/src/timer.c **** 	T1TCR = 0x01;		/* start timer */
+ 163              	loc 1 91 0
+ 164 00c4 04C081E5 		ldr	r3, [r1, #4]
+ 165              		tst	r3, #1
+  89:common_nxp/src/timer.c ****   
+  90:common_nxp/src/timer.c **** 	/* wait until delay time has elapsed */
+  91:common_nxp/src/timer.c **** 	while (T1TCR & 0x01);
+ 166              	e	.L13
+ 167 00c8 043091E5 		ldmfd	sp, {fp, sp, pc}
+ 168 00cc 010013E3 	.LFE9:
+ 170 00d4 00A89DE8 		.section	.text.Timer0Handler,"ax",%progbits
+ 171              		.align	2
+ 172              		.global	Timer0Handler
+ 174              	Timer0Handler:
+ 175              	.LFB10:
+ 176              		.loc 1 109 0
+ 177              		@ Interrupt Service Routine.
+ 178              		@ args = 0, pretend = 0, frame = 0
+  92:common_nxp/src/timer.c ****   }
+  93:common_nxp/src/timer.c ****   return;
+  94:common_nxp/src/timer.c **** }
+  95:common_nxp/src/timer.c **** 
+  96:common_nxp/src/timer.c **** /******************************************************************************
+  97:common_nxp/src/timer.c **** ** Function name:		Timer0Handler
+  98:common_nxp/src/timer.c **** **
+  99:common_nxp/src/timer.c **** ** Descriptions:		Timer/Counter 0 interrupt handler
+ 100:common_nxp/src/timer.c **** **						executes each 10ms @ 60 MHz CPU Clock
+ 101:common_nxp/src/timer.c **** **
+ 102:common_nxp/src/timer.c **** ** parameters:			None
+ 103:common_nxp/src/timer.c **** ** Returned value:		None
+ 104:common_nxp/src/timer.c **** ** 
+ 105:common_nxp/src/timer.c **** ******************************************************************************/
+ 106:common_nxp/src/timer.c **** // mthomas - avoid warning
+ 107:common_nxp/src/timer.c **** void Timer0Handler (void) __attribute__((interrupt("IRQ")));;
+ 108:common_nxp/src/timer.c **** void Timer0Handler (void)
+ 109:common_nxp/src/timer.c **** {
+ 179              	ed = 1, uses_anonymous_args = 0
+ 180              		str	ip, [sp, #-4]!
+ 181              		mov	ip, sp
+ 182              	.LCFI6:
+ 183 0000 04C02DE5 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 184 0004 0DC0A0E1 	.LCFI7:
+ 185              		sub	fp, ip, #4
+ 186 0008 0FD82DE9 	.LCFI8:
+ 187              	.LBB34:
+ 188 000c 04B04CE2 	.LBB35:
+ 189              	.LBB36:
+ 190              	.LBB37:
+ 191              		.file 2 "common_nxp/inc/irq.h"
+ 192              		.loc 2 99 0
+ 193              	@ 99 "common_nxp/inc/irq.h" 1
+ 194              		mrs r3,CPSR
+   1:common_nxp/inc/irq.h **** /******************************************************************************
+   2:common_nxp/inc/irq.h ****  *   irq.h:  Interrupt related Header file for NXP LPC23xx/24xx Family 
+   3:common_nxp/inc/irq.h ****  *   Microprocessors
+   4:common_nxp/inc/irq.h ****  *
+   5:common_nxp/inc/irq.h ****  *   Copyright(C) 2006, NXP Semiconductor
+   6:common_nxp/inc/irq.h ****  *   All rights reserved.
+   7:common_nxp/inc/irq.h ****  *
+   8:common_nxp/inc/irq.h ****  *   History
+   9:common_nxp/inc/irq.h ****  *   2006.09.01  ver 1.00    Prelimnary version, first Release
+  10:common_nxp/inc/irq.h ****  *   2011.05.03  ver 2.00    Edits and additions for use with Eclipse/GCC
+  11:common_nxp/inc/irq.h ****  *
+  12:common_nxp/inc/irq.h **** ******************************************************************************/
+  13:common_nxp/inc/irq.h **** #ifndef __IRQ_H 
+  14:common_nxp/inc/irq.h **** #define __IRQ_H
+  15:common_nxp/inc/irq.h **** #include "type.h"
+  16:common_nxp/inc/irq.h **** 
+  17:common_nxp/inc/irq.h **** #define I_Bit			0x80
+  18:common_nxp/inc/irq.h **** #define F_Bit			0x40
+  19:common_nxp/inc/irq.h **** 
+  20:common_nxp/inc/irq.h **** #define SYS32Mode		0x1F
+  21:common_nxp/inc/irq.h **** #define IRQ32Mode		0x12
+  22:common_nxp/inc/irq.h **** #define FIQ32Mode		0x11
+  23:common_nxp/inc/irq.h **** 
+  24:common_nxp/inc/irq.h **** /* To use FIQ, set below to 1;  otherwise, it's 0 */
+  25:common_nxp/inc/irq.h **** #define FIQ				0
+  26:common_nxp/inc/irq.h **** 
+  27:common_nxp/inc/irq.h **** #define HIGHEST_PRIORITY	0x01
+  28:common_nxp/inc/irq.h **** #define MID_PRIORITY		0x04
+  29:common_nxp/inc/irq.h **** #define LOWEST_PRIORITY		0x0F
+  30:common_nxp/inc/irq.h **** 
+  31:common_nxp/inc/irq.h **** #define	WDT_INT			0
+  32:common_nxp/inc/irq.h **** #define SWI_INT			1
+  33:common_nxp/inc/irq.h **** #define ARM_CORE0_INT	2
+  34:common_nxp/inc/irq.h **** #define	ARM_CORE1_INT	3
+  35:common_nxp/inc/irq.h **** #define	TIMER0_INT		4
+  36:common_nxp/inc/irq.h **** #define TIMER1_INT		5
+  37:common_nxp/inc/irq.h **** #define UART0_INT		6
+  38:common_nxp/inc/irq.h **** #define	UART1_INT		7
+  39:common_nxp/inc/irq.h **** #define	PWM0_1_INT		8
+  40:common_nxp/inc/irq.h **** #define I2C0_INT		9
+  41:common_nxp/inc/irq.h **** #define SPI0_INT		10		/* SPI and SSP0 share VIC slot */
+  42:common_nxp/inc/irq.h **** #define SSP0_INT		10
+  43:common_nxp/inc/irq.h **** #define	SSP1_INT		11
+  44:common_nxp/inc/irq.h **** #define	PLL_INT			12
+  45:common_nxp/inc/irq.h **** #define RTC_INT			13
+  46:common_nxp/inc/irq.h **** #define EINT0_INT		14
+  47:common_nxp/inc/irq.h **** #define EINT1_INT		15
+  48:common_nxp/inc/irq.h **** #define EINT2_INT		16
+  49:common_nxp/inc/irq.h **** #define LCD_INT			16
+  50:common_nxp/inc/irq.h **** #define EINT3_INT		17
+  51:common_nxp/inc/irq.h **** #define	ADC0_INT		18
+  52:common_nxp/inc/irq.h **** #define I2C1_INT		19
+  53:common_nxp/inc/irq.h **** #define BOD_INT			20
+  54:common_nxp/inc/irq.h **** #define EMAC_INT		21
+  55:common_nxp/inc/irq.h **** #define USB_INT			22
+  56:common_nxp/inc/irq.h **** #define CAN_INT			23
+  57:common_nxp/inc/irq.h **** #define MCI_INT			24
+  58:common_nxp/inc/irq.h **** #define GPDMA_INT		25
+  59:common_nxp/inc/irq.h **** #define TIMER2_INT		26
+  60:common_nxp/inc/irq.h **** #define TIMER3_INT		27
+  61:common_nxp/inc/irq.h **** #define UART2_INT		28
+  62:common_nxp/inc/irq.h **** #define UART3_INT		29
+  63:common_nxp/inc/irq.h **** #define I2C2_INT		30
+  64:common_nxp/inc/irq.h **** #define I2S_INT			31
+  65:common_nxp/inc/irq.h **** 
+  66:common_nxp/inc/irq.h **** #define VIC_SIZE		32
+  67:common_nxp/inc/irq.h **** 
+  68:common_nxp/inc/irq.h **** #define VECT_ADDR_INDEX	0x100
+  69:common_nxp/inc/irq.h **** #define VECT_PRIO_INDEX 0x200
+  70:common_nxp/inc/irq.h **** 
+  71:common_nxp/inc/irq.h **** extern void FIQ_Handler( void )  __attribute__ ((interrupt ("FIQ"))) ;    // __irq;
+  72:common_nxp/inc/irq.h **** void init_VIC( void );
+  73:common_nxp/inc/irq.h **** DWORD install_irq( DWORD IntNumber, void *HandlerAddr, DWORD Priority );
+  74:common_nxp/inc/irq.h **** 
+  75:common_nxp/inc/irq.h **** /* Be aware that, from compiler to compiler, nested interrupt will have to
+  76:common_nxp/inc/irq.h ****    be handled differently. More details can be found in Philips LPC2000
+  77:common_nxp/inc/irq.h ****    family app-note AN10381 */
+  78:common_nxp/inc/irq.h ****  
+  79:common_nxp/inc/irq.h **** /* unlike Keil CARM Compiler, in ARM's RealView compiler, don't save and 
+  80:common_nxp/inc/irq.h ****    restore registers into the stack in RVD as the compiler does that for you.
+  81:common_nxp/inc/irq.h ****    See RVD ARM compiler Inline and embedded assemblers, "Rules for
+  82:common_nxp/inc/irq.h ****    using __asm and asm keywords. */
+  83:common_nxp/inc/irq.h **** 
+  84:common_nxp/inc/irq.h **** #if 0       // below 3 lines are for Keil compilers only
+  85:common_nxp/inc/irq.h **** static DWORD sysreg;		/* used as LR register */
+  86:common_nxp/inc/irq.h **** #define IENABLE __asm { MRS sysreg, SPSR; MSR CPSR_c, #SYS32Mode }
+  87:common_nxp/inc/irq.h **** #define IDISABLE __asm { MSR CPSR_c, #(IRQ32Mode|I_Bit); MSR SPSR_cxsf, sysreg }
+  88:common_nxp/inc/irq.h **** 
+  89:common_nxp/inc/irq.h **** #else	// for Eclipse/GCC use enable_interrupt() and disable_interrupt() below
+  90:common_nxp/inc/irq.h **** 
+  91:common_nxp/inc/irq.h **** // -------------- Additions to be used with Eclipse/GCC --------
+  92:common_nxp/inc/irq.h **** #include <stdint.h>
+  93:common_nxp/inc/irq.h **** //#include "inttypes.h"
+  94:common_nxp/inc/irq.h **** 
+  95:common_nxp/inc/irq.h **** #ifndef __thumb
+  96:common_nxp/inc/irq.h **** static inline uint32_t __get_CPSR(void)
+  97:common_nxp/inc/irq.h **** {
+  98:common_nxp/inc/irq.h **** 	uint32_t temp;
+  99:common_nxp/inc/irq.h **** 	asm volatile ("mrs %0,CPSR":"=r" (temp):) ;
+ 195              	
+ 196              	.LBE37:
+ 197 0010 00300FE1 	.LBE36:
+ 198              	.LBB38:
+ 199              	.LBB39:
+ 200              		.loc 2 105 0
+ 201              		bic	r3, r3, #192
+ 202              	.LVL12:
+ 203              	@ 105 "common_nxp/inc/irq.h" 1
+ 100:common_nxp/inc/irq.h **** 	return temp;
+ 101:common_nxp/inc/irq.h **** }
+ 102:common_nxp/inc/irq.h **** 
+ 103:common_nxp/inc/irq.h **** static inline void __set_CPSR(uint32_t save_cpsr)
+ 104:common_nxp/inc/irq.h **** {
+ 105:common_nxp/inc/irq.h **** 	asm volatile (" msr CPSR_cxsf,%0"::"r"(save_cpsr) );
+ 204              	SR_cxsf,r3
+ 205 0014 C030C3E3 	@ 0 "" 2
+ 206              	.LBE39:
+ 207              	.LBE38:
+ 208 0018 03F02FE1 	.LBE35:
+ 209              	.LBE34:
+ 210              		.loc 1 111 0
+ 211              		mov	r2, #-536870912
+ 212              		add	r2, r2, #16384
+ 213              		mov	r3, #1
+ 110:common_nxp/src/timer.c **** 	enable_interrupt();			/* handles nested interrupt */
+ 111:common_nxp/src/timer.c **** 	T0IR = 1;			/* clear interrupt flag */
+ 214              	r2, #0]
+ 215 001c 0E22A0E3 		.loc 1 112 0
+ 216 0020 012982E2 		ldr	r1, .L20
+ 217 0024 0130A0E3 		ldr	r3, [r1, #0]
+ 218 0028 003082E5 		add	r3, r3, #1
+ 112:common_nxp/src/timer.c **** 	timer0_counter++;
+ 219              	r3, [r1, #0]
+ 220 002c 48109FE5 		.loc 1 115 0
+ 221 0030 003091E5 		ldr	r2, .L20+4
+ 222 0034 013083E2 		ldr	r3, [r2, #0]
+ 223 0038 003081E5 		cmp	r3, #0
+ 113:common_nxp/src/timer.c **** 
+ 114:common_nxp/src/timer.c **** #ifdef MTHOMAS_MOD
+ 115:common_nxp/src/timer.c **** 	if ( timer0CallbackFunction != NULL ) {
+ 224              	 1 116 0
+ 225 003c 3C209FE5 		ldrne	r3, [r2, #0]
+ 226 0040 003092E5 		movne	lr, pc
+ 227 0044 000053E3 		bxne	r3
+ 116:common_nxp/src/timer.c **** 		timer0CallbackFunction();
+ 228              	:
+ 229 0048 00309215 	.LBB40:
+ 230 004c 0FE0A011 	.LBB41:
+ 231 0050 13FF2F11 	.LBB42:
+ 232              	.LBB43:
+ 233              		.loc 2 99 0
+ 234              	@ 99 "common_nxp/inc/irq.h" 1
+ 235              		mrs r3,CPSR
+ 236              	@ 0 "" 2
+ 237              	.LVL13:
+ 238              	.LBE43:
+ 239 0054 00300FE1 	.LBE42:
+ 240              	.LBB44:
+ 241              	.LBB45:
+ 242              		.loc 2 105 0
+ 243              		orr	r3, r3, #192
+ 244              	.LVL14:
+ 245              	@ 105 "common_nxp/inc/irq.h" 1
+ 246              		 msr CPSR_cxsf,r3
+ 247 0058 C03083E3 	@ 0 "" 2
+ 248              	.LBE45:
+ 249              	.LBE44:
+ 250 005c 03F02FE1 	.LBE41:
+ 251              	.LBE40:
+ 252              		.loc 1 121 0
+ 253              		mov	r2, #0
+ 254              		mvn	r3, #0
+ 255              		str	r2, [r3, #-255]
+ 117:common_nxp/src/timer.c **** 	}
+ 118:common_nxp/src/timer.c **** #endif
+ 119:common_nxp/src/timer.c **** 
+ 120:common_nxp/src/timer.c **** 	disable_interrupt();
+ 121:common_nxp/src/timer.c **** 	VICVectAddr = 0;	/* Acknowledge Interrupt */
+ 256              	28
+ 257 0060 0020A0E3 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 258 0064 0030E0E3 		ldmfd	sp!, {ip}
+ 259 0068 FF2003E5 		subs	pc, lr, #4
+ 122:common_nxp/src/timer.c **** }
+ 260              	:
+ 261 006c 1CD04BE2 		.align	2
+ 262 0070 0F689DE8 	.L20:
+ 263 0074 0010BDE8 		.word	timer0_counter
+ 264 0078 04F05EE2 		.word	timer0CallbackFunction
+ 265              	.LFE10:
+ 267              		.section	.text.Timer1Handler,"ax",%progbits
+ 268 007c 00000000 		.align	2
+ 269 0080 00000000 		.global	Timer1Handler
+ 271              	Timer1Handler:
+ 272              	.LFB11:
+ 273              		.loc 1 137 0
+ 274              		@ Interrupt Service Routine.
+ 275              		@ args = 0, pretend = 0, frame = 0
+ 276              		@ frame_needed = 1, uses_anonymous_args = 0
+ 277              		str	ip, [sp, #-4]!
+ 123:common_nxp/src/timer.c **** 
+ 124:common_nxp/src/timer.c **** /******************************************************************************
+ 125:common_nxp/src/timer.c **** ** Function name:		Timer1Handler
+ 126:common_nxp/src/timer.c **** **
+ 127:common_nxp/src/timer.c **** ** Descriptions:		Timer/Counter 1 interrupt handler
+ 128:common_nxp/src/timer.c **** **						executes each 10ms @ 60 MHz CPU Clock
+ 129:common_nxp/src/timer.c **** **
+ 130:common_nxp/src/timer.c **** ** parameters:			None
+ 131:common_nxp/src/timer.c **** ** Returned value:		None
+ 132:common_nxp/src/timer.c **** ** 
+ 133:common_nxp/src/timer.c **** ******************************************************************************/
+ 134:common_nxp/src/timer.c **** // mthomas - avoid warning
+ 135:common_nxp/src/timer.c **** void Timer1Handler (void) __attribute__((interrupt("IRQ")));;
+ 136:common_nxp/src/timer.c **** void Timer1Handler (void)
+ 137:common_nxp/src/timer.c **** {  
+ 278              	:
+ 279              		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 280              	.LCFI10:
+ 281              		.loc 1 138 0
+ 282 0000 04C02DE5 		mov	r2, #-536870912
+ 283 0004 0DC0A0E1 		add	r2, r2, #32768
+ 284              		mov	r1, #1
+ 285 0008 0FD82DE9 		.loc 1 137 0
+ 286              		sub	fp, ip, #4
+ 138:common_nxp/src/timer.c ****   T1IR = 1;			/* clear interrupt flag */
+ 287              		.loc 1 138 0
+ 288 000c 0E22A0E3 		str	r1, [r2, #0]
+ 289 0010 022982E2 	.LBB46:
+ 290 0014 0110A0E3 	.LBB47:
+ 291              	.LBB48:
+ 292 0018 04B04CE2 	.LBB49:
+ 293              		.loc 2 99 0
+ 294              	@ 99 "common_nxp/inc/irq.h" 1
+ 295 001c 001082E5 		mrs r3,CPSR
+ 296              	@ 0 "" 2
+ 297              	.LVL15:
+ 298              	.LBE49:
+ 299              	.LBE48:
+ 300              	.LBB50:
+ 301              	.LBB51:
+ 302 0020 00300FE1 		.loc 2 105 0
+ 303              		bic	r3, r3, #192
+ 304              	.LVL16:
+ 305              	@ 105 "common_nxp/inc/irq.h" 1
+ 306              		 msr CPSR_cxsf,r3
+ 307              	@ 0 "" 2
+ 308              	.LBE51:
+ 309              	.LBE50:
+ 310 0024 C030C3E3 	.LBE47:
+ 311              	.LBE46:
+ 312              		.loc 1 141 0
+ 313 0028 03F02FE1 		ldr	r2, .L25
+ 314              		ldr	r3, [r2, #0]
+ 315              		add	r3, r3, #1
+ 316              		str	r3, [r2, #0]
+ 317              		.loc 1 144 0
+ 318              		ldr	r2, .L25+4
+ 139:common_nxp/src/timer.c ****   enable_interrupt();			/* handles nested interrupt */
+ 140:common_nxp/src/timer.c **** 
+ 141:common_nxp/src/timer.c ****   timer1_counter++;
+ 319              	loc 1 145 0
+ 320 002c 48209FE5 		ldrne	r3, [r2, #0]
+ 321 0030 003092E5 		movne	lr, pc
+ 322 0034 013083E2 		bxne	r3
+ 323 0038 003082E5 	.L23:
+ 142:common_nxp/src/timer.c **** 
+ 143:common_nxp/src/timer.c **** #ifdef MTHOMAS_MOD
+ 144:common_nxp/src/timer.c **** 	if ( timer1CallbackFunction != NULL ) {
+ 324              	2:
+ 325 003c 3C209FE5 	.LBB53:
+ 326 0040 003092E5 	.LBB54:
+ 327 0044 000053E3 	.LBB55:
+ 145:common_nxp/src/timer.c **** 		timer1CallbackFunction();
+ 328              	c 2 99 0
+ 329 0048 00309215 	@ 99 "common_nxp/inc/irq.h" 1
+ 330 004c 0FE0A011 		mrs r3,CPSR
+ 331 0050 13FF2F11 	@ 0 "" 2
+ 332              	.LVL17:
+ 333              	.LBE55:
+ 334              	.LBE54:
+ 335              	.LBB56:
+ 336              	.LBB57:
+ 337              		.loc 2 105 0
+ 338              		orr	r3, r3, #192
+ 339 0054 00300FE1 	.LVL18:
+ 340              	@ 105 "common_nxp/inc/irq.h" 1
+ 341              		 msr CPSR_cxsf,r3
+ 342              	@ 0 "" 2
+ 343              	.LBE57:
+ 344              	.LBE56:
+ 345              	.LBE53:
+ 346              	.LBE52:
+ 347 0058 C03083E3 		.loc 1 150 0
+ 348              		mov	r2, #0
+ 349              		mvn	r3, #0
+ 350 005c 03F02FE1 		str	r2, [r3, #-255]
+ 351              		.loc 1 151 0
+ 352              		sub	sp, fp, #28
+ 353              		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 354              		ldmfd	sp!, {ip}
+ 355              		subs	pc, lr, #4
+ 146:common_nxp/src/timer.c **** 	}
+ 147:common_nxp/src/timer.c **** #endif
+ 148:common_nxp/src/timer.c **** 
+ 149:common_nxp/src/timer.c ****   disable_interrupt();;
+ 150:common_nxp/src/timer.c ****   VICVectAddr = 0;	/* Acknowledge Interrupt */
+ 356              		timer1_counter
+ 357 0060 0020A0E3 		.word	timer1CallbackFunction
+ 358 0064 0030E0E3 	.LFE11:
+ 151:common_nxp/src/timer.c **** }
+ 360              	ction	.text.enable_timer,"ax",%progbits
+ 361 006c 1CD04BE2 		.align	2
+ 362 0070 0F689DE8 		.global	enable_timer
+ 364 0078 04F05EE2 	enable_timer:
+ 365              	.LFB12:
+ 366              		.loc 1 163 0
+ 367              		@ args = 0, pretend = 0, frame = 0
+ 368 007c 00000000 		@ frame_needed = 1, uses_anonymous_args = 0
+ 369 0080 00000000 	.LVL19:
+ 370              		.loc 1 164 0
+ 371              		tst	r0, #255
+ 372              		.loc 1 166 0
+ 373              		moveq	r3, #-536870912
+ 374              		.loc 1 170 0
+ 375              		movne	r3, #-536870912
+ 376              		.loc 1 163 0
+ 377              		mov	ip, sp
+ 152:common_nxp/src/timer.c **** 
+ 153:common_nxp/src/timer.c **** /******************************************************************************
+ 154:common_nxp/src/timer.c **** ** Function name:		enable_timer
+ 155:common_nxp/src/timer.c **** **
+ 156:common_nxp/src/timer.c **** ** Descriptions:		Enable timer
+ 157:common_nxp/src/timer.c **** **
+ 158:common_nxp/src/timer.c **** ** parameters:			timer number: 0 or 1
+ 159:common_nxp/src/timer.c **** ** Returned value:		None
+ 160:common_nxp/src/timer.c **** ** 
+ 161:common_nxp/src/timer.c **** ******************************************************************************/
+ 162:common_nxp/src/timer.c **** void enable_timer( BYTE timer_num )
+ 163:common_nxp/src/timer.c **** {
+ 378              	66 0
+ 379              		addeq	r3, r3, #16384
+ 380              		moveq	r2, #1
+ 381              		.loc 1 170 0
+ 164:common_nxp/src/timer.c ****   if ( timer_num == 0 )
+ 382              	ne	r3, r3, #32768
+ 383 0000 FF0010E3 		movne	r2, #1
+ 165:common_nxp/src/timer.c ****   {
+ 166:common_nxp/src/timer.c **** 	T0TCR = 1;
+ 384              	loc 1 163 0
+ 385 0004 0E32A003 		stmfd	sp!, {fp, ip, lr, pc}
+ 167:common_nxp/src/timer.c ****   }
+ 168:common_nxp/src/timer.c ****   else
+ 169:common_nxp/src/timer.c ****   {
+ 170:common_nxp/src/timer.c **** 	T1TCR = 1;
+ 386              	CFI13:
+ 387 0008 0E32A013 		.loc 1 166 0
+ 388              		streq	r2, [r3, #4]
+ 389 000c 0DC0A0E1 		.loc 1 163 0
+ 390              		sub	fp, ip, #4
+ 391              	.LCFI14:
+ 392 0010 01398302 		.loc 1 170 0
+ 393 0014 0120A003 		strne	r2, [r3, #4]
+ 394              		ldmfd	sp, {fp, sp, pc}
+ 395 0018 02398312 	.LFE12:
+ 397              		.section	.text.disable_timer,"ax",%progbits
+ 398 0020 00D82DE9 		.align	2
+ 399              		.global	disable_timer
+ 401 0024 04208305 	disable_timer:
+ 402              	.LFB13:
+ 403 0028 04B04CE2 		.loc 1 185 0
+ 404              		@ args = 0, pretend = 0, frame = 0
+ 405              		@ frame_needed = 1, uses_anonymous_args = 0
+ 406 002c 04208315 	.LVL20:
+ 407 0030 00A89DE8 		.loc 1 186 0
+ 408              		ands	r0, r0, #255
+ 409              	.LVL21:
+ 410              		.loc 1 188 0
+ 411              		moveq	r3, #-536870912
+ 412              		.loc 1 192 0
+ 413              		movne	r3, #-536870912
+ 414              		.loc 1 185 0
+ 415              		mov	ip, sp
+ 171:common_nxp/src/timer.c ****   }
+ 172:common_nxp/src/timer.c ****   return;
+ 173:common_nxp/src/timer.c **** }
+ 174:common_nxp/src/timer.c **** 
+ 175:common_nxp/src/timer.c **** /******************************************************************************
+ 176:common_nxp/src/timer.c **** ** Function name:		disable_timer
+ 177:common_nxp/src/timer.c **** **
+ 178:common_nxp/src/timer.c **** ** Descriptions:		Disable timer
+ 179:common_nxp/src/timer.c **** **
+ 180:common_nxp/src/timer.c **** ** parameters:			timer number: 0 or 1
+ 181:common_nxp/src/timer.c **** ** Returned value:		None
+ 182:common_nxp/src/timer.c **** ** 
+ 183:common_nxp/src/timer.c **** ******************************************************************************/
+ 184:common_nxp/src/timer.c **** void disable_timer( BYTE timer_num )
+ 185:common_nxp/src/timer.c **** {
+ 416              	r3, r3, #16384
+ 417              		.loc 1 192 0
+ 418              		addne	r3, r3, #32768
+ 419              		movne	r2, #0
+ 186:common_nxp/src/timer.c ****   if ( timer_num == 0 )
+ 420              	c 1 185 0
+ 421 0000 FF0010E2 		stmfd	sp!, {fp, ip, lr, pc}
+ 422              	.LCFI16:
+ 187:common_nxp/src/timer.c ****   {
+ 188:common_nxp/src/timer.c **** 	T0TCR = 0;
+ 423              	oc 1 188 0
+ 424 0004 0E32A003 		streq	r0, [r3, #4]
+ 189:common_nxp/src/timer.c ****   }
+ 190:common_nxp/src/timer.c ****   else
+ 191:common_nxp/src/timer.c ****   {
+ 192:common_nxp/src/timer.c **** 	T1TCR = 0;
+ 425              	loc 1 185 0
+ 426 0008 0E32A013 		sub	fp, ip, #4
+ 427              	.LCFI17:
+ 428 000c 0DC0A0E1 		.loc 1 192 0
+ 429              		strne	r2, [r3, #4]
+ 430              		ldmfd	sp, {fp, sp, pc}
+ 431 0010 01398302 	.LFE13:
+ 433 0014 02398312 		.section	.text.reset_timer,"ax",%progbits
+ 434 0018 0020A013 		.align	2
+ 435              		.global	reset_timer
+ 437              	reset_timer:
+ 438              	.LFB14:
+ 439 0020 04008305 		.loc 1 207 0
+ 440              		@ args = 0, pretend = 0, frame = 0
+ 441 0024 04B04CE2 		@ frame_needed = 1, uses_anonymous_args = 0
+ 442              	.LVL22:
+ 443              		.loc 1 210 0
+ 444 0028 04208315 		tst	r0, #255
+ 445 002c 00A89DE8 		.loc 1 212 0
+ 446              		moveq	r2, #-536870912
+ 447              		.loc 1 218 0
+ 448              		movne	r2, #-536870912
+ 449              		.loc 1 212 0
+ 450              		addeq	r2, r2, #16384
+ 451              		.loc 1 218 0
+ 452              		addne	r2, r2, #32768
+ 453              		.loc 1 212 0
+ 193:common_nxp/src/timer.c ****   }
+ 194:common_nxp/src/timer.c ****   return;
+ 195:common_nxp/src/timer.c **** }
+ 196:common_nxp/src/timer.c **** 
+ 197:common_nxp/src/timer.c **** /******************************************************************************
+ 198:common_nxp/src/timer.c **** ** Function name:		reset_timer
+ 199:common_nxp/src/timer.c **** **
+ 200:common_nxp/src/timer.c **** ** Descriptions:		Reset timer
+ 201:common_nxp/src/timer.c **** **
+ 202:common_nxp/src/timer.c **** ** parameters:			timer number: 0 or 1
+ 203:common_nxp/src/timer.c **** ** Returned value:		None
+ 204:common_nxp/src/timer.c **** ** 
+ 205:common_nxp/src/timer.c **** ******************************************************************************/
+ 206:common_nxp/src/timer.c **** void reset_timer( BYTE timer_num )
+ 207:common_nxp/src/timer.c **** {
+ 454              	.loc 1 218 0
+ 455              		ldrne	r3, [r2, #4]
+ 456              	.LVL24:
+ 457              		.loc 1 207 0
+ 208:common_nxp/src/timer.c ****   DWORD regVal;
+ 209:common_nxp/src/timer.c **** 
+ 210:common_nxp/src/timer.c ****   if ( timer_num == 0 )
+ 458              		ip, sp
+ 459 0000 FF0010E3 	.LCFI18:
+ 211:common_nxp/src/timer.c ****   {
+ 212:common_nxp/src/timer.c **** 	regVal = T0TCR;
+ 460              	loc 1 213 0
+ 461 0004 0E22A003 		orreq	r3, r3, #2
+ 213:common_nxp/src/timer.c **** 	regVal |= 0x02;
+ 214:common_nxp/src/timer.c **** 	T0TCR = regVal;
+ 215:common_nxp/src/timer.c ****   }
+ 216:common_nxp/src/timer.c ****   else
+ 217:common_nxp/src/timer.c ****   {
+ 218:common_nxp/src/timer.c **** 	regVal = T1TCR;
+ 462              	VL25:
+ 463 0008 0E22A013 		.loc 1 219 0
+ 464              		orrne	r3, r3, #2
+ 465 000c 01298202 	.LVL26:
+ 466              		.loc 1 207 0
+ 467 0010 02298212 		stmfd	sp!, {fp, ip, lr, pc}
+ 468              	.LCFI19:
+ 469 0014 04309205 		.loc 1 214 0
+ 470              		streq	r3, [r2, #4]
+ 471              		.loc 1 207 0
+ 472 0018 04309215 		sub	fp, ip, #4
+ 473              	.LCFI20:
+ 474              		.loc 1 220 0
+ 475 001c 0DC0A0E1 		strne	r3, [r2, #4]
+ 476              		ldmfd	sp, {fp, sp, pc}
+ 477              	.LFE14:
+ 479              		.section	.text.init_timer,"ax",%progbits
+ 219:common_nxp/src/timer.c **** 	regVal |= 0x02;
+ 480              		init_timer
+ 482              	init_timer:
+ 483              	.LFB15:
+ 484 0028 00D82DE9 		.loc 1 237 0
+ 485              		@ args = 0, pretend = 0, frame = 0
+ 486              		@ frame_needed = 1, uses_anonymous_args = 0
+ 487 002c 04308205 	.LVL27:
+ 488              		mov	ip, sp
+ 489 0030 04B04CE2 	.LCFI21:
+ 490              		.loc 1 238 0
+ 220:common_nxp/src/timer.c **** 	T1TCR = regVal;
+ 491              	0, #255
+ 492 0034 04308215 	.LVL28:
+ 493 0038 00A89DE8 		.loc 1 237 0
+ 494              		stmfd	sp!, {fp, ip, lr, pc}
+ 495              	.LCFI22:
+ 496              		sub	fp, ip, #4
+ 497              	.LCFI23:
+ 498              		.loc 1 237 0
+ 499              		mov	ip, r1
+ 500              		.loc 1 238 0
+ 501              		beq	.L44
+ 221:common_nxp/src/timer.c ****   }
+ 222:common_nxp/src/timer.c ****   return;
+ 223:common_nxp/src/timer.c **** }
+ 224:common_nxp/src/timer.c **** 
+ 225:common_nxp/src/timer.c **** /******************************************************************************
+ 226:common_nxp/src/timer.c **** ** Function name:		init_timer
+ 227:common_nxp/src/timer.c **** **
+ 228:common_nxp/src/timer.c **** ** Descriptions:		Initialize timer, set timer interval, reset timer,
+ 229:common_nxp/src/timer.c **** **						install timer interrupt handler
+ 230:common_nxp/src/timer.c **** **
+ 231:common_nxp/src/timer.c **** ** parameters:			timer number and timer interval
+ 232:common_nxp/src/timer.c **** ** Returned value:		true or false, if the interrupt handler can't be
+ 233:common_nxp/src/timer.c **** **						installed, return false.
+ 234:common_nxp/src/timer.c **** ** 
+ 235:common_nxp/src/timer.c **** ******************************************************************************/
+ 236:common_nxp/src/timer.c **** DWORD init_timer ( BYTE timer_num, DWORD TimerInterval ) 
+ 237:common_nxp/src/timer.c **** {
+ 502              	oc 1 252 0
+ 503              		cmp	r0, #1
+ 504              		movne	r0, #0
+ 505              	.LVL30:
+ 506 0000 0DC0A0E1 		ldmnefd	sp, {fp, sp, pc}
+ 507              		.loc 1 254 0
+ 238:common_nxp/src/timer.c ****   if ( timer_num == 0 )
+ 508              	3, .L45
+ 509 0004 FF0010E2 		mov	r1, #0
+ 510              		.loc 1 255 0
+ 511              		mov	r2, #-536870912
+ 512 0008 00D82DE9 		.loc 1 254 0
+ 513              		str	r1, [r3, #0]
+ 514 000c 04B04CE2 		.loc 1 255 0
+ 515              		add	r2, r2, #32768
+ 516              		.loc 1 256 0
+ 517 0010 01C0A0E1 		mov	r3, #3
+ 518              		.loc 1 255 0
+ 519 0014 1100000A 		str	ip, [r2, #24]
+ 520              		.loc 1 257 0
+ 239:common_nxp/src/timer.c ****   {
+ 240:common_nxp/src/timer.c **** 	timer0_counter = 0;
+ 241:common_nxp/src/timer.c **** 	T0MR0 = TimerInterval;
+ 242:common_nxp/src/timer.c **** 	T0MCR = 3;				/* Interrupt and Reset on MR0 */
+ 243:common_nxp/src/timer.c **** 	if ( install_irq( TIMER0_INT, (void *)Timer0Handler, HIGHEST_PRIORITY ) == FALSE )
+ 244:common_nxp/src/timer.c **** 	{
+ 245:common_nxp/src/timer.c **** 	  return (FALSE);
+ 246:common_nxp/src/timer.c **** 	}  
+ 247:common_nxp/src/timer.c **** 	else
+ 248:common_nxp/src/timer.c **** 	{
+ 249:common_nxp/src/timer.c **** 	  return (TRUE);
+ 250:common_nxp/src/timer.c **** 	}
+ 251:common_nxp/src/timer.c ****   }
+ 252:common_nxp/src/timer.c ****   else if ( timer_num == 1 )
+ 521              	+4
+ 522 0018 010050E3 		.loc 1 256 0
+ 523 001c 0000A013 		str	r3, [r2, #20]
+ 524              		.loc 1 257 0
+ 525 0020 00A89D18 		mov	r2, r0
+ 253:common_nxp/src/timer.c ****   {
+ 254:common_nxp/src/timer.c **** 	timer1_counter = 0;
+ 526              	1:
+ 527 0024 6C309FE5 		mov	r0, #5
+ 528 0028 0010A0E3 	.LVL32:
+ 255:common_nxp/src/timer.c **** 	T1MR0 = TimerInterval;
+ 529              		install_irq
+ 530 002c 0E22A0E3 	.LVL33:
+ 531              		subs	r0, r0, #0
+ 532 0030 001083E5 		movne	r0, #1
+ 533              		.loc 1 267 0
+ 534 0034 022982E2 		ldmfd	sp, {fp, sp, pc}
+ 256:common_nxp/src/timer.c **** 	T1MCR = 3;				/* Interrupt and Reset on MR1 */
+ 535              	:
+ 536 0038 0330A0E3 	.L44:
+ 537              		.loc 1 240 0
+ 538 003c 18C082E5 		ldr	r2, .L45+8
+ 257:common_nxp/src/timer.c **** 	if ( install_irq( TIMER1_INT, (void *)Timer1Handler, HIGHEST_PRIORITY ) == FALSE )
+ 539              	c 1 241 0
+ 540 0040 54109FE5 		mov	r3, #-536870912
+ 541              		.loc 1 240 0
+ 542 0044 143082E5 		str	r0, [r2, #0]
+ 543              		.loc 1 241 0
+ 544 0048 0020A0E1 		add	r3, r3, #16384
+ 545              		.loc 1 242 0
+ 546 004c 0500A0E3 		mov	r2, #3
+ 547              		.loc 1 241 0
+ 548 0050 FEFFFFEB 		str	r1, [r3, #24]
+ 549              		.loc 1 243 0
+ 550 0054 000050E2 		mov	r0, #4
+ 551 0058 0100A013 	.LVL35:
+ 258:common_nxp/src/timer.c **** 	{
+ 259:common_nxp/src/timer.c **** 	  return (FALSE);
+ 260:common_nxp/src/timer.c **** 	}  
+ 261:common_nxp/src/timer.c **** 	else
+ 262:common_nxp/src/timer.c **** 	{
+ 263:common_nxp/src/timer.c **** 	  return (TRUE);
+ 264:common_nxp/src/timer.c **** 	}
+ 265:common_nxp/src/timer.c ****   }
+ 266:common_nxp/src/timer.c ****   return (FALSE);
+ 267:common_nxp/src/timer.c **** }
+ 552              	
+ 553 005c 00A89DE8 		str	r2, [r3, #20]
+ 554              		.loc 1 243 0
+ 555              		ldr	r1, .L45+12
+ 556              		sub	r2, r2, #2
+ 557 0060 38209FE5 		bl	install_irq
+ 558              	.LVL36:
+ 559 0064 0E32A0E3 		subs	r0, r0, #0
+ 560              		movne	r0, #1
+ 561 0068 000082E5 		ldmfd	sp, {fp, sp, pc}
+ 562              	.L46:
+ 563 006c 013983E2 		.align	2
+ 564              	.L45:
+ 565 0070 0320A0E3 		.word	timer1_counter
+ 566              		.word	Timer1Handler
+ 567 0074 181083E5 		.word	timer0_counter
+ 568              		.word	Timer0Handler
+ 569 0078 0400A0E3 	.LFE15:
+ 571              		.global	timer0_counter
+ 572 007c 142083E5 		.section	.bss.timer0_counter,"aw",%nobits
+ 573              		.align	2
+ 576 0088 FEFFFFEB 	timer0_counter:
+ 577              		.space	4
+ 578 008c 000050E2 		.global	timer1_counter
+ 579 0090 0100A013 		.section	.bss.timer1_counter,"aw",%nobits
+ 580 0094 00A89DE8 		.align	2
+ 583              	timer1_counter:
+ 584 0098 00000000 		.space	4
+ 585 009c 00000000 		.global	timer0CallbackFunction
+ 586 00a0 00000000 		.section	.bss.timer0CallbackFunction,"aw",%nobits
+ 587 00a4 00000000 		.align	2
+ 590              	timer0CallbackFunction:
+ 591              		.space	4
+ 592              		.global	timer1CallbackFunction
+ 593              		.section	.bss.timer1CallbackFunction,"aw",%nobits
+ 594              		.align	2
+ 597              	timer1CallbackFunction:
+ 598              		.space	4
+ 599              		.section	.debug_frame,"",%progbits
+ 600              	.Lframe0:
+ 601              		.4byte	.LECIE0-.LSCIE0
+ 602              	.LSCIE0:
+ 603 0000 00000000 		.4byte	0xffffffff
+ 604              		.byte	0x1
+ 605              		.ascii	"\000"
+ 606              		.uleb128 0x1
+ 607              		.sleb128 -4
+ 608              		.byte	0xe
+ 609              		.byte	0xc
+ 610 0000 00000000 		.uleb128 0xd
+ 611              		.uleb128 0x0
+ 612              		.align	2
+ 613              	.LECIE0:
+ 614              	.LSFDE0:
+ 615              		.4byte	.LEFDE0-.LASFDE0
+ 616              	.LASFDE0:
+ 617 0000 00000000 		.4byte	.Lframe0
+ 850              	.LLST1:
+DEFINED SYMBOLS
+                            *ABS*:00000000 timer.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:14     .text.registercallback_timer:00000000 registercallback_timer
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:21     .text.registercallback_timer:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:60     .text.registercallback_timer:00000044 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:609    .bss.timer0CallbackFunction:00000000 timer0CallbackFunction
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:616    .bss.timer1CallbackFunction:00000000 timer1CallbackFunction
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:68     .text.delayMs:00000000 delayMs
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:74     .text.delayMs:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:177    .text.Timer0Handler:00000000 Timer0Handler
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:183    .text.Timer0Handler:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:268    .text.Timer0Handler:0000007c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:595    .bss.timer0_counter:00000000 timer0_counter
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:276    .text.Timer1Handler:00000000 Timer1Handler
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:282    .text.Timer1Handler:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:368    .text.Timer1Handler:0000007c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:602    .bss.timer1_counter:00000000 timer1_counter
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:376    .text.enable_timer:00000000 enable_timer
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:383    .text.enable_timer:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:414    .text.disable_timer:00000000 disable_timer
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:421    .text.disable_timer:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:452    .text.reset_timer:00000000 reset_timer
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:459    .text.reset_timer:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:500    .text.init_timer:00000000 init_timer
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:506    .text.init_timer:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:584    .text.init_timer:00000098 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:620    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccXe1r3x.s:854    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+install_irq

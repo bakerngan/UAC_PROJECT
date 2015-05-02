@@ -1,0 +1,576 @@
+   1              		.file	"dma.c"
+   9              	.Ltext0:
+  10              		.section	.text.DMAHandler,"ax",%progbits
+  11              		.align	2
+  12              		.global	DMAHandler
+  14              	DMAHandler:
+  15              	.LFB8:
+  16              		.file 1 "drivers_nxp/dma.c"
+   1:drivers_nxp/dma.c **** /*****************************************************************************
+   2:drivers_nxp/dma.c ****  *   dma.c:  DMA module file for NXP LPC23xx/24xx Family Microprocessors
+   3:drivers_nxp/dma.c ****  *
+   4:drivers_nxp/dma.c ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:drivers_nxp/dma.c ****  *   All rights reserved.
+   6:drivers_nxp/dma.c ****  *
+   7:drivers_nxp/dma.c ****  *   History
+   8:drivers_nxp/dma.c ****  *   2006.07.20  ver 1.00    Prelimnary version, first Release
+   9:drivers_nxp/dma.c ****  *
+  10:drivers_nxp/dma.c **** ******************************************************************************/
+  11:drivers_nxp/dma.c **** #include "LPC23xx.h"                        /* LPC23xx/24xx definitions */
+  12:drivers_nxp/dma.c **** #include "type.h"
+  13:drivers_nxp/dma.c **** #include "irq.h"
+  14:drivers_nxp/dma.c **** #include "mci.h"
+  15:drivers_nxp/dma.c **** #include "dma.h"
+  16:drivers_nxp/dma.c **** 
+  17:drivers_nxp/dma.c **** #if MCI_DMA_ENABLED
+  18:drivers_nxp/dma.c **** 
+  19:drivers_nxp/dma.c **** /******************************************************************************
+  20:drivers_nxp/dma.c **** ** Function name:		DMAHandler
+  21:drivers_nxp/dma.c **** **
+  22:drivers_nxp/dma.c **** ** Descriptions:		DMA interrupt handler for MCI
+  23:drivers_nxp/dma.c **** **
+  24:drivers_nxp/dma.c **** ** parameters:			None
+  25:drivers_nxp/dma.c **** ** Returned value:		None
+  26:drivers_nxp/dma.c **** ** 
+  27:drivers_nxp/dma.c **** ******************************************************************************/
+  28:drivers_nxp/dma.c **** void DMAHandler (void)
+  29:drivers_nxp/dma.c **** {
+  17              	Interrupt Service Routine.
+  18              		@ args = 0, pretend = 0, frame = 0
+  19              		@ frame_needed = 1, uses_anonymous_args = 0
+  20              		str	ip, [sp, #-4]!
+  21 0000 04C02DE5 		mov	ip, sp
+  22 0004 0DC0A0E1 	.LCFI0:
+  23              		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+  24 0008 0FD82DE9 	.LCFI1:
+  25              		.loc 1 33 0
+  30:drivers_nxp/dma.c ****   DWORD regVal;
+  31:drivers_nxp/dma.c ****   static DWORD DMATCCount, DMAErrCount;
+  32:drivers_nxp/dma.c **** 
+  33:drivers_nxp/dma.c ****   regVal = GPDMA_INT_TCSTAT;
+  26              	#20224
+  27 000c 4F0CA0E3 		add	r0, r0, #255
+  28 0010 FF0080E2 		orr	r0, r0, r0, asl #21
+  29 0014 800A80E1 		.loc 1 29 0
+  30              		sub	fp, ip, #4
+  31 0018 04B04CE2 	.LCFI2:
+  32              		.loc 1 33 0
+  33              		ldr	ip, [r0, #-4091]
+  34 001c FBCF10E5 	.LVL0:
+  35              		.loc 1 34 0
+  34:drivers_nxp/dma.c ****   if ( regVal )
+  36              	0
+  37 0020 00005CE3 		beq	.L2
+  38 0024 0600000A 		.loc 1 36 0
+  35:drivers_nxp/dma.c ****   {
+  36:drivers_nxp/dma.c **** 	DMATCCount++;
+  39              	r	r3, .L6
+  40 0028 64309FE5 		ldr	r2, [r3, #0]
+  41 002c 002093E5 		add	r2, r2, #1
+  42 0030 012082E2 		str	r2, [r3, #0]
+  43 0034 002083E5 		.loc 1 37 0
+  37:drivers_nxp/dma.c **** 	GPDMA_INT_TCCLR |= regVal;
+  44              	r1, [r0, #-4087]
+  45 0038 F71F10E5 		orr	r1, r1, ip
+  46 003c 0C1081E1 		str	r1, [r0, #-4087]
+  47 0040 F71F00E5 	.L2:
+  48              		.loc 1 40 0
+  38:drivers_nxp/dma.c ****   } 
+  39:drivers_nxp/dma.c **** 
+  40:drivers_nxp/dma.c ****   regVal = GPDMA_INT_ERR_STAT;
+  49              	r0, #20224
+  50 0044 4F0CA0E3 		add	r0, r0, #255
+  51 0048 FF0080E2 		orr	r0, r0, r0, asl #21
+  52 004c 800A80E1 		ldr	ip, [r0, #-4083]
+  53 0050 F3CF10E5 	.LVL1:
+  54              		.loc 1 41 0
+  41:drivers_nxp/dma.c ****   if ( regVal )
+  55              	p, #0
+  56 0054 00005CE3 		beq	.L3
+  57 0058 0600000A 		.loc 1 43 0
+  42:drivers_nxp/dma.c ****   {
+  43:drivers_nxp/dma.c **** 	DMAErrCount++;
+  58              	r	r3, .L6+4
+  59 005c 34309FE5 		ldr	r2, [r3, #0]
+  60 0060 002093E5 		add	r2, r2, #1
+  61 0064 012082E2 		str	r2, [r3, #0]
+  62 0068 002083E5 		.loc 1 44 0
+  44:drivers_nxp/dma.c **** 	GPDMA_INT_ERR_CLR |= regVal;
+  63              	r1, [r0, #-4079]
+  64 006c EF1F10E5 		orr	r1, r1, ip
+  65 0070 0C1081E1 		str	r1, [r0, #-4079]
+  66 0074 EF1F00E5 	.L3:
+  67              		.loc 1 46 0
+  45:drivers_nxp/dma.c ****   } 
+  46:drivers_nxp/dma.c ****   VICVectAddr = 0;		/* Acknowledge Interrupt */
+  68              	r2, #0
+  69 0078 0020A0E3 		mvn	r3, #0
+  70 007c 0030E0E3 		str	r2, [r3, #-255]
+  71 0080 FF2003E5 		.loc 1 47 0
+  47:drivers_nxp/dma.c **** }
+  72              		sp, fp, #28
+  73 0084 1CD04BE2 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+  74 0088 0F689DE8 		ldmfd	sp!, {ip}
+  75 008c 0010BDE8 		subs	pc, lr, #4
+  76 0090 04F05EE2 	.L7:
+  77              		.align	2
+  78              	.L6:
+  79              		.word	DMATCCount.1311
+  80 0094 00000000 		.word	DMAErrCount.1312
+  81 0098 00000000 	.LFE8:
+  83              		.section	.text.DMA_Move,"ax",%progbits
+  84              		.align	2
+  85              		.global	DMA_Move
+  87              	DMA_Move:
+  88              	.LFB10:
+  89              		.loc 1 88 0
+  48:drivers_nxp/dma.c **** 
+  49:drivers_nxp/dma.c **** /******************************************************************************
+  50:drivers_nxp/dma.c **** ** Function name:		DMA_Init
+  51:drivers_nxp/dma.c **** **
+  52:drivers_nxp/dma.c **** ** Descriptions:		Setup GPDMA clock and install interrupt handler		
+  53:drivers_nxp/dma.c **** **
+  54:drivers_nxp/dma.c **** ** parameters:			None			
+  55:drivers_nxp/dma.c **** ** Returned value:		TRUE or FALSE, FALSE if ISR can't be installed.		
+  56:drivers_nxp/dma.c **** ** 
+  57:drivers_nxp/dma.c **** ******************************************************************************/
+  58:drivers_nxp/dma.c **** DWORD DMA_Init(void)
+  59:drivers_nxp/dma.c **** {
+  60:drivers_nxp/dma.c ****   PCONP |= (1 << 29);	/* Enable GPDMA clock */
+  61:drivers_nxp/dma.c **** 
+  62:drivers_nxp/dma.c ****   /* clear all interrupts on channel 0 and 1 */
+  63:drivers_nxp/dma.c ****   GPDMA_INT_TCCLR = 0x03;
+  64:drivers_nxp/dma.c ****   GPDMA_INT_ERR_CLR = 0x03;
+  65:drivers_nxp/dma.c **** 
+  66:drivers_nxp/dma.c ****   GPDMA_CONFIG = 0x01;	/* Enable DMA channels, little endian */
+  67:drivers_nxp/dma.c ****   while ( !(GPDMA_CONFIG & 0x01) );    
+  68:drivers_nxp/dma.c **** 		
+  69:drivers_nxp/dma.c ****   if ( install_irq( GPDMA_INT, (void *)DMAHandler, HIGHEST_PRIORITY ) == FALSE )
+  70:drivers_nxp/dma.c ****   {
+  71:drivers_nxp/dma.c **** 	return( FALSE );
+  72:drivers_nxp/dma.c ****   }
+  73:drivers_nxp/dma.c ****   return( TRUE );
+  74:drivers_nxp/dma.c **** }   
+  75:drivers_nxp/dma.c **** 
+  76:drivers_nxp/dma.c **** /******************************************************************************
+  77:drivers_nxp/dma.c **** ** Function name:		DMA_Move
+  78:drivers_nxp/dma.c **** **
+  79:drivers_nxp/dma.c **** ** Descriptions:		Setup GPDMA for MCI DMA transfer
+  80:drivers_nxp/dma.c **** **						including mode, M2P or M2M, or P2M,
+  81:drivers_nxp/dma.c **** **						src and dest. address, control reg. etc.		
+  82:drivers_nxp/dma.c **** **
+  83:drivers_nxp/dma.c **** ** parameters:			Channel number, DMA mode			
+  84:drivers_nxp/dma.c **** ** Returned value:		TRUE or FALSE		
+  85:drivers_nxp/dma.c **** ** 
+  86:drivers_nxp/dma.c **** ******************************************************************************/
+  87:drivers_nxp/dma.c **** DWORD DMA_Move( DWORD ChannelNum, DWORD DMAMode )
+  88:drivers_nxp/dma.c **** {
+  90              	nd = 0, frame = 0
+  91              		@ frame_needed = 1, uses_anonymous_args = 0
+  92              	.LVL2:
+  93              		mov	ip, sp
+  94 0000 0DC0A0E1 	.LCFI3:
+  95              		.loc 1 93 0
+  89:drivers_nxp/dma.c ****   /* USB RAM is used for test.
+  90:drivers_nxp/dma.c ****   Please note, Ethernet has its own SRAM, but GPDMA can't access
+  91:drivers_nxp/dma.c ****   that. GPDMA can access USB SRAM and IRAM. Ethernet DMA controller can 
+  92:drivers_nxp/dma.c ****   access both IRAM and Ethernet SRAM. */
+  93:drivers_nxp/dma.c ****   if ( ChannelNum == 0 )
+  96              	0, #0
+  97 0004 000050E3 		.loc 1 88 0
+  98              		stmfd	sp!, {fp, ip, lr, pc}
+  99 0008 00D82DE9 	.LCFI4:
+ 100              		sub	fp, ip, #4
+ 101 000c 04B04CE2 	.LCFI5:
+ 102              		.loc 1 93 0
+ 103              		bne	.L9
+ 104 0010 1D00001A 		.loc 1 95 0
+  94:drivers_nxp/dma.c ****   {
+  95:drivers_nxp/dma.c **** 	GPDMA_INT_TCCLR = 0x01;   
+ 105              	#20224
+ 106 0014 4F0CA0E3 	.LVL3:
+ 107              		add	r0, r0, #255
+ 108 0018 FF0080E2 		orr	r0, r0, r0, asl #21
+ 109 001c 800A80E1 		mov	r3, #1
+ 110 0020 0130A0E3 		.loc 1 97 0
+  96:drivers_nxp/dma.c **** 	GPDMA_INT_ERR_CLR = 0x01;
+  97:drivers_nxp/dma.c **** 	if ( DMAMode == M2M )
+ 111              	1, #0
+ 112 0024 000051E3 		.loc 1 95 0
+ 113              		str	r3, [r0, #-4087]
+ 114 0028 F73F00E5 		.loc 1 96 0
+ 115              		str	r3, [r0, #-4079]
+ 116 002c EF3F00E5 		.loc 1 97 0
+ 117              		bne	.L10
+ 118 0030 1900001A 		.loc 1 101 0
+  98:drivers_nxp/dma.c **** 	{
+  99:drivers_nxp/dma.c **** 	  /* Ch0 is set for M2M tranfer from AHB1 to AHB2 SRAM */
+ 100:drivers_nxp/dma.c **** 	  GPDMA_CH0_SRC = DMA_SRC;
+ 101:drivers_nxp/dma.c **** 	  GPDMA_CH0_DEST = DMA_DST;
+ 119              	 #2130706432
+ 120 0034 7F34A0E3 		.loc 1 103 0
+ 102:drivers_nxp/dma.c **** 	  /* Terminal Count Int enable */
+ 103:drivers_nxp/dma.c **** 	  GPDMA_CH0_CTRL = (DMA_SIZE & 0x0FFF) | (0x04 << 12) | (0x04 << 15) 
+ 121              	dd	r1, r1, #-1946157056
+ 122 0038 231381E2 	.LVL4:
+ 123              		.loc 1 101 0
+ 124              		add	r3, r3, #13631488
+ 125 003c 0D3683E2 		.loc 1 103 0
+ 126              		add	r1, r1, #4849664
+ 127 0040 4A1881E2 		.loc 1 100 0
+ 128              		mov	r2, #2130706432
+ 129 0044 7F24A0E3 		add	r2, r2, #13631488
+ 130 0048 0D2682E2 		.loc 1 101 0
+ 131              		add	r3, r3, #4096
+ 132 004c 013A83E2 		.loc 1 103 0
+ 133              		add	r1, r1, #16896
+ 134 0050 421C81E2 		.loc 1 100 0
+ 135              		str	r2, [r0, #-3839]
+ 136 0054 FF2E00E5 		.loc 1 101 0
+ 137              		str	r3, [r0, #-3835]
+ 138 0058 FB3E00E5 		.loc 1 103 0
+ 139              		str	r1, [r0, #-3827]
+ 140 005c F31E00E5 	.L11:
+ 141              		.loc 1 174 0
+ 104:drivers_nxp/dma.c **** 			| (0x02 << 18) | (0x02 << 21) | (1 << 26) | (1 << 27) | 0x80000000;	
+ 105:drivers_nxp/dma.c **** 	}
+ 106:drivers_nxp/dma.c **** 	else if ( DMAMode == M2P )
+ 107:drivers_nxp/dma.c **** 	{
+ 108:drivers_nxp/dma.c **** 	  /* Ch0 set for M2P transfer from mempry to MCI FIFO. */
+ 109:drivers_nxp/dma.c **** 	  GPDMA_CH0_SRC = DMA_SRC;
+ 110:drivers_nxp/dma.c **** 	  GPDMA_CH0_DEST = DMA_MCIFIFO;
+ 111:drivers_nxp/dma.c **** 	  /* The burst size is set to 8, the size is 8 bit too. */
+ 112:drivers_nxp/dma.c **** 	  /* Terminal Count Int enable */
+ 113:drivers_nxp/dma.c **** 	  GPDMA_CH0_CTRL = (DMA_SIZE & 0x0FFF) | (0x04 << 12) | (0x02 << 15)
+ 114:drivers_nxp/dma.c **** 			| (0x02 << 18) | (0x02 << 21) | (1 << 26) | 0x80000000;
+ 115:drivers_nxp/dma.c **** 	}
+ 116:drivers_nxp/dma.c **** 	else if ( DMAMode == P2M )
+ 117:drivers_nxp/dma.c **** 	{
+ 118:drivers_nxp/dma.c **** 	  /* Ch0 set for P2M transfer from MCI FIFO to memory. */
+ 119:drivers_nxp/dma.c **** 	  GPDMA_CH0_SRC = DMA_MCIFIFO;
+ 120:drivers_nxp/dma.c **** 	  GPDMA_CH0_DEST = DMA_DST;
+ 121:drivers_nxp/dma.c **** 	  /* The burst size is set to 8, the size is 8 bit too. */
+ 122:drivers_nxp/dma.c **** 	  /* Terminal Count Int enable */
+ 123:drivers_nxp/dma.c **** 	  GPDMA_CH0_CTRL = (DMA_SIZE & 0x0FFF) | (0x02 << 12) | (0x04 << 15)
+ 124:drivers_nxp/dma.c **** 			| (0x02 << 18) | (0x02 << 21) | (1 << 27) | 0x80000000;
+ 125:drivers_nxp/dma.c **** 	}
+ 126:drivers_nxp/dma.c **** 	else
+ 127:drivers_nxp/dma.c **** 	{
+ 128:drivers_nxp/dma.c **** 	  return ( FALSE );
+ 129:drivers_nxp/dma.c **** 	}
+ 130:drivers_nxp/dma.c ****   }
+ 131:drivers_nxp/dma.c ****   else if ( ChannelNum == 1 )
+ 132:drivers_nxp/dma.c ****   {   
+ 133:drivers_nxp/dma.c **** 	GPDMA_INT_TCCLR = 0x02;   
+ 134:drivers_nxp/dma.c **** 	GPDMA_INT_ERR_CLR = 0x02;
+ 135:drivers_nxp/dma.c **** 	if ( DMAMode == M2M )
+ 136:drivers_nxp/dma.c **** 	{
+ 137:drivers_nxp/dma.c **** 	  /* Ch1 is set for M2M tranfer */
+ 138:drivers_nxp/dma.c **** 	  GPDMA_CH1_SRC = DMA_SRC;
+ 139:drivers_nxp/dma.c **** 	  GPDMA_CH1_DEST = DMA_DST;
+ 140:drivers_nxp/dma.c **** 	  /* Terminal Count Int enable */
+ 141:drivers_nxp/dma.c **** 	  GPDMA_CH1_CTRL = (DMA_SIZE & 0x0FFF) | (0x04 << 12) | (0x04 << 15) 
+ 142:drivers_nxp/dma.c **** 			| (0x02 << 18) | (0x02 << 21) | (1 << 26) | (1 << 27) | 0x80000000;	
+ 143:drivers_nxp/dma.c **** 	}
+ 144:drivers_nxp/dma.c **** 	else if ( DMAMode == M2P )
+ 145:drivers_nxp/dma.c **** 	{
+ 146:drivers_nxp/dma.c **** 	  /* Ch1 set for M2P transfer from memory to MCI FIFO. */
+ 147:drivers_nxp/dma.c **** 	  GPDMA_CH1_SRC = DMA_SRC;
+ 148:drivers_nxp/dma.c **** 	  GPDMA_CH1_DEST = DMA_MCIFIFO;
+ 149:drivers_nxp/dma.c **** 	  /* The burst size is set to 8, the size is 8 bit too. */
+ 150:drivers_nxp/dma.c **** 	  /* Terminal Count Int enable */
+ 151:drivers_nxp/dma.c **** 	  GPDMA_CH1_CTRL = (DMA_SIZE & 0x0FFF) | (0x04 << 12) | (0x02 << 15)
+ 152:drivers_nxp/dma.c **** 			| (0x02 << 18) | (0x02 << 21) | (1 << 26) | 0x80000000;
+ 153:drivers_nxp/dma.c **** 	}
+ 154:drivers_nxp/dma.c **** 	else if ( DMAMode == P2M )
+ 155:drivers_nxp/dma.c **** 	{
+ 156:drivers_nxp/dma.c **** 	  /* Ch1 set for P2M transfer from MCI_FIFO to memory. */
+ 157:drivers_nxp/dma.c **** 	  GPDMA_CH1_SRC = DMA_MCIFIFO;
+ 158:drivers_nxp/dma.c **** 	  GPDMA_CH1_DEST = DMA_DST;
+ 159:drivers_nxp/dma.c **** 	  /* The burst size is set to 8, the size is 8 bit too. */
+ 160:drivers_nxp/dma.c **** 	  /* Terminal Count Int enable */
+ 161:drivers_nxp/dma.c **** 	  GPDMA_CH1_CTRL = (DMA_SIZE & 0x0FFF) | (0x02 << 12) | (0x04 << 15)
+ 162:drivers_nxp/dma.c **** 			| (0x02 << 18) | (0x02 << 21) | (1 << 27) | 0x80000000;
+ 163:drivers_nxp/dma.c **** 	}
+ 164:drivers_nxp/dma.c **** 	else
+ 165:drivers_nxp/dma.c **** 	{
+ 166:drivers_nxp/dma.c **** 	  return ( FALSE );
+ 167:drivers_nxp/dma.c **** 	}
+ 168:drivers_nxp/dma.c ****   }
+ 169:drivers_nxp/dma.c ****   else
+ 170:drivers_nxp/dma.c ****   {
+ 171:drivers_nxp/dma.c **** 	return ( FALSE );
+ 172:drivers_nxp/dma.c ****   }
+ 173:drivers_nxp/dma.c **** 	
+ 174:drivers_nxp/dma.c ****   GPDMA_CONFIG = 0x01;	/* Enable DMA channels, little endian */
+ 142              	r3, r3, #255
+ 143 0060 4F3CA0E3 		orr	r3, r3, r3, asl #21
+ 144 0064 FF3083E2 		mov	r2, #1
+ 145 0068 833A83E1 		str	r2, [r3, #-4047]
+ 146 006c 0120A0E3 		.loc 1 175 0
+ 147 0070 CF2F03E5 		mov	r2, r3
+ 175:drivers_nxp/dma.c ****   while ( !(GPDMA_CONFIG & 0x01) );    
+ 148              		ldr	r3, [r2, #-4047]
+ 149 0074 0320A0E1 		tst	r3, #1
+ 150              		beq	.L16
+ 151 0078 CF3F12E5 		mov	r0, #1
+ 152 007c 010013E3 		ldmfd	sp, {fp, sp, pc}
+ 153 0080 FCFFFF0A 	.LVL5:
+ 154 0084 0100A0E3 	.L9:
+ 155 0088 00A89DE8 		.loc 1 131 0
+ 156              		cmp	r0, #1
+ 157              		beq	.L20
+ 158              	.L13:
+ 159 008c 010050E3 		.loc 1 175 0
+ 160 0090 1200000A 		mov	r0, #0
+ 161              	.LVL6:
+ 162              		.loc 1 177 0
+ 163 0094 0000A0E3 		ldmfd	sp, {fp, sp, pc}
+ 164              	.L10:
+ 176:drivers_nxp/dma.c ****   return (TRUE);
+ 177:drivers_nxp/dma.c **** }
+ 165              	p	r1, #1
+ 166 0098 00A89DE8 		beq	.L21
+ 167              		.loc 1 116 0
+ 168              		cmp	r1, #2
+ 169 009c 010051E3 		bne	.L13
+ 170 00a0 2200000A 		.loc 1 119 0
+ 171              		mov	r3, #-536870912
+ 172 00a4 020051E3 		.loc 1 120 0
+ 173 00a8 F9FFFF1A 		mov	r2, #2130706432
+ 174              		.loc 1 123 0
+ 175 00ac 0E32A0E3 		sub	r1, r1, #2013265922
+ 176              	.LVL7:
+ 177 00b0 7F24A0E3 		.loc 1 119 0
+ 178              		add	r3, r3, #573440
+ 179 00b4 9E1341E2 		.loc 1 120 0
+ 180              		add	r2, r2, #13631488
+ 181              		.loc 1 123 0
+ 182 00b8 233983E2 		add	r1, r1, #4849664
+ 183              		.loc 1 119 0
+ 184 00bc 0D2682E2 		add	r3, r3, #128
+ 185              		.loc 1 120 0
+ 186 00c0 4A1881E2 		add	r2, r2, #4096
+ 187              		.loc 1 123 0
+ 188 00c4 803083E2 		add	r1, r1, #8704
+ 189              		.loc 1 119 0
+ 190 00c8 012A82E2 		str	r3, [r0, #-3839]
+ 191              		.loc 1 120 0
+ 192 00cc 221C81E2 		str	r2, [r0, #-3835]
+ 193              		.loc 1 123 0
+ 194 00d0 FF3E00E5 		str	r1, [r0, #-3827]
+ 195              		b	.L11
+ 196 00d4 FB2E00E5 	.LVL8:
+ 197              	.L20:
+ 198 00d8 F31E00E5 		.loc 1 133 0
+ 199 00dc DFFFFFEA 		mov	r0, #20224
+ 200              	.LVL9:
+ 201              		add	r0, r0, #255
+ 202              		orr	r0, r0, r0, asl #21
+ 203 00e0 4F0CA0E3 		mov	r3, #2
+ 204              		.loc 1 135 0
+ 205 00e4 FF0080E2 		cmp	r1, #0
+ 206 00e8 800A80E1 		.loc 1 133 0
+ 207 00ec 0230A0E3 		str	r3, [r0, #-4087]
+ 208              		.loc 1 134 0
+ 209 00f0 000051E3 		str	r3, [r0, #-4079]
+ 210              		.loc 1 135 0
+ 211 00f4 F73F00E5 		bne	.L14
+ 212              		.loc 1 139 0
+ 213 00f8 EF3F00E5 		mov	r3, #2130706432
+ 214              		.loc 1 141 0
+ 215 00fc 1700001A 		add	r1, r1, #-1946157056
+ 216              	.LVL10:
+ 217 0100 7F34A0E3 		.loc 1 139 0
+ 218              		add	r3, r3, #13631488
+ 219 0104 231381E2 		.loc 1 141 0
+ 220              		add	r1, r1, #4849664
+ 221              		.loc 1 138 0
+ 222 0108 0D3683E2 		mov	r2, #2130706432
+ 223              		add	r2, r2, #13631488
+ 224 010c 4A1881E2 		.loc 1 139 0
+ 225              		add	r3, r3, #4096
+ 226 0110 7F24A0E3 		.loc 1 141 0
+ 227 0114 0D2682E2 		add	r1, r1, #16896
+ 228              		.loc 1 138 0
+ 229 0118 013A83E2 		str	r2, [r0, #-3807]
+ 230              		.loc 1 139 0
+ 231 011c 421C81E2 		str	r3, [r0, #-3803]
+ 232              		.loc 1 141 0
+ 233 0120 DF2E00E5 		str	r1, [r0, #-3795]
+ 234              		b	.L11
+ 235 0124 DB3E00E5 	.LVL11:
+ 236              	.L21:
+ 237 0128 D31E00E5 		.loc 1 110 0
+ 238 012c CBFFFFEA 		mov	r3, #-536870912
+ 239              		.loc 1 113 0
+ 240              		sub	r1, r1, #2080374785
+ 241              	.LVL12:
+ 242 0130 0E32A0E3 		.loc 1 110 0
+ 243              		add	r3, r3, #573440
+ 244 0134 5F1341E2 		.loc 1 113 0
+ 245              		add	r1, r1, #4784128
+ 246              		.loc 1 109 0
+ 247 0138 233983E2 		mov	r2, #2130706432
+ 248              		add	r2, r2, #13631488
+ 249 013c 491881E2 		.loc 1 110 0
+ 250              		add	r3, r3, #128
+ 251 0140 7F24A0E3 		.loc 1 113 0
+ 252 0144 0D2682E2 		add	r1, r1, #16896
+ 253              		.loc 1 109 0
+ 254 0148 803083E2 		str	r2, [r0, #-3839]
+ 255              		.loc 1 110 0
+ 256 014c 421C81E2 		str	r3, [r0, #-3835]
+ 257              		.loc 1 113 0
+ 258 0150 FF2E00E5 		str	r1, [r0, #-3827]
+ 259              		b	.L11
+ 260 0154 FB3E00E5 	.LVL13:
+ 261              	.L14:
+ 262 0158 F31E00E5 		.loc 1 144 0
+ 263 015c BFFFFFEA 		cmp	r1, #1
+ 264              		beq	.L22
+ 265              		.loc 1 154 0
+ 266              		cmp	r1, #2
+ 267 0160 010051E3 		bne	.L13
+ 268 0164 0E00000A 		.loc 1 157 0
+ 269              		mov	r3, #-536870912
+ 270 0168 020051E3 		.loc 1 158 0
+ 271 016c C8FFFF1A 		mov	r2, #2130706432
+ 272              		.loc 1 161 0
+ 273 0170 0E32A0E3 		sub	r1, r1, #2013265922
+ 274              	.LVL14:
+ 275 0174 7F24A0E3 		.loc 1 157 0
+ 276              		add	r3, r3, #573440
+ 277 0178 9E1341E2 		.loc 1 158 0
+ 278              		add	r2, r2, #13631488
+ 279              		.loc 1 161 0
+ 280 017c 233983E2 		add	r1, r1, #4849664
+ 281              		.loc 1 157 0
+ 282 0180 0D2682E2 		add	r3, r3, #128
+ 283              		.loc 1 158 0
+ 284 0184 4A1881E2 		add	r2, r2, #4096
+ 285              		.loc 1 161 0
+ 286 0188 803083E2 		add	r1, r1, #8704
+ 287              		.loc 1 157 0
+ 288 018c 012A82E2 		str	r3, [r0, #-3807]
+ 289              		.loc 1 158 0
+ 290 0190 221C81E2 		str	r2, [r0, #-3803]
+ 291              		.loc 1 161 0
+ 292 0194 DF3E00E5 		str	r1, [r0, #-3795]
+ 293              		b	.L11
+ 294 0198 DB2E00E5 	.LVL15:
+ 295              	.L22:
+ 296 019c D31E00E5 		.loc 1 148 0
+ 297 01a0 AEFFFFEA 		mov	r3, #-536870912
+ 298              		.loc 1 151 0
+ 299              		sub	r1, r1, #2080374785
+ 300              	.LVL16:
+ 301 01a4 0E32A0E3 		.loc 1 148 0
+ 302              		add	r3, r3, #573440
+ 303 01a8 5F1341E2 		.loc 1 151 0
+ 304              		add	r1, r1, #4784128
+ 305              		.loc 1 147 0
+ 306 01ac 233983E2 		mov	r2, #2130706432
+ 307              		add	r2, r2, #13631488
+ 308 01b0 491881E2 		.loc 1 148 0
+ 309              		add	r3, r3, #128
+ 310 01b4 7F24A0E3 		.loc 1 151 0
+ 311 01b8 0D2682E2 		add	r1, r1, #16896
+ 312              		.loc 1 147 0
+ 313 01bc 803083E2 		str	r2, [r0, #-3807]
+ 314              		.loc 1 148 0
+ 315 01c0 421C81E2 		str	r3, [r0, #-3803]
+ 316              		.loc 1 151 0
+ 317 01c4 DF2E00E5 		str	r1, [r0, #-3795]
+ 318              		b	.L11
+ 319 01c8 DB3E00E5 	.LFE10:
+ 321 01cc D31E00E5 		.section	.text.DMA_Init,"ax",%progbits
+ 322 01d0 A2FFFFEA 		.align	2
+ 323              		.global	DMA_Init
+ 325              	DMA_Init:
+ 326              	.LFB9:
+ 327              		.loc 1 59 0
+ 328              		@ args = 0, pretend = 0, frame = 0
+ 329              		@ frame_needed = 1, uses_anonymous_args = 0
+ 330              		.loc 1 60 0
+ 331              		mov	r1, #-536870912
+ 332              		add	r1, r1, #2080768
+ 333              		ldr	r2, [r1, #196]
+ 334              		.loc 1 63 0
+ 335 0000 0E12A0E3 		mov	r3, #20224
+ 336 0004 7F1981E2 		.loc 1 60 0
+ 337 0008 C42091E5 		orr	r2, r2, #536870912
+ 338              		.loc 1 63 0
+ 339 000c 4F3CA0E3 		add	r3, r3, #255
+ 340              		orr	r3, r3, r3, asl #21
+ 341 0010 022282E3 		.loc 1 60 0
+ 342              		str	r2, [r1, #196]
+ 343 0014 FF3083E2 		.loc 1 59 0
+ 344 0018 833A83E1 		mov	ip, sp
+ 345              	.LCFI6:
+ 346 001c C42081E5 		.loc 1 63 0
+ 347              		mov	r0, #3
+ 348 0020 0DC0A0E1 		.loc 1 66 0
+ 349              		mov	r2, #1
+ 350              		.loc 1 63 0
+ 351 0024 0300A0E3 		str	r0, [r3, #-4087]
+ 352              		.loc 1 59 0
+ 353 0028 0120A0E3 		stmfd	sp!, {fp, ip, lr, pc}
+ 354              	.LCFI7:
+ 355 002c F70F03E5 		.loc 1 64 0
+ 356              		str	r0, [r3, #-4079]
+ 357 0030 00D82DE9 		.loc 1 59 0
+ 358              		sub	fp, ip, #4
+ 359              	.LCFI8:
+ 360 0034 EF0F03E5 		.loc 1 66 0
+ 361              		str	r2, [r3, #-4047]
+ 362 0038 04B04CE2 		.loc 1 67 0
+ 363              		mov	r2, r3
+ 364              	.L24:
+ 365 003c CF2F03E5 		ldr	r3, [r2, #-4047]
+ 366              		tst	r3, #1
+ 367 0040 0320A0E1 		beq	.L24
+ 368              		.loc 1 69 0
+ 369 0044 CF3F12E5 		ldr	r1, .L27
+ 370 0048 010013E3 		mov	r2, #1
+ 371 004c FCFFFF0A 		mov	r0, #25
+ 372              		bl	install_irq
+ 373 0050 14109FE5 		.loc 1 74 0
+ 374 0054 0120A0E3 		subs	r0, r0, #0
+ 375 0058 1900A0E3 		movne	r0, #1
+ 376 005c FEFFFFEB 		ldmfd	sp, {fp, sp, pc}
+ 377              	.L28:
+ 378 0060 000050E2 		.align	2
+ 379 0064 0100A013 	.L27:
+ 380 0068 00A89DE8 		.word	DMAHandler
+ 381              	.LFE9:
+ 383              		.section	.bss.DMAErrCount.1312,"aw",%nobits
+ 384 006c 00000000 		.align	2
+ 387              	DMAErrCount.1312:
+ 388              		.space	4
+ 389              		.section	.bss.DMATCCount.1311,"aw",%nobits
+ 390              		.align	2
+ 393              	DMATCCount.1311:
+ 394              		.space	4
+ 395              		.section	.debug_frame,"",%progbits
+ 396              	.Lframe0:
+ 397              		.4byte	.LECIE0-.LSCIE0
+ 398 0000 00000000 	.LSCIE0:
+ 498              		.4byte	.LFB8
+DEFINED SYMBOLS
+                            *ABS*:00000000 dma.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:14     .text.DMAHandler:00000000 DMAHandler
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:21     .text.DMAHandler:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:80     .text.DMAHandler:00000094 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:397    .bss.DMATCCount.1311:00000000 DMATCCount.1311
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:391    .bss.DMAErrCount.1312:00000000 DMAErrCount.1312
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:88     .text.DMA_Move:00000000 DMA_Move
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:94     .text.DMA_Move:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:329    .text.DMA_Init:00000000 DMA_Init
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:335    .text.DMA_Init:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:384    .text.DMA_Init:0000006c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:401    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGVU6Oo.s:502    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+install_irq

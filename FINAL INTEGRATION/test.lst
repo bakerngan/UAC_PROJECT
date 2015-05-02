@@ -1,0 +1,211 @@
+   1              		.file	"test.c"
+   9              	.Ltext0:
+  10              		.section	.rodata.str1.1,"aMS",%progbits,1
+  11              	.LC0:
+  12 0000 0A72633D 		.ascii	"\012rc=%u FR_%s\000"
+  12      25752046 
+  12      525F2573 
+  12      00
+  13              		.section	.text.put_rc,"ax",%progbits
+  14              		.align	2
+  15              		.global	put_rc
+  17              	put_rc:
+  18              	.LFB2:
+  19              		.file 1 "test.c"
+   1:test.c        **** /*
+   2:test.c        ****  * test.c
+   3:test.c        ****  *
+   4:test.c        ****  *  Created on: May 26, 2012
+   5:test.c        ****  *      Author: pyang
+   6:test.c        ****  */
+   7:test.c        **** #include "test.h"
+   8:test.c        **** FATFS fatfs[_DRIVES];
+   9:test.c        **** void put_rc (FRESULT rc)
+  10:test.c        **** {
+  20              	s = 0, pretend = 0, frame = 0
+  21              		@ frame_needed = 1, uses_anonymous_args = 0
+  22              	.LVL0:
+  23              		mov	ip, sp
+  24 0000 0DC0A0E1 	.LCFI0:
+  25              		stmfd	sp!, {fp, ip, lr, pc}
+  26 0004 00D82DE9 	.LCFI1:
+  27              		ldr	r2, .L8
+  28 0008 3C209FE5 	.LVL1:
+  29              		sub	fp, ip, #4
+  30 000c 04B04CE2 	.LCFI2:
+  31              		.loc 1 10 0
+  32              		mov	ip, #0
+  33 0010 00C0A0E3 	.LVL2:
+  34              		b	.L2
+  35 0014 030000EA 	.L6:
+  36              		.loc 1 19 0
+  11:test.c        **** 	const char *p;
+  12:test.c        **** 	static const char str[] =
+  13:test.c        **** 		"OK\0" "NOT_READY\0" "NO_FILE\0" "FR_NO_PATH\0" "INVALID_NAME\0" "INVALID_DRIVE\0"
+  14:test.c        **** 		"DENIED\0" "EXIST\0" "RW_ERROR\0" "WRITE_PROTECTED\0" "NOT_ENABLED\0"
+  15:test.c        **** 		"NO_FILESYSTEM\0" "INVALID_OBJECT\0" "MKFS_ABORTED\0";
+  16:test.c        **** 	FRESULT i;
+  17:test.c        **** 
+  18:test.c        **** 	for (p = str, i = 0; i != rc && *p; i++) {
+  19:test.c        **** 		while(*p++);
+  37              	1	@ zero_extendqisi2
+  38 0018 0130D2E4 		cmp	r3, #0
+  39 001c 000053E3 		bne	.L6
+  40 0020 FCFFFF1A 		.loc 1 18 0
+  41              		add	ip, ip, #1
+  42 0024 01C08CE2 	.L2:
+  43              		cmp	ip, r0
+  44 0028 00005CE1 		beq	.L4
+  45 002c 0200000A 		ldrb	r3, [r2, #0]	@ zero_extendqisi2
+  46 0030 0030D2E5 		cmp	r3, #0
+  47 0034 000053E3 		bne	.L6
+  48 0038 F6FFFF1A 	.L4:
+  49              		.loc 1 21 0
+  20:test.c        **** 	}
+  21:test.c        **** 	xprintf("\nrc=%u FR_%s", (UINT)rc, p);
+  50              	ldr	r0, .L8+4
+  51 003c 0010A0E1 	.LVL3:
+  52 0040 08009FE5 		.loc 1 22 0
+  53              		ldmfd	sp, {fp, sp, lr}
+  22:test.c        **** }
+  54              	c 1 21 0
+  55 0044 00689DE8 		b	xprintf
+  56              	.LVL4:
+  57 0048 FEFFFFEA 	.L9:
+  58              		.align	2
+  59              	.L8:
+  60              		.word	str.1450
+  61              		.word	.LC0
+  62 004c 00000000 	.LFE2:
+  64              		.section	.rodata.str1.1
+  65              	.LC1:
+  66              		.ascii	"size.bin\000"
+  67              		.section	.text.try,"ax",%progbits
+  68 000d 73697A65 		.align	2
+  68      2E62696E 
+  68      00
+  69              		.global	try
+  71              	try:
+  72              	.LFB3:
+  73              		.loc 1 25 0
+  74              		@ args = 0, pretend = 0, frame = 556
+  23:test.c        **** 
+  24:test.c        **** void try()
+  25:test.c        **** {
+  75              	uses_anonymous_args = 0
+  76              		mov	ip, sp
+  77              	.LCFI3:
+  78 0000 0DC0A0E1 		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+  79              	.LCFI4:
+  80 0004 30D82DE9 		sub	fp, ip, #4
+  81              	.LCFI5:
+  82 0008 04B04CE2 		sub	sp, sp, #556
+  83              	.LCFI6:
+  84 000c 8BDF4DE2 		.loc 1 29 0
+  85              		mov	r3, #123
+  26:test.c        **** 	char *ptr, *ptr2;
+  27:test.c        **** 	long p1;
+  28:test.c        **** 	FIL file1, file2;		/* File objects */
+  29:test.c        **** 	int size=123;
+  86              	0
+  87 0010 7B30A0E3 		ldr	r1, .L12
+  30:test.c        **** 	UINT s2;
+  31:test.c        **** 	BYTE res;
+  32:test.c        **** 	p1=0;
+  33:test.c        **** 	put_rc(f_mount((BYTE)p1, &fatfs[p1]));
+  88              	loc 1 25 0
+  89 0014 5C109FE5 		.loc 1 36 0
+  90              		ldr	r4, .L12+4
+  34:test.c        **** 	ptr="size.bin";
+  35:test.c        **** 	p1=7;
+  36:test.c        **** 	put_rc(f_unlink(ptr));
+  91              	oc 1 33 0
+  92 0018 5C409FE5 		mov	r0, #0
+  93              		.loc 1 29 0
+  94 001c 0000A0E3 		str	r3, [fp, #-24]
+  95              	.LVL5:
+  96 0020 18300BE5 		.loc 1 33 0
+  97              		bl	f_mount
+  98              		bl	put_rc
+  99 0024 FEFFFFEB 		.loc 1 36 0
+ 100 0028 FEFFFFEB 		mov	r0, r4
+ 101              		bl	f_unlink
+ 102 002c 0400A0E1 		.loc 1 37 0
+ 103 0030 FEFFFFEB 		sub	r5, fp, #576
+  37:test.c        **** 	put_rc(f_open(&file1, ptr, (BYTE)p1));
+ 104              		bl	put_rc
+ 105 0034 095D4BE2 		.loc 1 37 0
+ 106              		mov	r1, r4
+ 107 0038 FEFFFFEB 		mov	r2, #7
+ 108              		mov	r0, r5
+ 109 003c 0410A0E1 		bl	f_open
+ 110 0040 0720A0E3 		bl	put_rc
+ 111 0044 0500A0E1 		.loc 1 38 0
+ 112 0048 FEFFFFEB 		sub	r1, fp, #24
+ 113 004c FEFFFFEB 		mov	r2, #4
+  38:test.c        **** 	res = f_write(&file1, &size, sizeof(int), &s2);
+ 114              	p, #28
+ 115 0050 18104BE2 		mov	r0, r5
+ 116 0054 0420A0E3 		bl	f_write
+ 117 0058 1C304BE2 		.loc 1 39 0
+ 118 005c 0500A0E1 		mov	r0, r5
+ 119 0060 FEFFFFEB 		bl	f_close
+  39:test.c        **** 	put_rc(f_close(&file1));
+ 120              	t_rc
+ 121 0064 0500A0E1 		.loc 1 40 0
+ 122 0068 FEFFFFEB 		sub	sp, fp, #20
+ 123 006c FEFFFFEB 		ldmfd	sp, {r4, r5, fp, sp, pc}
+  40:test.c        **** }
+ 124              	:
+ 125 0070 14D04BE2 		.align	2
+ 126 0074 30A89DE8 	.L12:
+ 127              		.word	fatfs
+ 128              		.word	.LC1
+ 129              	.LFE3:
+ 131 007c 0D000000 		.section	.rodata.str.1450,"a",%progbits
+ 134              	str.1450:
+ 135              		.ascii	"OK\000NOT_READY\000NO_FILE\000FR_NO_PATH\000INVALID"
+ 136              		.ascii	"_NAME\000INVALID_DRIVE\000DENIED\000EXIST\000RW_ERR"
+ 137              		.ascii	"OR\000WRITE_PROTECTED\000NOT_ENABLED\000NO_FILESYST"
+ 138 0000 4F4B004E 		.ascii	"EM\000INVALID_OBJECT\000MKFS_ABORTED\000\000"
+ 138      4F545F52 
+ 138      45414459 
+ 138      004E4F5F 
+ 138      46494C45 
+ 139 0027 5F4E414D 		.comm	fatfs,560,4
+ 139      4500494E 
+ 139      56414C49 
+ 139      445F4452 
+ 139      49564500 
+ 140 004e 4F520057 		.section	.debug_frame,"",%progbits
+ 140      52495445 
+ 140      5F50524F 
+ 140      54454354 
+ 140      4544004E 
+ 141 0078 454D0049 	.Lframe0:
+ 141      4E56414C 
+ 141      49445F4F 
+ 141      424A4543 
+ 141      54004D4B 
+ 142              		.4byte	.LECIE0-.LSCIE0
+ 213              	.LLST0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 test.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:17     .text.put_rc:00000000 put_rc
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:24     .text.put_rc:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:62     .text.put_rc:0000004c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:137    .rodata.str.1450:00000000 str.1450
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:73     .text.try:00000000 try
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:78     .text.try:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:130    .text.try:00000078 $d
+                            *COM*:00000230 fatfs
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:145    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0g0pGX.s:217    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+xprintf
+f_mount
+f_unlink
+f_open
+f_write
+f_close

@@ -1,0 +1,114 @@
+### uVision2 Project, (C) Keil Software
+### Do not modify !
+
+Target (LPC flash), 0x0004 // Tools: 'ARM-ADS'
+
+Group (Source)
+
+File 1,1,<.\fat_mci_demo.c><fat_mci_demo.c>
+File 1,1,<.\common_nxp\src\timer.c><timer.c>
+File 1,1,<.\common_nxp\src\target.c><target.c>
+File 1,1,<.\common_nxp\src\irq.c><irq.c>
+File 1,1,<.\drivers_nxp\mci.c><mci.c>
+File 1,1,<.\drivers_nxp\dma.c><dma.c>
+File 1,2,<.\drivers_nxp\readfifo.s><readfifo.s>
+File 1,2,<.\common_nxp\src\swi_handler.s><swi_handler.s>
+File 1,2,<.\common_nxp\src\Startup.s><Startup.s>
+File 1,1,<.\Retarget.c><Retarget.c>
+File 1,1,<.\ffat_chan\ff.c><ff.c>
+File 1,1,<.\drivers_mthomas\gettime_lpcrtc.c><gettime_lpcrtc.c>
+File 1,1,<.\drivers_nxp\rtc.c><rtc.c>
+File 1,1,<.\drivers_mthomas\comm.c><comm.c>
+File 1,1,<.\drivers_mthomas\diskio.c><diskio.c>
+File 1,1,<.\monitor.c><monitor.c>
+
+
+Options 1,0,0  // Target 'LPC flash'
+ Device (LPC2368)
+ Vendor (NXP (founded by Philips))
+ Cpu (IRAM(0x40000000-0x40007FFF) IRAM2(0x7FE00000-0x7FE03FFF) IROM(0-0x7FFFF) CLOCK(12000000) CPUTYPE(ARM7TDMI))
+ FlashUt (LPC210x_ISP.EXE ("#H" ^X $D COM1: 38400 1))
+ StupF ("STARTUP\Philips\LPC2300.s" ("Philips LPC2300 Startup Code"))
+ FlashDR (UL2ARM(-U268761108 -O7 -S0 -C0 -FO15 -FD40000000 -FC800 -FN1 -FF0LPC_IAP2_512 -FS00 -FL07D000))
+ DevID (4152)
+ Rgf (LPC23xx.H)
+ Mem ()
+ C ()
+ A ()
+ RL ()
+ OH ()
+ DBC_IFX ()
+ DBC_CMS ()
+ DBC_AMS ()
+ DBC_LMS ()
+ UseEnv=0
+ EnvBin ()
+ EnvInc ()
+ EnvLib ()
+ EnvReg (ÿPhilips\)
+ OrgReg (ÿPhilips\)
+ TgStat=16
+ OutDir (.\obj\)
+ OutName (fat_mci)
+ GenApp=1
+ GenLib=0
+ GenHex=1
+ Debug=1
+ Browse=1
+ LstDir (.\lst\)
+ HexSel=1
+ MG32K=0
+ TGMORE=0
+ RunUsr 0 0 <>
+ RunUsr 1 0 <>
+ BrunUsr 0 0 <>
+ BrunUsr 1 0 <>
+ CrunUsr 0 0 <>
+ CrunUsr 1 0 <>
+ SVCSID <>
+ GLFLAGS=1790
+ ADSFLGA { 243,63,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ACPUTYP (ARM7TDMI)
+ ADSTFLGA { 0,12,16,2,99,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0 }
+ OCMADSOCM { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ OCMADSIRAM { 0,0,0,0,64,0,128,0,0 }
+ OCMADSIROM { 1,0,0,0,0,0,0,8,0 }
+ OCMADSXRAM { 0,0,0,0,0,0,0,0,0 }
+ OCR_RVCT { 1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,8,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,128,0,0,0,0,0,224,127,0,64,0,0 }
+ RV_STAVEC ()
+ ADSCCFLG { 1,0,8,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ADSCMISC ()
+ ADSCDEFN (FATLPCMCI_MTH)
+ ADSCUDEF ()
+ ADSCINCD (.\common_nxp\inc;.\drivers_nxp;.\ffat_chan;.\drivers_mthomas;..\lpc23xx_chan_mci)
+ ADSASFLG { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ADSAMISC ()
+ ADSADEFN ()
+ ADSAUDEF ()
+ ADSAINCD ()
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=1
+ AlwaysBuild=0
+ GenAsm=0
+ AsmAsm=0
+ PublicsOnly=0
+ StopCode=3
+ CustArgs ()
+ LibMods ()
+ ADSLDFG { 17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ADSLDTA (0x00000000)
+ ADSLDDA (0x40000000)
+ ADSLDSC ()
+ ADSLDIB ()
+ ADSLDIC ()
+ ADSLDMC (--entry 0x00000000)
+ ADSLDIF ()
+ ADSLDDW ()
+  OPTDL (SARM.DLL)(-cLPC236x)(DARMP.DLL)(-pLPC2368)(SARM.DLL)()(TARMP.DLL)(-pLPC2368)
+  OPTDBG 48126,0,()()()()()()()()()() (BIN\UL2ARM.DLL)()()()
+ FLASH1 { 1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ FLASH2 (BIN\UL2ARM.DLL)
+ FLASH3 ("LPC210x_ISP.EXE" ("#H" ^X $D COM1: 38400 1))
+ FLASH4 ()
+EndOpt
+

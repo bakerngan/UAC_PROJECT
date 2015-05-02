@@ -1,0 +1,78 @@
+   1              		.file	"gettime_lpcrtc.c"
+   9              	.Ltext0:
+  10              		.section	.text.get_fattime,"ax",%progbits
+  11              		.align	2
+  12              		.global	get_fattime
+  14              	get_fattime:
+  15              	.LFB8:
+  16              		.file 1 "drivers_mthomas/gettime_lpcrtc.c"
+   1:drivers_mthomas/gettime_lpcrtc.c **** /* 
+   2:drivers_mthomas/gettime_lpcrtc.c **** 	gettime for Chan's fat from LPC RTC
+   3:drivers_mthomas/gettime_lpcrtc.c **** 	Martin Thomas 9/2007
+   4:drivers_mthomas/gettime_lpcrtc.c **** */
+   5:drivers_mthomas/gettime_lpcrtc.c **** 
+   6:drivers_mthomas/gettime_lpcrtc.c **** #include "type.h"
+   7:drivers_mthomas/gettime_lpcrtc.c **** #include "rtc.h"
+   8:drivers_mthomas/gettime_lpcrtc.c **** 
+   9:drivers_mthomas/gettime_lpcrtc.c **** DWORD get_fattime (void); /* avoid warning */
+  10:drivers_mthomas/gettime_lpcrtc.c **** DWORD get_fattime (void)
+  11:drivers_mthomas/gettime_lpcrtc.c **** {
+  17              	args = 0, pretend = 0, frame = 32
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              		mov	ip, sp
+  20 0000 0DC0A0E1 	.LCFI0:
+  21              		stmfd	sp!, {fp, ip, lr, pc}
+  22 0004 00D82DE9 	.LCFI1:
+  23              		sub	fp, ip, #4
+  24 0008 04B04CE2 	.LCFI2:
+  25              		sub	sp, sp, #32
+  26 000c 20D04DE2 	.LCFI3:
+  27              		.loc 1 15 0
+  12:drivers_mthomas/gettime_lpcrtc.c **** 	RTCTime t;
+  13:drivers_mthomas/gettime_lpcrtc.c **** 	DWORD res;
+  14:drivers_mthomas/gettime_lpcrtc.c **** 
+  15:drivers_mthomas/gettime_lpcrtc.c **** 	RTCGetTime( &t );
+  28              	, #44
+  29 0010 2C004BE2 		.loc 1 11 0
+  30              		.loc 1 15 0
+  31              		bl	RTCGetTime
+  32 0014 FEFFFFEB 		sub	r0, fp, #44
+  33 0018 2C004BE2 		ldmia	r0, {r0, r3}	@ phole ldm
+  34 001c 090090E8 		ldr	r2, [fp, #-36]
+  35 0020 24201BE5 		mov	r0, r0, lsr #1
+  36 0024 A000A0E1 		orr	r0, r0, r3, asl #5
+  37 0028 830280E1 		ldr	r1, [fp, #-32]
+  38 002c 20101BE5 		ldr	r3, [fp, #-24]
+  39 0030 18301BE5 		orr	r0, r0, r2, asl #11
+  40 0034 820580E1 		ldr	r2, [fp, #-28]
+  41 0038 1C201BE5 		orr	r0, r0, r1, asl #16
+  42 003c 010880E1 		sub	r3, r3, #1968
+  43 0040 7B3E43E2 		orr	r0, r0, r2, asl #21
+  44 0044 820A80E1 		sub	r3, r3, #12
+  45 0048 0C3043E2 		.loc 1 26 0
+  16:drivers_mthomas/gettime_lpcrtc.c **** 	res = (
+  17:drivers_mthomas/gettime_lpcrtc.c **** 		(( t.RTC_Sec/2 )       << 0UL  ) |
+  18:drivers_mthomas/gettime_lpcrtc.c **** 		(( t.RTC_Min )         << 5UL  ) |
+  19:drivers_mthomas/gettime_lpcrtc.c **** 		(( t.RTC_Hour )        << 11UL ) |
+  20:drivers_mthomas/gettime_lpcrtc.c **** 		(( t.RTC_Mday )        << 16UL ) |
+  21:drivers_mthomas/gettime_lpcrtc.c **** 		(( t.RTC_Mon )         << 21UL ) |
+  22:drivers_mthomas/gettime_lpcrtc.c **** 		(( t.RTC_Year-1980 )   << 25UL )
+  23:drivers_mthomas/gettime_lpcrtc.c **** 	);
+  24:drivers_mthomas/gettime_lpcrtc.c **** 
+  25:drivers_mthomas/gettime_lpcrtc.c **** 	return res;
+  26:drivers_mthomas/gettime_lpcrtc.c **** }
+  46              	sl #25
+  47 004c 830C80E1 		sub	sp, fp, #12
+  48 0050 0CD04BE2 		ldmfd	sp, {fp, sp, pc}
+  49 0054 00A89DE8 	.LFE8:
+  51              		.section	.debug_frame,"",%progbits
+  93              		.section	.debug_loc,"",%progbits
+DEFINED SYMBOLS
+                            *ABS*:00000000 gettime_lpcrtc.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGAMqsV.s:14     .text.get_fattime:00000000 get_fattime
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGAMqsV.s:20     .text.get_fattime:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGAMqsV.s:54     .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/ccGAMqsV.s:97     .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+RTCGetTime

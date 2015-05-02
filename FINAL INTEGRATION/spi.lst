@@ -1,0 +1,578 @@
+   1              		.file	"spi.c"
+   9              	.Ltext0:
+  10              		.section	.text.SPI0Handler,"ax",%progbits
+  11              		.align	2
+  12              		.global	SPI0Handler
+  14              	SPI0Handler:
+  15              	.LFB8:
+  16              		.file 1 "spi.c"
+   1:spi.c         **** /*****************************************************************************
+   2:spi.c         ****  *   spi.c:  SPI C file for NXP LPC23xx/24xx Family Microprocessors
+   3:spi.c         ****  *
+   4:spi.c         ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:spi.c         ****  *   All rights reserved.
+   6:spi.c         ****  *
+   7:spi.c         ****  *   History
+   8:spi.c         ****  *   2006.07.19  ver 1.00    Prelimnary version, first Release
+   9:spi.c         ****  *
+  10:spi.c         **** *****************************************************************************/
+  11:spi.c         **** #include "LPC24xx.h"			/* LPC23xx/24xx Peripheral Registers	*/
+  12:spi.c         **** #include "type.h"
+  13:spi.c         **** #include "irq.h"
+  14:spi.c         **** #include "spi.h"
+  15:spi.c         **** 
+  16:spi.c         **** volatile DWORD SPI0Status = 0;
+  17:spi.c         **** volatile DWORD TxCounter = 0;
+  18:spi.c         **** BYTE recv[10];
+  19:spi.c         **** int recvI=0;
+  20:spi.c         **** 
+  21:spi.c         **** /*****************************************************************************
+  22:spi.c         **** ** Function name:		SPI0Handler
+  23:spi.c         **** **
+  24:spi.c         **** ** Descriptions:		SPI0 interrupt handler
+  25:spi.c         **** **
+  26:spi.c         **** ** parameters:			None
+  27:spi.c         **** ** Returned value:		None
+  28:spi.c         **** ** 
+  29:spi.c         **** *****************************************************************************/
+  30:spi.c         **** void SPI0Handler (void)
+  31:spi.c         **** {
+  17              	args = 0, pretend = 0, frame = 0
+  18              		@ frame_needed = 1, uses_anonymous_args = 0
+  19              		.loc 1 34 0
+  32:spi.c         ****   DWORD regValue;
+  33:spi.c         ****   
+  34:spi.c         ****   S0SPINT = SPI0_INT_FLAG;		/* clear interrupt flag */
+  20              	v	r3, #-536870912
+  21 0000 0E32A0E3 		add	r3, r3, #131072
+  22 0004 023883E2 		mov	r2, #1
+  23 0008 0120A0E3 		str	r2, [r3, #28]
+  24 000c 1C2083E5 		.loc 1 37 0
+  35:spi.c         ****   //IENABLE;				/* handles nested interrupt */
+  36:spi.c         **** 
+  37:spi.c         ****   regValue = S0SPSR;
+  25              	r1, [r3, #4]
+  26 0010 041093E5 	.LVL0:
+  27              		.loc 1 38 0
+  38:spi.c         ****   if ( regValue & WCOL )
+  28              	t	r1, #64
+  29 0014 400011E3 		.loc 1 40 0
+  39:spi.c         ****   {
+  40:spi.c         **** 	SPI0Status |= SPI0_COL;
+  30              	drne	r2, .L6
+  31 0018 4C209F15 		ldrne	r3, [r2, #0]
+  32 001c 00309215 		orrne	r3, r3, #8
+  33 0020 08308313 		.loc 1 31 0
+  34              		mov	ip, sp
+  35 0024 0DC0A0E1 	.LCFI0:
+  36              		.loc 1 40 0
+  37              		strne	r3, [r2, #0]
+  38 0028 00308215 		.loc 1 42 0
+  41:spi.c         ****   }
+  42:spi.c         ****   if ( regValue & SPIF )
+  39              	#128
+  40 002c 800011E3 		.loc 1 31 0
+  41              		stmfd	sp!, {fp, ip, lr, pc}
+  42 0030 00D82DE9 	.LCFI1:
+  43              		sub	fp, ip, #4
+  44 0034 04B04CE2 	.LCFI2:
+  45              		.loc 1 42 0
+  46              		beq	.L3
+  47 0038 0700000A 		.loc 1 44 0
+  43:spi.c         ****   {
+  44:spi.c         **** 	SPI0Status |= SPI0_TX_DONE;
+  48              	.L6
+  49 003c 28209FE5 		ldr	r3, [r2, #0]
+  50 0040 003092E5 		orr	r3, r3, #16
+  51 0044 103083E3 		str	r3, [r2, #0]
+  52 0048 003082E5 		.loc 1 45 0
+  45:spi.c         **** 	TxCounter++;
+  53              	r1, .L6+4
+  54 004c 1C109FE5 	.LVL1:
+  55              		ldr	r3, [r1, #0]
+  56 0050 003091E5 		add	r3, r3, #1
+  57 0054 013083E2 		str	r3, [r1, #0]
+  58 0058 003081E5 	.LVL2:
+  59              	.L3:
+  60              		.loc 1 48 0
+  46:spi.c         ****   }
+  47:spi.c         ****  // IDISABLE;
+  48:spi.c         ****   VICVectAddr = 0;		/* Acknowledge Interrupt */
+  61              	 #0
+  62 005c 0020A0E3 		mvn	r3, #0
+  63 0060 0030E0E3 		str	r2, [r3, #-255]
+  64 0064 FF2003E5 		.loc 1 49 0
+  49:spi.c         **** }
+  65              	fd	sp, {fp, sp, pc}
+  66 0068 00A89DE8 	.L7:
+  67              		.align	2
+  68              	.L6:
+  69              		.word	SPI0Status
+  70 006c 00000000 		.word	TxCounter
+  71 0070 00000000 	.LFE8:
+  73              		.section	.text.SPIInit,"ax",%progbits
+  74              		.align	2
+  75              		.global	SPIInit
+  77              	SPIInit:
+  78              	.LFB9:
+  79              		.loc 1 62 0
+  50:spi.c         **** 
+  51:spi.c         **** /*****************************************************************************
+  52:spi.c         **** ** Function name:		SPIInit
+  53:spi.c         **** **
+  54:spi.c         **** ** Descriptions:		SPI port initialization routine
+  55:spi.c         **** **				
+  56:spi.c         **** ** parameters:			None
+  57:spi.c         **** ** Returned value:		true or false, if the interrupt handler
+  58:spi.c         **** **				can't be installed correctly, return false.
+  59:spi.c         **** ** 
+  60:spi.c         **** *****************************************************************************/
+  61:spi.c         **** DWORD SPIInit( void )
+  62:spi.c         **** {
+  80              	etend = 0, frame = 0
+  81              		@ frame_needed = 1, uses_anonymous_args = 0
+  82              		.loc 1 63 0
+  63:spi.c         ****   TxCounter = 0;
+  83              	r	r3, .L10
+  84 0000 B0309FE5 		mov	r1, #0
+  85 0004 0010A0E3 		str	r1, [r3, #0]
+  86 0008 001083E5 		.loc 1 64 0
+  64:spi.c         ****   PCONP |= (1 << 8);	/* by default, it's enabled already, for safety reason */
+  87              		r0, #-536870912
+  88 000c 0E02A0E3 		add	r2, r0, #2080768
+  89 0010 7F2980E2 		ldr	r3, [r2, #196]
+  90 0014 C43092E5 		.loc 1 62 0
+  91              		mov	ip, sp
+  92 0018 0DC0A0E1 	.LCFI3:
+  93              		stmfd	sp!, {fp, ip, lr, pc}
+  94 001c 00D82DE9 	.LCFI4:
+  95              		.loc 1 64 0
+  96              		orr	r3, r3, #256
+  97 0020 013C83E3 		.loc 1 62 0
+  98              		sub	fp, ip, #4
+  99 0024 04B04CE2 	.LCFI5:
+ 100              		.loc 1 66 0
+  65:spi.c         **** 
+  66:spi.c         ****   S0SPCR = 0x00;
+ 101              	131072
+ 102 0028 02C880E2 		.loc 1 64 0
+ 103              		str	r3, [r2, #196]
+ 104 002c C43082E5 		.loc 1 66 0
+ 105              		str	r1, [ip, #0]
+ 106 0030 00108CE5 		.loc 1 69 0
+  67:spi.c         ****   /* Port 0.15 SPI SCK, port0.16 uses GPIO SPI_SEL, 
+  68:spi.c         ****   port0.17 MISO, port0.18 MOSI */
+  69:spi.c         ****   PCLKSEL0= PCLKSEL0+0x00010000;
+ 107              	3, [r2, #424]
+ 108 0034 A83192E5 		add	r3, r3, #65536
+ 109 0038 013883E2 		str	r3, [r2, #424]
+ 110 003c A83182E5 		.loc 1 70 0
+  70:spi.c         ****   PINSEL0 |= 0xC0000000;
+ 111              		r1, r0, #180224
+ 112 0040 0B1980E2 		ldr	r3, [r1, #0]
+ 113 0044 003091E5 		orr	r3, r3, #-1073741824
+ 114 0048 033183E3 		str	r3, [r1, #0]
+ 115 004c 003081E5 		.loc 1 71 0
+  71:spi.c         ****   PINSEL1 |= 0x0000003C;
+ 116              	r2, [r1, #4]
+ 117 0050 042091E5 		orr	r2, r2, #60
+ 118 0054 3C2082E3 		str	r2, [r1, #4]
+ 119 0058 042081E5 		.loc 1 72 0
+  72:spi.c         ****   PINMODE0 |= 0x80000000;
+ 120              		r3, [r1, #64]
+ 121 005c 403091E5 		orr	r3, r3, #-2147483648
+ 122 0060 023183E3 		str	r3, [r1, #64]
+ 123 0064 403081E5 		.loc 1 73 0
+  73:spi.c         ****   PINMODE1 |= 0x00000028;
+ 124              		r2, [r1, #68]
+ 125 0068 442091E5 		orr	r2, r2, #40
+ 126 006c 282082E3 		str	r2, [r1, #68]
+ 127 0070 442081E5 		.loc 1 75 0
+  74:spi.c         ****   //PINSEL1 = PINSEL1&0xFFFC3FFF;
+  75:spi.c         ****   IODIR0 = (IODIR0&~0x01800000)|0x01000000;
+ 128              		r0, r0, #163840
+ 129 0074 0A0980E2 		ldr	r3, [r0, #8]
+ 130 0078 083090E5 		bic	r3, r3, #25165824
+ 131 007c 0635C3E3 		orr	r3, r3, #16777216
+ 132 0080 013483E3 		str	r3, [r0, #8]
+ 133 0084 083080E5 		.loc 1 76 0
+  76:spi.c         ****   IOPIN0 &= ~0x1000000;
+ 134              	2, [r0, #0]
+ 135 0088 002090E5 		bic	r2, r2, #16777216
+ 136 008c 0124C2E3 		str	r2, [r0, #0]
+ 137 0090 002080E5 		.loc 1 77 0
+  77:spi.c         ****   IOPIN0 = IOPIN0 +0x1000000;
+ 138              		r3, [r0, #0]
+ 139 0094 003090E5 		add	r3, r3, #16777216
+ 140 0098 013483E2 		str	r3, [r0, #0]
+ 141 009c 003080E5 		.loc 1 81 0
+  78:spi.c         **** 
+  79:spi.c         ****   /* Setting SPI0 clock, for Atmel SEEPROM, SPI clock should be no more 
+  80:spi.c         ****   than 3Mhz on 4.5V~5.5V, no more than 2.1Mhz on 2.7V~5.5V */
+  81:spi.c         ****   S0SPCCR = 8;
+ 142              		r2, #8
+ 143 00a0 0820A0E3 		.loc 1 90 0
+  82:spi.c         **** #if INTERRUPT_MODE
+  83:spi.c         **** //  if ( install_irq( SPI0_INT, (void *)SPI0Handler, HIGHEST_PRIORITY ) == FALSE )
+  84:spi.c         **** //  {
+  85:spi.c         **** //	return (FALSE);
+  86:spi.c         **** //  }
+  87:spi.c         ****   /* 8 bit, CPOL=CPHA=0, master mode, MSB first, interrupt enabled */
+  88:spi.c         ****   S0SPCR = SPI0_SPIE | SPI0_MSTR;
+  89:spi.c         **** #else
+  90:spi.c         ****   S0SPCR = SPI0_MSTR;
+ 144              	ov	r3, #32
+ 145 00a4 2030A0E3 		.loc 1 81 0
+ 146              		str	r2, [ip, #12]
+ 147 00a8 0C208CE5 		.loc 1 93 0
+  91:spi.c         **** #endif
+  92:spi.c         ****   return( TRUE );
+  93:spi.c         **** }
+ 148              		r0, #1
+ 149 00ac 0100A0E3 		.loc 1 90 0
+ 150              		str	r3, [ip, #0]
+ 151 00b0 00308CE5 		.loc 1 93 0
+ 152              		ldmfd	sp, {fp, sp, pc}
+ 153 00b4 00A89DE8 	.L11:
+ 154              		.align	2
+ 155              	.L10:
+ 156              		.word	TxCounter
+ 157 00b8 00000000 	.LFE9:
+ 159              		.section	.text.SPISend,"ax",%progbits
+ 160              		.align	2
+ 161              		.global	SPISend
+ 163              	SPISend:
+ 164              	.LFB10:
+ 165              		.loc 1 107 0
+  94:spi.c         **** 
+  95:spi.c         **** /*****************************************************************************
+  96:spi.c         **** ** Function name:		SPISend
+  97:spi.c         **** **
+  98:spi.c         **** ** Descriptions:		Send a block of data to the SPI port, the first
+  99:spi.c         **** **				parameter is the buffer pointer, the 2nd 
+ 100:spi.c         **** **				parameter is the block length.
+ 101:spi.c         **** **
+ 102:spi.c         **** ** parameters:			buffer pointer, and the block length
+ 103:spi.c         **** ** Returned value:		None
+ 104:spi.c         **** ** 
+ 105:spi.c         **** *****************************************************************************/
+ 106:spi.c         **** void SPISend( BYTE *buf, DWORD Length )
+ 107:spi.c         **** {
+ 166              	nd = 0, frame = 0
+ 167              		@ frame_needed = 1, uses_anonymous_args = 0
+ 168              	.LVL3:
+ 169              		mov	ip, sp
+ 170 0000 0DC0A0E1 	.LCFI6:
+ 171              		stmfd	sp!, {r4, r5, r6, r7, r8, fp, ip, lr, pc}
+ 172 0004 F0D92DE9 	.LCFI7:
+ 173              		sub	fp, ip, #4
+ 174 0008 04B04CE2 	.LCFI8:
+ 175              		.loc 1 110 0
+ 108:spi.c         ****   DWORD i;
+ 109:spi.c         ****   recvI=0;
+ 110:spi.c         ****   IOPIN0 = IOPIN0 & ~0x1000000;
+ 176              	-536870912
+ 177 000c 0EC2A0E3 		add	ip, ip, #163840
+ 178 0010 0AC98CE2 		ldr	r2, [ip, #0]
+ 179 0014 00209CE5 		.loc 1 109 0
+ 180              		ldr	r4, .L22
+ 181 0018 88409FE5 		.loc 1 110 0
+ 182              		bic	r2, r2, #16777216
+ 183 001c 0124C2E3 		.loc 1 109 0
+ 184              		mov	r3, #0
+ 185 0020 0030A0E3 		.loc 1 111 0
+ 111:spi.c         ****   if ( Length == 0 )
+ 186              	r1, #0
+ 187 0024 006051E2 		.loc 1 109 0
+ 188              		str	r3, [r4, #0]
+ 189 0028 003084E5 		.loc 1 110 0
+ 190              		str	r2, [ip, #0]
+ 191 002c 00208CE5 		.loc 1 107 0
+ 192              		mov	r5, r0
+ 193 0030 0050A0E1 		.loc 1 111 0
+ 194              		ldmeqfd	sp, {r4, r5, r6, r7, r8, fp, sp, pc}
+ 195 0034 F0A99D08 	.LVL4:
+ 196              		.loc 1 114 0
+ 112:spi.c         **** 	return;
+ 113:spi.c         **** //if the OV529 is not ready, loop
+ 114:spi.c         ****   while((volatile int)IOPIN0 & (1<<23)) ;
+ 197              	
+ 198 0038 0C20A0E1 	.L18:
+ 199              		ldr	r3, [r2, #0]
+ 200 003c 003092E5 		ands	r3, r3, #8388608
+ 201 0040 023513E2 		bne	.L18
+ 202 0044 FCFFFF1A 		.loc 1 117 0
+ 115:spi.c         ****   for ( i = 0; i < Length; i++ )
+ 116:spi.c         ****   {
+ 117:spi.c         **** 	S0SPDR = *buf;
+ 203              	ip, #-536870912
+ 204 0048 0EC2A0E3 		add	ip, ip, #131072
+ 205 004c 02C88CE2 		ldr	r8, .L22+4
+ 206 0050 54809FE5 		.loc 1 114 0
+ 207              		mov	r0, r3
+ 208 0054 0300A0E1 	.LVL5:
+ 209              		.loc 1 127 0
+ 118:spi.c         **** 	//printf("Sending %02x ", *buf);
+ 119:spi.c         **** #if INTERRUPT_MODE
+ 120:spi.c         **** 	/* In the interrupt, there is nothing to be done if TX_DONE, SPI transfer 
+ 121:spi.c         **** 	complete bit, is not set, so it's polling if the flag is set or not which 
+ 122:spi.c         **** 	is being handled inside the ISR. Not an ideal example but show how the 
+ 123:spi.c         **** 	interrupt is being set and handled. */ 
+ 124:spi.c         **** 	while ( (SPI0Status & SPI0_TX_DONE) != SPI0_TX_DONE );
+ 125:spi.c         **** 	SPI0Status &= ~SPI0_TX_DONE;
+ 126:spi.c         **** #else
+ 127:spi.c         **** 	while ( !(S0SPSR & SPIF) );
+ 210              	, ip
+ 211 0058 0C70A0E1 	.L16:
+ 212              		.loc 1 117 0
+ 213              		ldrb	r3, [r5, r0]	@ zero_extendqisi2
+ 214 005c 0030D5E7 		str	r3, [ip, #8]
+ 215 0060 08308CE5 	.L15:
+ 216              		.loc 1 127 0
+ 217              		ldr	r3, [ip, #4]
+ 218 0064 04309CE5 		tst	r3, #128
+ 219 0068 800013E3 		beq	.L15
+ 220 006c FCFFFF0A 		.loc 1 129 0
+ 128:spi.c         **** #endif
+ 129:spi.c         **** 	recv[recvI++] = S0SPDR;		/* Flush the RxFIFO */
+ 221              	4, #0]
+ 222 0070 003094E5 		.loc 1 115 0
+ 223              		add	r0, r0, #1
+ 224 0074 010080E2 		.loc 1 129 0
+ 225              		ldr	r2, [r7, #8]
+ 226 0078 082097E5 		add	r1, r3, #1
+ 227 007c 011083E2 		.loc 1 115 0
+ 228              		cmp	r6, r0
+ 229 0080 000056E1 		.loc 1 129 0
+ 230              		strb	r2, [r8, r3]
+ 231 0084 0320C8E7 		str	r1, [r4, #0]
+ 232 0088 001084E5 		.loc 1 115 0
+ 233              		bhi	.L16
+ 234 008c F2FFFF8A 		.loc 1 132 0
+ 130:spi.c         **** 	buf++;
+ 131:spi.c         ****   }
+ 132:spi.c         ****    IOPIN0 |= 0x1000000;
+ 235              	870912
+ 236 0090 0E22A0E3 		add	r2, r2, #163840
+ 237 0094 0A2982E2 		ldr	r3, [r2, #0]
+ 238 0098 003092E5 		orr	r3, r3, #16777216
+ 239 009c 013483E3 		str	r3, [r2, #0]
+ 240 00a0 003082E5 		ldmfd	sp, {r4, r5, r6, r7, r8, fp, sp, pc}
+ 241 00a4 F0A99DE8 	.L23:
+ 242              		.align	2
+ 243              	.L22:
+ 244              		.word	recvI
+ 245 00a8 00000000 		.word	recv
+ 246 00ac 00000000 	.LFE10:
+ 248              		.section	.text.SPIReceive,"ax",%progbits
+ 249              		.align	2
+ 250              		.global	SPIReceive
+ 252              	SPIReceive:
+ 253              	.LFB11:
+ 254              		.loc 1 145 0
+ 133:spi.c         ****   return; 
+ 134:spi.c         **** }
+ 135:spi.c         **** 
+ 136:spi.c         **** /*****************************************************************************
+ 137:spi.c         **** ** Function name:		SPIReceive
+ 138:spi.c         **** ** Descriptions:		the module will receive a block of data from 
+ 139:spi.c         **** **				the SPI, the 2nd parameter is the block length.
+ 140:spi.c         **** ** parameters:			buffer pointer, and block length
+ 141:spi.c         **** ** Returned value:		None
+ 142:spi.c         **** ** 
+ 143:spi.c         **** *****************************************************************************/
+ 144:spi.c         **** void SPIReceive( BYTE *buf, DWORD Length )
+ 145:spi.c         **** {
+ 255              	 = 0, frame = 0
+ 256              		@ frame_needed = 1, uses_anonymous_args = 0
+ 257              	.LVL6:
+ 258              		mov	ip, sp
+ 259 0000 0DC0A0E1 	.LCFI9:
+ 260              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 261 0004 30D82DE9 	.LCFI10:
+ 262              		sub	fp, ip, #4
+ 263 0008 04B04CE2 	.LCFI11:
+ 264              		.loc 1 148 0
+ 146:spi.c         ****   register DWORD i;
+ 147:spi.c         **** //if the OV529 is not ready, loop
+ 148:spi.c         ****   while((volatile int)IOPIN0 & (1<<23)) ;
+ 265              	-536870912
+ 266 000c 0EC2A0E3 		.loc 1 145 0
+ 267              		mov	r5, r0
+ 268 0010 0050A0E1 		mov	r4, r1
+ 269 0014 0140A0E1 		.loc 1 148 0
+ 270              		add	ip, ip, #163840
+ 271 0018 0AC98CE2 	.LVL7:
+ 272              	.L25:
+ 273              		ldr	r3, [ip, #0]
+ 274 001c 00309CE5 		mov	r2, #-536870912
+ 275 0020 0E22A0E3 		ands	r1, r3, #8388608
+ 276 0024 021513E2 		add	r2, r2, #163840
+ 277 0028 0A2982E2 		bne	.L25
+ 278 002c FAFFFF1A 		.loc 1 149 0
+ 149:spi.c         ****   IOPIN0 &= ~0x1000000;
+ 279              	#0]
+ 280 0030 003092E5 		.loc 1 150 0
+ 150:spi.c         ****   for ( i = 0; i < Length; i++ )
+ 281              	mp	r4, #0
+ 282 0034 000054E3 		.loc 1 149 0
+ 283              		bic	r3, r3, #16777216
+ 284 0038 0134C3E3 		str	r3, [r2, #0]
+ 285 003c 003082E5 		.loc 1 150 0
+ 286              		beq	.L26
+ 287 0040 0D00000A 		.loc 1 152 0
+ 151:spi.c         ****   {
+ 152:spi.c         **** 	S0SPDR = 0xFF;
+ 288              	, r2, #163840
+ 289 0044 0A2942E2 		add	r2, r2, #131072
+ 290 0048 022882E2 		.loc 1 150 0
+ 291              		mov	ip, r1
+ 292 004c 01C0A0E1 	.LVL8:
+ 293              		.loc 1 152 0
+ 294              		mov	r0, #255
+ 295 0050 FF00A0E3 		.loc 1 153 0
+ 153:spi.c         **** 	while ( !(S0SPSR & SPIF) );
+ 296              	 r2
+ 297 0054 0210A0E1 	.L28:
+ 298              		.loc 1 152 0
+ 299              		str	r0, [r2, #8]
+ 300 0058 080082E5 	.L27:
+ 301              		.loc 1 153 0
+ 302              		ldr	r3, [r2, #4]
+ 303 005c 043092E5 		tst	r3, #128
+ 304 0060 800013E3 		beq	.L27
+ 305 0064 FCFFFF0A 		.loc 1 154 0
+ 154:spi.c         **** 	*buf++  = S0SPDR;
+ 306              	r1, #8]
+ 307 0068 083091E5 		strb	r3, [r5, ip]
+ 308 006c 0C30C5E7 		.loc 1 150 0
+ 309              		add	ip, ip, #1
+ 310 0070 01C08CE2 		cmp	r4, ip
+ 311 0074 0C0054E1 		bhi	.L28
+ 312 0078 F6FFFF8A 	.LVL9:
+ 313              	.L26:
+ 314              		.loc 1 156 0
+ 155:spi.c         ****   }
+ 156:spi.c         ****   IOPIN0 |= 0x1000000;
+ 315              	#-536870912
+ 316 007c 0E22A0E3 		add	r2, r2, #163840
+ 317 0080 0A2982E2 		ldr	r3, [r2, #0]
+ 318 0084 003092E5 		orr	r3, r3, #16777216
+ 319 0088 013483E3 		str	r3, [r2, #0]
+ 320 008c 003082E5 		.loc 1 158 0
+ 157:spi.c         ****   return; 
+ 158:spi.c         **** }
+ 321              		sp, {r4, r5, fp, sp, pc}
+ 322 0090 30A89DE8 	.LFE11:
+ 324              		.section	.text.SPIReceiveByte,"ax",%progbits
+ 325              		.align	2
+ 326              		.global	SPIReceiveByte
+ 328              	SPIReceiveByte:
+ 329              	.LFB12:
+ 330              		.loc 1 173 0
+ 159:spi.c         **** 
+ 160:spi.c         **** /*****************************************************************************
+ 161:spi.c         **** ** Function name:		SPIReceiveByte
+ 162:spi.c         **** **
+ 163:spi.c         **** ** Descriptions:		Receive one byte of data from the SPI port
+ 164:spi.c         **** **				Write a dummy byte, wait until SPI transfer
+ 165:spi.c         **** **				complete, then, read the data register to
+ 166:spi.c         **** **				get the SPI data.
+ 167:spi.c         **** **
+ 168:spi.c         **** ** parameters:			None
+ 169:spi.c         **** ** Returned value:		the data byte received
+ 170:spi.c         **** ** 
+ 171:spi.c         **** *****************************************************************************/
+ 172:spi.c         **** BYTE SPIReceiveByte( void )
+ 173:spi.c         **** {
+ 331              	0, pretend = 0, frame = 0
+ 332              		@ frame_needed = 1, uses_anonymous_args = 0
+ 333              		.loc 1 177 0
+ 174:spi.c         ****   BYTE data;
+ 175:spi.c         **** 
+ 176:spi.c         ****   /* wrtie dummy byte out to generate clock, then read data from MISO */
+ 177:spi.c         ****   S0SPDR = 0xFF; //changed from 0x0
+ 334              	v	r3, #-536870912
+ 335 0000 0E32A0E3 		.loc 1 173 0
+ 336              		mov	ip, sp
+ 337 0004 0DC0A0E1 	.LCFI12:
+ 338              		.loc 1 177 0
+ 339              		add	r3, r3, #131072
+ 340 0008 023883E2 		mov	r2, #255
+ 341 000c FF20A0E3 		.loc 1 173 0
+ 342              		stmfd	sp!, {fp, ip, lr, pc}
+ 343 0010 00D82DE9 	.LCFI13:
+ 344              		.loc 1 177 0
+ 345              		str	r2, [r3, #8]
+ 346 0014 082083E5 		.loc 1 173 0
+ 347              		sub	fp, ip, #4
+ 348 0018 04B04CE2 	.LCFI14:
+ 349              		.loc 1 187 0
+ 178:spi.c         ****   /* Wait for transfer complete, SPIF bit set */
+ 179:spi.c         **** #if INTERRUPT_MODE
+ 180:spi.c         ****   /* In the receive routine, there is nothing to be done if TX_DONE, or
+ 181:spi.c         ****   SPI transfer complete bit, is not set, so it's polling if the flag is set 
+ 182:spi.c         ****   or not which is being handled inside the ISR. Not an ideal example but 
+ 183:spi.c         ****   show how the interrupt is being set and handled. */ 
+ 184:spi.c         ****   while ( (SPI0Status & SPI0_TX_DONE) != SPI0_TX_DONE );
+ 185:spi.c         ****   SPI0Status &= ~SPI0_TX_DONE;
+ 186:spi.c         **** #else
+ 187:spi.c         ****   while ( !(S0SPSR & SPIF) );
+ 350              	:
+ 351 001c 0320A0E1 		ldr	r3, [r2, #4]
+ 352              		tst	r3, #128
+ 353 0020 043092E5 		mov	r3, #-536870912
+ 354 0024 800013E3 		add	r3, r3, #131072
+ 355 0028 0E32A0E3 		beq	.L34
+ 356 002c 023883E2 		.loc 1 189 0
+ 357 0030 FAFFFF0A 		ldr	r0, [r3, #8]
+ 188:spi.c         **** #endif
+ 189:spi.c         ****   data = S0SPDR;
+ 358              	 r0, #255
+ 359 0034 080093E5 		.loc 1 191 0
+ 360 0038 FF0000E2 		ldmfd	sp, {fp, sp, pc}
+ 190:spi.c         ****   return ( data ); 
+ 191:spi.c         **** }
+ 361              	E12:
+ 363              		.global	SPI0Status
+ 364              		.section	.bss.SPI0Status,"aw",%nobits
+ 365              		.align	2
+ 368              	SPI0Status:
+ 369              		.space	4
+ 370              		.global	TxCounter
+ 371 0000 00000000 		.section	.bss.TxCounter,"aw",%nobits
+ 372              		.align	2
+ 375              	TxCounter:
+ 376              		.space	4
+ 377              		.global	recvI
+ 378 0000 00000000 		.section	.bss.recvI,"aw",%nobits
+ 379              		.align	2
+ 382              	recvI:
+ 383              		.space	4
+ 384              		.comm	recv,10,1
+ 385 0000 00000000 		.section	.debug_frame,"",%progbits
+ 386              	.Lframe0:
+ 542              	.Ldebug_loc0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 spi.c
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:14     .text.SPI0Handler:00000000 SPI0Handler
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:21     .text.SPI0Handler:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:70     .text.SPI0Handler:0000006c $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:370    .bss.SPI0Status:00000000 SPI0Status
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:377    .bss.TxCounter:00000000 TxCounter
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:78     .text.SPIInit:00000000 SPIInit
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:84     .text.SPIInit:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:157    .text.SPIInit:000000b8 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:164    .text.SPISend:00000000 SPISend
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:170    .text.SPISend:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:245    .text.SPISend:000000a8 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:384    .bss.recvI:00000000 recvI
+                            *COM*:0000000a recv
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:253    .text.SPIReceive:00000000 SPIReceive
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:259    .text.SPIReceive:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:329    .text.SPIReceiveByte:00000000 SPIReceiveByte
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:335    .text.SPIReceiveByte:00000000 $a
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:389    .debug_frame:00000000 $d
+C:\DOCUME~1\pyang\LOCALS~1\Temp/cc0VUQlb.s:546    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

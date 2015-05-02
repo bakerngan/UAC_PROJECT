@@ -1,0 +1,72 @@
+   1              	# 1 "readfifo_gnu.S"
+   1              	@
+   0              	
+   0              	
+   2              	@ Ported to GNU arm assembler (arm-elf-as)
+   3              	@ and added comments by Martin Thomas
+   4              	@
+   5              	
+   6              	@@		AREA MCIFIFO, CODE, READONLY
+   7              			.section .text, "ax"
+   8              	
+   9              	@@		EXPORT MCI_ReadFifo
+  10              	@@		EXPORT MCI_WriteFifo
+  11              			.global MCI_ReadFifo
+  12              			.global MCI_WriteFifo
+  13              	
+  14              	@@		; int MCI_ReadFifo(unsigned int * dest);
+  15              	@@		; int MCI_WriteFifo(unsigned int * src);
+  16              	
+  17              	@@src     RN 4
+  18              	@@dst     RN 5
+  19              	src .req R4
+  20              	dst .req R5
+  21              	
+  22              	@ C-Interface:
+  23              	@ int MCI_ReadFifo(unsigned int * dest);
+  24              	@ Read 2*4*8=32 bytes from src = MCI Fifo Address to
+  25              	@ dest passed as parameter - take care of alignment of dst
+  26              			.func MCI_ReadFifo
+  27              	MCI_ReadFifo:
+  28 0000 30502DE9 			STMFD   sp!,{src,dst,r12,lr}
+  29 0004 3C409FE5 			LDR     src, mci_fifo
+  30 0008 0050A0E1 			MOV     dst, r0
+  31 000c 0F0094E8 			LDMIA   src, {r0-r3}
+  32 0010 0F00A5E8 			STMIA   dst!, {r0-r3}
+  33 0014 0F0094E8 			LDMIA   src, {r0-r3}
+  34 0018 0F00A5E8 			STMIA   dst!, {r0-r3}
+  35 001c 0500A0E1 			MOV     r0, dst
+  36 0020 3090BDE8 			LDMFD   sp!,{src,dst,r12,pc}
+  37              			.endfunc
+  38              	
+  39              	@ C-Interface:
+  40              	@ int MCI_WriteFifo(unsigned int * src);
+  41              	@ Write 2*4*8=32 bytes to dst = MCI Fifo Address from
+  42              	@ src passed as parameter - take care of alignment of src
+  43              			.func MCI_WriteFifo
+  44              	MCI_WriteFifo:
+  45 0024 30502DE9 			STMFD   sp!,{src,dst,r12,lr}
+  46 0028 18509FE5 			LDR     dst, mci_fifo
+  47 002c 0040A0E1 			MOV     src, r0
+  48 0030 0F00B4E8 			LDMIA   src!, {r0-r3}
+  49 0034 0F0085E8 			STMIA   dst, {r0-r3}
+  50 0038 0F00B4E8 			LDMIA   src!, {r0-r3}
+  51 003c 0F0085E8 			STMIA   dst, {r0-r3}
+  52 0040 0400A0E1 			MOV     r0, src
+  53 0044 3090BDE8 			LDMFD   sp!,{src,dst,r12,pc}
+  54              			.endfunc
+  55              	
+  56              	@@mci_fifo
+  57              	@@		DCD     0xE008C080
+  58 0048 80C008E0 	mci_fifo: .word  0xE008C080
+  59              	
+  60              	@@		END
+  61              			.end
+DEFINED SYMBOLS
+      readfifo_gnu.S:27     .text:00000000 MCI_ReadFifo
+      readfifo_gnu.S:44     .text:00000024 MCI_WriteFifo
+      readfifo_gnu.S:28     .text:00000000 $a
+      readfifo_gnu.S:58     .text:00000048 mci_fifo
+      readfifo_gnu.S:58     .text:00000048 $d
+
+NO UNDEFINED SYMBOLS

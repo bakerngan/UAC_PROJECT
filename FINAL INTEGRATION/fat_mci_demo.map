@@ -1,0 +1,1675 @@
+Archive member included because of file (symbol)
+
+c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+                              ffat_chan/ff.o (memcmp)
+c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+                              ffat_chan/ff.o (memcpy)
+c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+                              ffat_chan/ff.o (memset)
+c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+                              monitor.o (__udivsi3)
+c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+                              monitor.o (__umodsi3)
+c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+                              c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o) (__div0)
+
+Allocating common symbols
+Common symbol       size              file
+
+file2               0x224             FAT.o
+recv                0xa               spi.o
+SPICmd              0x8               spitest.o
+CardRCA             0x4               drivers_nxp/mci.o
+SPIWRData           0x8               spitest.o
+s2                  0x4               FAT.o
+file1               0x224             FAT.o
+SPIRDData           0x8               spitest.o
+fatfs               0x230             FAT.o
+MCI_CardType        0x4               drivers_nxp/mci.o
+
+Discarded input sections
+
+ .text          0x00000000        0x0 crt0.o
+ .data          0x00000000        0x0 crt0.o
+ .bss           0x00000000        0x0 crt0.o
+ .text          0x00000000        0x0 readfifo_gnu.o
+ .data          0x00000000        0x0 readfifo_gnu.o
+ .bss           0x00000000        0x0 readfifo_gnu.o
+ .text          0x00000000        0x0 fat_mci_demo.o
+ .data          0x00000000        0x0 fat_mci_demo.o
+ .bss           0x00000000        0x0 fat_mci_demo.o
+ .text          0x00000000        0x0 monitor.o
+ .data          0x00000000        0x0 monitor.o
+ .bss           0x00000000        0x0 monitor.o
+ .text.xatoi    0x00000000        0x0 monitor.o
+ .rodata        0x00000000        0x0 monitor.o
+ .text.put_dump
+                0x00000000        0x0 monitor.o
+ .text.get_line
+                0x00000000        0x0 monitor.o
+ .text          0x00000000        0x0 sysinit.o
+ .data          0x00000000        0x0 sysinit.o
+ .bss           0x00000000        0x0 sysinit.o
+ .text          0x00000000        0x0 uart.o
+ .data          0x00000000        0x0 uart.o
+ .bss           0x00000000        0x0 uart.o
+ .text.uart0Putch
+                0x00000000        0x0 uart.o
+ .text.uart0TxEmpty
+                0x00000000        0x0 uart.o
+ .text.uart0TxFlush
+                0x00000000        0x0 uart.o
+ .text.uart0Getch
+                0x00000000        0x0 uart.o
+ .text.uart0GetchW
+                0x00000000        0x0 uart.o
+ .text.uart_get
+                0x00000000        0x0 uart.o
+ .text.uart_test
+                0x00000000        0x0 uart.o
+ .text.sendchar
+                0x00000000        0x0 uart.o
+ .data.global_counter
+                0x00000000        0x0 uart.o
+ .text          0x00000000        0x0 common_nxp/src/irq.o
+ .data          0x00000000        0x0 common_nxp/src/irq.o
+ .bss           0x00000000        0x0 common_nxp/src/irq.o
+ .text.FIQ_Handler
+                0x00000000        0x0 common_nxp/src/irq.o
+ .text          0x00000000        0x0 common_nxp/src/target.o
+ .data          0x00000000        0x0 common_nxp/src/target.o
+ .bss           0x00000000        0x0 common_nxp/src/target.o
+ .text.TargetInit
+                0x00000000        0x0 common_nxp/src/target.o
+ .text.ConfigurePLL
+                0x00000000        0x0 common_nxp/src/target.o
+ .text.TargetResetInit
+                0x00000000        0x0 common_nxp/src/target.o
+ .text          0x00000000        0x0 common_nxp/src/timer.o
+ .data          0x00000000        0x0 common_nxp/src/timer.o
+ .bss           0x00000000        0x0 common_nxp/src/timer.o
+ .text.registercallback_timer
+                0x00000000        0x0 common_nxp/src/timer.o
+ .text.delayMs  0x00000000        0x0 common_nxp/src/timer.o
+ .text.Timer0Handler
+                0x00000000        0x0 common_nxp/src/timer.o
+ .text.Timer1Handler
+                0x00000000        0x0 common_nxp/src/timer.o
+ .text.enable_timer
+                0x00000000        0x0 common_nxp/src/timer.o
+ .text.disable_timer
+                0x00000000        0x0 common_nxp/src/timer.o
+ .text.reset_timer
+                0x00000000        0x0 common_nxp/src/timer.o
+ .text.init_timer
+                0x00000000        0x0 common_nxp/src/timer.o
+ .bss.timer0_counter
+                0x00000000        0x0 common_nxp/src/timer.o
+ .bss.timer1_counter
+                0x00000000        0x0 common_nxp/src/timer.o
+ .bss.timer0CallbackFunction
+                0x00000000        0x0 common_nxp/src/timer.o
+ .bss.timer1CallbackFunction
+                0x00000000        0x0 common_nxp/src/timer.o
+ .text          0x00000000        0x0 drivers_nxp/rtc.o
+ .data          0x00000000        0x0 drivers_nxp/rtc.o
+ .bss           0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTCHandler
+                0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTCInit  0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTCStart
+                0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTCStop  0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTC_CTCReset
+                0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTCSetTime
+                0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTCSetAlarm
+                0x00000000        0x0 drivers_nxp/rtc.o
+ .text.RTCSetAlarmMask
+                0x00000000        0x0 drivers_nxp/rtc.o
+ .bss.alarm_on  0x00000000        0x0 drivers_nxp/rtc.o
+ .text          0x00000000        0x0 ffat_chan/ff.o
+ .data          0x00000000        0x0 ffat_chan/ff.o
+ .bss           0x00000000        0x0 ffat_chan/ff.o
+ .text.get_fileinfo
+                0x00000000        0x0 ffat_chan/ff.o
+ .text.f_read   0x00000000        0x0 ffat_chan/ff.o
+ .text.f_lseek  0x00000000        0x0 ffat_chan/ff.o
+ .text.f_opendir
+                0x00000000        0x0 ffat_chan/ff.o
+ .text.f_readdir
+                0x00000000        0x0 ffat_chan/ff.o
+ .text.f_stat   0x00000000        0x0 ffat_chan/ff.o
+ .text.f_truncate
+                0x00000000        0x0 ffat_chan/ff.o
+ .text.f_getfree
+                0x00000000        0x0 ffat_chan/ff.o
+ .text.f_mkdir  0x00000000        0x0 ffat_chan/ff.o
+ .text.f_chmod  0x00000000        0x0 ffat_chan/ff.o
+ .text.f_utime  0x00000000        0x0 ffat_chan/ff.o
+ .text.f_rename
+                0x00000000        0x0 ffat_chan/ff.o
+ .text.f_mkfs   0x00000000        0x0 ffat_chan/ff.o
+ .text          0x00000000        0x0 drivers_mthomas/comm.o
+ .data          0x00000000        0x0 drivers_mthomas/comm.o
+ .bss           0x00000000        0x0 drivers_mthomas/comm.o
+ .text          0x00000000        0x0 drivers_mthomas/diskio.o
+ .data          0x00000000        0x0 drivers_mthomas/diskio.o
+ .bss           0x00000000        0x0 drivers_mthomas/diskio.o
+ .text.disk_timerproc
+                0x00000000        0x0 drivers_mthomas/diskio.o
+ .bss.Timer1    0x00000000        0x0 drivers_mthomas/diskio.o
+ .text          0x00000000        0x0 drivers_mthomas/gettime_lpcrtc.o
+ .data          0x00000000        0x0 drivers_mthomas/gettime_lpcrtc.o
+ .bss           0x00000000        0x0 drivers_mthomas/gettime_lpcrtc.o
+ .text          0x00000000        0x0 drivers_nxp/mci.o
+ .data          0x00000000        0x0 drivers_nxp/mci.o
+ .bss           0x00000000        0x0 drivers_nxp/mci.o
+ .bss.DataRxFIFOCount
+                0x00000000        0x0 drivers_nxp/mci.o
+ .bss.DataTxFIFOCount
+                0x00000000        0x0 drivers_nxp/mci.o
+ .bss.TXBlockCounter
+                0x00000000        0x0 drivers_nxp/mci.o
+ .bss.RXBlockCounter
+                0x00000000        0x0 drivers_nxp/mci.o
+ .text.MCI_RXDisable
+                0x00000000        0x0 drivers_nxp/mci.o
+ .text          0x00000000        0x0 drivers_nxp/dma.o
+ .data          0x00000000        0x0 drivers_nxp/dma.o
+ .bss           0x00000000        0x0 drivers_nxp/dma.o
+ .text          0x00000000        0x0 FAT.o
+ .data          0x00000000        0x0 FAT.o
+ .bss           0x00000000        0x0 FAT.o
+ .text          0x00000000        0x0 spi.o
+ .data          0x00000000        0x0 spi.o
+ .bss           0x00000000        0x0 spi.o
+ .bss.SPI0Status
+                0x00000000        0x0 spi.o
+ .text.SPI0Handler
+                0x00000000        0x0 spi.o
+ .text          0x00000000        0x0 spitest.o
+ .data          0x00000000        0x0 spitest.o
+ .bss           0x00000000        0x0 spitest.o
+ .data.powerOff
+                0x00000000        0x0 spitest.o
+ .data.resetCmd
+                0x00000000        0x0 spitest.o
+ .data.resetcamera
+                0x00000000        0x0 spitest.o
+ .data.ackinit  0x00000000        0x0 spitest.o
+ .data.acksnap  0x00000000        0x0 spitest.o
+ .data.ackreset
+                0x00000000        0x0 spitest.o
+ .text.resetCam
+                0x00000000        0x0 spitest.o
+ .text          0x00000000        0x0 extint.o
+ .data          0x00000000        0x0 extint.o
+ .bss           0x00000000        0x0 extint.o
+ .data          0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .bss           0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .data          0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .bss           0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .data          0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .bss           0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .data          0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .bss           0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .data          0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .bss           0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .data          0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+ .bss           0x00000000        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ROM              0x00000000         0x0003e000         xr
+RAM              0x40000000         0x00004000         rw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD crt0.o
+LOAD readfifo_gnu.o
+LOAD fat_mci_demo.o
+LOAD monitor.o
+LOAD sysinit.o
+LOAD uart.o
+LOAD common_nxp/src/irq.o
+LOAD common_nxp/src/target.o
+LOAD common_nxp/src/timer.o
+LOAD drivers_nxp/rtc.o
+LOAD ffat_chan/ff.o
+LOAD drivers_mthomas/comm.o
+LOAD drivers_mthomas/diskio.o
+LOAD drivers_mthomas/gettime_lpcrtc.o
+LOAD drivers_nxp/mci.o
+LOAD drivers_nxp/dma.o
+LOAD FAT.o
+LOAD spi.o
+LOAD spitest.o
+LOAD extint.o
+LOAD c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a
+LOAD c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libm.a
+LOAD c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a
+LOAD c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a
+START GROUP
+LOAD c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a
+LOAD c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libg.a
+LOAD c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a
+END GROUP
+                0x00000800                STACK_SIZE = 0x800
+
+.text           0x00000000     0x9824
+ *(.init)
+ .init          0x00000000      0x13c crt0.o
+                0x00000114                reset
+                0x00000000                _boot
+                0x00000050                _mainCRTStartup
+                0x00000114                abort
+                0x00000050                _start
+                0x00000114                _reset
+                0x00000114                exit
+                0x00000050                start
+ *(.text .text.*)
+ .text.SRAMInit
+                0x0000013c      0x178 fat_mci_demo.o
+                0x0000013c                SRAMInit
+ .text.IoInit   0x000002b4       0x40 fat_mci_demo.o
+ .text.enable_interrupt
+                0x000002f4       0x30 fat_mci_demo.o
+ .text.__get_CPSR
+                0x00000324       0x24 fat_mci_demo.o
+ .text.__set_CPSR
+                0x00000348       0x20 fat_mci_demo.o
+ .text.main     0x00000368       0x80 fat_mci_demo.o
+                0x00000368                main
+ .text.xputs    0x000003e8       0x4c monitor.o
+                0x000003e8                xputs
+ .text.xitoa    0x00000434      0x1ec monitor.o
+                0x00000434                xitoa
+ .text.xprintf  0x00000620      0x338 monitor.o
+                0x00000620                xprintf
+ .text.systemInit
+                0x00000958       0xc0 sysinit.o
+                0x00000958                systemInit
+ .text.uart0Init
+                0x00000a18       0x94 uart.o
+                0x00000a18                uart0Init
+ .text.uart0Puts
+                0x00000aac       0x40 uart.o
+                0x00000aac                uart0Puts
+ .text.uart_put
+                0x00000aec       0x54 uart.o
+                0x00000aec                uart_put
+ .text.init_VIC
+                0x00000b40       0x44 common_nxp/src/irq.o
+                0x00000b40                init_VIC
+ .text.install_irq
+                0x00000b84       0x3c common_nxp/src/irq.o
+                0x00000b84                install_irq
+ .text.RTCGetTime
+                0x00000bc0       0x60 drivers_nxp/rtc.o
+                0x00000bc0                RTCGetTime
+ .text.move_window
+                0x00000c20      0x184 ffat_chan/ff.o
+ .text.sync     0x00000da4      0x314 ffat_chan/ff.o
+ .text.get_cluster
+                0x000010b8      0x3b8 ffat_chan/ff.o
+ .text.put_cluster
+                0x00001470      0x440 ffat_chan/ff.o
+ .text.remove_chain
+                0x000018b0       0xe0 ffat_chan/ff.o
+ .text.create_chain
+                0x00001990      0x200 ffat_chan/ff.o
+ .text.clust2sect
+                0x00001b90       0x7c ffat_chan/ff.o
+ .text.next_dir_entry
+                0x00001c0c      0x150 ffat_chan/ff.o
+ .text.make_dirfile
+                0x00001d5c      0x2c4 ffat_chan/ff.o
+ .text.trace_path
+                0x00002020      0x348 ffat_chan/ff.o
+ .text.reserve_direntry
+                0x00002368      0x26c ffat_chan/ff.o
+ .text.check_fs
+                0x000025d4      0x154 ffat_chan/ff.o
+ .text.auto_mount
+                0x00002728      0x9dc ffat_chan/ff.o
+ .text.validate
+                0x00003104       0xa0 ffat_chan/ff.o
+ .text.f_mount  0x000031a4       0xa0 ffat_chan/ff.o
+                0x000031a4                f_mount
+ .text.f_open   0x00003244      0x5d4 ffat_chan/ff.o
+                0x00003244                f_open
+ .text.f_write  0x00003818      0x504 ffat_chan/ff.o
+                0x00003818                f_write
+ .text.f_sync   0x00003d1c      0x2f0 ffat_chan/ff.o
+                0x00003d1c                f_sync
+ .text.f_close  0x0000400c       0x4c ffat_chan/ff.o
+                0x0000400c                f_close
+ .text.f_unlink
+                0x00004058      0x2dc ffat_chan/ff.o
+                0x00004058                f_unlink
+ .text.SELECT   0x00004334       0x78 drivers_mthomas/diskio.o
+ .text.currstate_from_status
+                0x000043ac       0x30 drivers_mthomas/diskio.o
+ .text.DESELECT
+                0x000043dc       0xb4 drivers_mthomas/diskio.o
+ .text.wait_ready
+                0x00004490       0x90 drivers_mthomas/diskio.o
+ .text.status_ready_bit
+                0x00004520       0x30 drivers_mthomas/diskio.o
+ .text.release_spi
+                0x00004550       0x14 drivers_mthomas/diskio.o
+ .text.power_off
+                0x00004564       0x40 drivers_mthomas/diskio.o
+ .text.MCI_get_sd_status
+                0x000045a4      0x104 drivers_mthomas/diskio.o
+ .text.MCI_disk_initialize
+                0x000046a8      0x310 drivers_mthomas/diskio.o
+ .text.disk_initialize
+                0x000049b8      0x118 drivers_mthomas/diskio.o
+                0x000049b8                disk_initialize
+ .text.disk_status
+                0x00004ad0       0x54 drivers_mthomas/diskio.o
+                0x00004ad0                disk_status
+ .text.disk_read
+                0x00004b24      0x120 drivers_mthomas/diskio.o
+                0x00004b24                disk_read
+ .text.disk_write
+                0x00004c44      0x15c drivers_mthomas/diskio.o
+                0x00004c44                disk_write
+ .text.disk_ioctl
+                0x00004da0      0x2f8 drivers_mthomas/diskio.o
+                0x00004da0                disk_ioctl
+ .text.get_fattime
+                0x00005098       0x7c drivers_mthomas/gettime_lpcrtc.o
+                0x00005098                get_fattime
+ .text.MCI_TXEnable
+                0x00005114       0x60 drivers_nxp/mci.o
+                0x00005114                MCI_TXEnable
+ .text.MCI_TXDisable
+                0x00005174       0x60 drivers_nxp/mci.o
+                0x00005174                MCI_TXDisable
+ .text.MCI_RXEnable
+                0x000051d4       0x60 drivers_nxp/mci.o
+                0x000051d4                MCI_RXEnable
+ .text.MCI_CheckStatus
+                0x00005234       0x5c drivers_nxp/mci.o
+                0x00005234                MCI_CheckStatus
+ .text.MCI_CmdProcess
+                0x00005290      0x158 drivers_nxp/mci.o
+ .text.MCI_DataErrorProcess
+                0x000053e8      0x154 drivers_nxp/mci.o
+ .text.MCI_DATA_END_InterruptService
+                0x0000553c      0x10c drivers_nxp/mci.o
+ .text.MCI_FIFOInterruptService
+                0x00005648       0x28 drivers_nxp/mci.o
+ .text.MCI_IRQHandler
+                0x00005670      0x158 drivers_nxp/mci.o
+                0x00005670                MCI_IRQHandler
+ .text.MCI_Set_MCIClock
+                0x000057c8       0xcc drivers_nxp/mci.o
+                0x000057c8                MCI_Set_MCIClock
+ .text.SD_Set_BusWidth
+                0x00005894       0xe0 drivers_nxp/mci.o
+                0x00005894                SD_Set_BusWidth
+ .text.MCI_Init
+                0x00005974      0x280 drivers_nxp/mci.o
+                0x00005974                MCI_Init
+ .text.MCI_SendCmd
+                0x00005bf4      0x15c drivers_nxp/mci.o
+                0x00005bf4                MCI_SendCmd
+ .text.MCI_GetCmdResp
+                0x00005d50      0x27c drivers_nxp/mci.o
+                0x00005d50                MCI_GetCmdResp
+ .text.MCI_Go_Idle_State
+                0x00005fcc       0xa0 drivers_nxp/mci.o
+                0x00005fcc                MCI_Go_Idle_State
+ .text.MCI_Send_OP_Cond
+                0x0000606c       0xcc drivers_nxp/mci.o
+ .text.MCI_Send_ACMD
+                0x00006138      0x108 drivers_nxp/mci.o
+ .text.MCI_Send_ACMD_OP_Cond
+                0x00006240      0x150 drivers_nxp/mci.o
+ .text.MCI_Send_IF_Cond
+                0x00006390      0x108 drivers_nxp/mci.o
+ .text.MCI_CardInit
+                0x00006498      0x140 drivers_nxp/mci.o
+                0x00006498                MCI_CardInit
+ .text.MCI_Check_CID
+                0x000065d8       0xbc drivers_nxp/mci.o
+                0x000065d8                MCI_Check_CID
+ .text.MCI_Set_Address
+                0x00006694      0x114 drivers_nxp/mci.o
+                0x00006694                MCI_Set_Address
+ .text.MCI_Send_CSD
+                0x000067a8      0x178 drivers_nxp/mci.o
+                0x000067a8                MCI_Send_CSD
+ .text.MCI_Select_Card
+                0x00006920      0x158 drivers_nxp/mci.o
+                0x00006920                MCI_Select_Card
+ .text.MCI_Send_Status
+                0x00006a78      0x100 drivers_nxp/mci.o
+                0x00006a78                MCI_Send_Status
+ .text.MCI_Set_BlockLen
+                0x00006b78       0xf0 drivers_nxp/mci.o
+                0x00006b78                MCI_Set_BlockLen
+ .text.MCI_Send_ACMD_Bus_Width
+                0x00006c68       0xdc drivers_nxp/mci.o
+                0x00006c68                MCI_Send_ACMD_Bus_Width
+ .text.MCI_Send_Stop
+                0x00006d44       0xe0 drivers_nxp/mci.o
+                0x00006d44                MCI_Send_Stop
+ .text.MCI_Send_Write_Block
+                0x00006e24      0x118 drivers_nxp/mci.o
+ .text.MCI_Send_Write_Multiple_Block
+                0x00006f3c      0x118 drivers_nxp/mci.o
+ .text.MCI_Send_Read_Block
+                0x00007054      0x118 drivers_nxp/mci.o
+ .text.MCI_Write_Block
+                0x0000716c      0x170 drivers_nxp/mci.o
+                0x0000716c                MCI_Write_Block
+ .text.MCI_Write_Multiple_Block
+                0x000072dc      0x240 drivers_nxp/mci.o
+                0x000072dc                MCI_Write_Multiple_Block
+ .text.MCI_Read_Block
+                0x0000751c      0x16c drivers_nxp/mci.o
+                0x0000751c                MCI_Read_Block
+ .text.MCI_Sd_Status
+                0x00007688      0x264 drivers_nxp/mci.o
+                0x00007688                MCI_Sd_Status
+ .text.MCI_Power_Off
+                0x000078ec       0x48 drivers_nxp/mci.o
+                0x000078ec                MCI_Power_Off
+ .text.DMAHandler
+                0x00007934       0x90 drivers_nxp/dma.o
+                0x00007934                DMAHandler
+ .text.DMA_Move
+                0x000079c4      0x144 drivers_nxp/dma.o
+                0x000079c4                DMA_Move
+ .text.DMA_Init
+                0x00007b08       0x68 drivers_nxp/dma.o
+                0x00007b08                DMA_Init
+ .text.put_rc   0x00007b70       0xa0 FAT.o
+                0x00007b70                put_rc
+ .text.initSDCard
+                0x00007c10       0x64 FAT.o
+                0x00007c10                initSDCard
+ .text.writeToSDCard
+                0x00007c74       0xe0 FAT.o
+                0x00007c74                writeToSDCard
+ .text.closeFile
+                0x00007d54       0x40 FAT.o
+                0x00007d54                closeFile
+ .text.SPIInit  0x00007d94       0xfc spi.o
+                0x00007d94                SPIInit
+ .text.SPISend  0x00007e90      0x104 spi.o
+                0x00007e90                SPISend
+ .text.SPIReceive
+                0x00007f94       0x9c spi.o
+                0x00007f94                SPIReceive
+ .text.SPIReceiveByte
+                0x00008030       0x54 spi.o
+                0x00008030                SPIReceiveByte
+ .text.isAck    0x00008084       0xd8 spitest.o
+                0x00008084                isAck
+ .text.sendSync
+                0x0000815c      0x300 spitest.o
+                0x0000815c                sendSync
+ .text.getInit  0x0000845c      0x198 spitest.o
+                0x0000845c                getInit
+ .text.getImageQuality
+                0x000085f4      0x1a8 spitest.o
+                0x000085f4                getImageQuality
+ .text.getSnapshot
+                0x0000879c      0x1a4 spitest.o
+                0x0000879c                getSnapshot
+ .text.getPic   0x00008940      0x344 spitest.o
+                0x00008940                getPic
+ .text.stopRec  0x00008c84       0x20 spitest.o
+                0x00008c84                stopRec
+ .text.setupCamera
+                0x00008ca4       0x1c spitest.o
+                0x00008ca4                setupCamera
+ .text.takePicture
+                0x00008cc0       0x28 spitest.o
+                0x00008cc0                takePicture
+ .text.record   0x00008ce8       0x4c spitest.o
+                0x00008ce8                record
+ .text.EINT3_Handler
+                0x00008d34      0x1fc extint.o
+                0x00008d34                EINT3_Handler
+ .text.disable_interrupt
+                0x00008f30       0x38 extint.o
+ .text.__get_CPSR
+                0x00008f68       0x24 extint.o
+ .text.__set_CPSR
+                0x00008f8c       0x20 extint.o
+ .text.EINTInit
+                0x00008fac       0xf8 extint.o
+                0x00008fac                EINTInit
+ .text          0x000090a4       0xac c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+                0x000090a4                memcmp
+ .text          0x00009150       0xfc c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+                0x00009150                memcpy
+ .text          0x0000924c      0x108 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+                0x0000924c                memset
+ .text          0x00009354      0x110 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+                0x00009354                __udivsi3
+                0x00009354                __aeabi_uidiv
+                0x0000944c                __aeabi_uidivmod
+ .text          0x00009464       0xcc c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+                0x00009464                __umodsi3
+ .text          0x00009530        0x4 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+                0x00009530                __aeabi_ldiv0
+                0x00009530                __div0
+                0x00009530                __aeabi_idiv0
+ *(.gnu.linkonce.t.*)
+ *(.glue_7)
+ .glue_7        0x00009534        0x0 crt0.o
+ .glue_7        0x00009534        0x0 readfifo_gnu.o
+ .glue_7        0x00009534        0x0 fat_mci_demo.o
+ .glue_7        0x00009534        0x0 monitor.o
+ .glue_7        0x00009534        0x0 sysinit.o
+ .glue_7        0x00009534        0x0 uart.o
+ .glue_7        0x00009534        0x0 common_nxp/src/irq.o
+ .glue_7        0x00009534        0x0 common_nxp/src/target.o
+ .glue_7        0x00009534        0x0 common_nxp/src/timer.o
+ .glue_7        0x00009534        0x0 drivers_nxp/rtc.o
+ .glue_7        0x00009534        0x0 ffat_chan/ff.o
+ .glue_7        0x00009534        0x0 drivers_mthomas/comm.o
+ .glue_7        0x00009534        0x0 drivers_mthomas/diskio.o
+ .glue_7        0x00009534        0x0 drivers_mthomas/gettime_lpcrtc.o
+ .glue_7        0x00009534        0x0 drivers_nxp/mci.o
+ .glue_7        0x00009534        0x0 drivers_nxp/dma.o
+ .glue_7        0x00009534        0x0 FAT.o
+ .glue_7        0x00009534        0x0 spi.o
+ .glue_7        0x00009534        0x0 spitest.o
+ .glue_7        0x00009534        0x0 extint.o
+ .glue_7        0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .glue_7        0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .glue_7        0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .glue_7        0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .glue_7        0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .glue_7        0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+ *(.glue_7t)
+ .glue_7t       0x00009534        0x0 crt0.o
+ .glue_7t       0x00009534        0x0 readfifo_gnu.o
+ .glue_7t       0x00009534        0x0 fat_mci_demo.o
+ .glue_7t       0x00009534        0x0 monitor.o
+ .glue_7t       0x00009534        0x0 sysinit.o
+ .glue_7t       0x00009534        0x0 uart.o
+ .glue_7t       0x00009534        0x0 common_nxp/src/irq.o
+ .glue_7t       0x00009534        0x0 common_nxp/src/target.o
+ .glue_7t       0x00009534        0x0 common_nxp/src/timer.o
+ .glue_7t       0x00009534        0x0 drivers_nxp/rtc.o
+ .glue_7t       0x00009534        0x0 ffat_chan/ff.o
+ .glue_7t       0x00009534        0x0 drivers_mthomas/comm.o
+ .glue_7t       0x00009534        0x0 drivers_mthomas/diskio.o
+ .glue_7t       0x00009534        0x0 drivers_mthomas/gettime_lpcrtc.o
+ .glue_7t       0x00009534        0x0 drivers_nxp/mci.o
+ .glue_7t       0x00009534        0x0 drivers_nxp/dma.o
+ .glue_7t       0x00009534        0x0 FAT.o
+ .glue_7t       0x00009534        0x0 spi.o
+ .glue_7t       0x00009534        0x0 spitest.o
+ .glue_7t       0x00009534        0x0 extint.o
+ .glue_7t       0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .glue_7t       0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .glue_7t       0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .glue_7t       0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .glue_7t       0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .glue_7t       0x00009534        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+ *(.gcc_except_table)
+ *(.rodata)
+ .rodata        0x00009534       0x34 ffat_chan/ff.o
+ .rodata        0x00009568       0x28 FAT.o
+ .rodata        0x00009590      0x1dc spitest.o
+ .rodata        0x0000976c       0x20 extint.o
+ *(.rodata*)
+ .rodata.str.1457
+                0x0000978c       0x98 FAT.o
+ *(.gnu.linkonce.r.*)
+
+.vfp11_veneer   0x00009824        0x0
+ .vfp11_veneer  0x00009824        0x0 crt0.o
+ .vfp11_veneer  0x00009824        0x0 readfifo_gnu.o
+ .vfp11_veneer  0x00009824        0x0 fat_mci_demo.o
+ .vfp11_veneer  0x00009824        0x0 monitor.o
+ .vfp11_veneer  0x00009824        0x0 sysinit.o
+ .vfp11_veneer  0x00009824        0x0 uart.o
+ .vfp11_veneer  0x00009824        0x0 common_nxp/src/irq.o
+ .vfp11_veneer  0x00009824        0x0 common_nxp/src/target.o
+ .vfp11_veneer  0x00009824        0x0 common_nxp/src/timer.o
+ .vfp11_veneer  0x00009824        0x0 drivers_nxp/rtc.o
+ .vfp11_veneer  0x00009824        0x0 ffat_chan/ff.o
+ .vfp11_veneer  0x00009824        0x0 drivers_mthomas/comm.o
+ .vfp11_veneer  0x00009824        0x0 drivers_mthomas/diskio.o
+ .vfp11_veneer  0x00009824        0x0 drivers_mthomas/gettime_lpcrtc.o
+ .vfp11_veneer  0x00009824        0x0 drivers_nxp/mci.o
+ .vfp11_veneer  0x00009824        0x0 drivers_nxp/dma.o
+ .vfp11_veneer  0x00009824        0x0 FAT.o
+ .vfp11_veneer  0x00009824        0x0 spi.o
+ .vfp11_veneer  0x00009824        0x0 spitest.o
+ .vfp11_veneer  0x00009824        0x0 extint.o
+ .vfp11_veneer  0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .vfp11_veneer  0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .vfp11_veneer  0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .vfp11_veneer  0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .vfp11_veneer  0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .vfp11_veneer  0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+
+.v4_bx          0x00009824        0x0
+ .v4_bx         0x00009824        0x0 crt0.o
+ .v4_bx         0x00009824        0x0 readfifo_gnu.o
+ .v4_bx         0x00009824        0x0 fat_mci_demo.o
+ .v4_bx         0x00009824        0x0 monitor.o
+ .v4_bx         0x00009824        0x0 sysinit.o
+ .v4_bx         0x00009824        0x0 uart.o
+ .v4_bx         0x00009824        0x0 common_nxp/src/irq.o
+ .v4_bx         0x00009824        0x0 common_nxp/src/target.o
+ .v4_bx         0x00009824        0x0 common_nxp/src/timer.o
+ .v4_bx         0x00009824        0x0 drivers_nxp/rtc.o
+ .v4_bx         0x00009824        0x0 ffat_chan/ff.o
+ .v4_bx         0x00009824        0x0 drivers_mthomas/comm.o
+ .v4_bx         0x00009824        0x0 drivers_mthomas/diskio.o
+ .v4_bx         0x00009824        0x0 drivers_mthomas/gettime_lpcrtc.o
+ .v4_bx         0x00009824        0x0 drivers_nxp/mci.o
+ .v4_bx         0x00009824        0x0 drivers_nxp/dma.o
+ .v4_bx         0x00009824        0x0 FAT.o
+ .v4_bx         0x00009824        0x0 spi.o
+ .v4_bx         0x00009824        0x0 spitest.o
+ .v4_bx         0x00009824        0x0 extint.o
+ .v4_bx         0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .v4_bx         0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .v4_bx         0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .v4_bx         0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .v4_bx         0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .v4_bx         0x00009824        0x0 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+                0x00009824                . = ALIGN (0x4)
+
+.ctors          0x00009824        0x0
+                0x00009824                PROVIDE (__ctors_start__, .)
+ *(SORT(.ctors.*))
+ *(.ctors)
+                0x00009824                PROVIDE (__ctors_end__, .)
+
+.dtors          0x00009824        0x0
+                0x00009824                PROVIDE (__dtors_start__, .)
+ *(SORT(.dtors.*))
+ *(.dtors)
+                0x00009824                PROVIDE (__dtors_end__, .)
+                0x00009824                . = ALIGN (0x4)
+                0x00009824                _etext = .
+                0x00009824                PROVIDE (etext, .)
+
+.data           0x40000000       0x4c load address 0x00009824
+                0x40000000                _data = .
+ *(.data)
+ *(.data.*)
+ .data.Stat     0x40000000        0x1 drivers_mthomas/diskio.o
+ *fill*         0x40000001        0x3 00
+ .data.WriteBlock
+                0x40000004        0x4 drivers_nxp/mci.o
+                0x40000004                WriteBlock
+ .data.ReadBlock
+                0x40000008        0x4 drivers_nxp/mci.o
+                0x40000008                ReadBlock
+ .data.sync     0x4000000c        0x8 spitest.o
+                0x4000000c                sync
+ .data.ack      0x40000014        0x8 spitest.o
+                0x40000014                ack
+ .data.camInit  0x4000001c        0x8 spitest.o
+                0x4000001c                camInit
+ .data.picQuality
+                0x40000024        0x8 spitest.o
+                0x40000024                picQuality
+ .data.snapshot
+                0x4000002c        0x8 spitest.o
+                0x4000002c                snapshot
+ .data.getPicture
+                0x40000034        0x8 spitest.o
+                0x40000034                getPicture
+ .data.acksync  0x4000003c        0x8 spitest.o
+                0x4000003c                acksync
+ .data.ackimgqual
+                0x40000044        0x8 spitest.o
+                0x40000044                ackimgqual
+ *(.gnu.linkonce.d*)
+                0x4000004c                . = ALIGN (0x4)
+ *(.fastrun)
+                0x4000004c                . = ALIGN (0x4)
+                0x4000004c                _edata = .
+                0x4000004c                PROVIDE (edata, .)
+
+.bss            0x4000004c      0x6a8 load address 0x00009870
+                0x4000004c                __bss_start = .
+                0x4000004c                __bss_start__ = .
+ *(.bss)
+ *(.gnu.linkonce.b*)
+ *(COMMON)
+ COMMON         0x4000004c        0x8 drivers_nxp/mci.o
+                0x4000004c                CardRCA
+                0x40000050                MCI_CardType
+ COMMON         0x40000054      0x67c FAT.o
+                0x40000054                file2
+                0x40000278                s2
+                0x4000027c                file1
+                0x400004a0                fatfs
+ COMMON         0x400006d0        0xa spi.o
+                0x400006d0                recv
+ COMMON         0x400006da       0x18 spitest.o
+                0x400006da                SPICmd
+                0x400006e2                SPIWRData
+                0x400006ea                SPIRDData
+                0x400006f4                . = ALIGN (0x4)
+ *fill*         0x400006f2        0x2 00
+
+.bss.takeSnapshot
+                0x400006f4        0x4 load address 0x00009f18
+ .bss.takeSnapshot
+                0x400006f4        0x4 fat_mci_demo.o
+                0x400006f4                takeSnapshot
+
+.bss.startRecording
+                0x400006f8        0x4 load address 0x00009f1c
+ .bss.startRecording
+                0x400006f8        0x4 fat_mci_demo.o
+                0x400006f8                startRecording
+
+.bss.stopRecording
+                0x400006fc        0x4 load address 0x00009f20
+ .bss.stopRecording
+                0x400006fc        0x4 fat_mci_demo.o
+                0x400006fc                stopRecording
+
+.bss.FatFs      0x40000700        0x4 load address 0x00009f24
+ .bss.FatFs     0x40000700        0x4 ffat_chan/ff.o
+
+.bss.fsid       0x40000704        0x2 load address 0x00009f28
+ .bss.fsid      0x40000704        0x2 ffat_chan/ff.o
+
+.bss.Timer2     0x40000708        0x4 load address 0x00009f2c
+ .bss.Timer2    0x40000708        0x4 drivers_mthomas/diskio.o
+
+.bss.CardType   0x4000070c        0x4 load address 0x00009f30
+ .bss.CardType  0x4000070c        0x4 drivers_mthomas/diskio.o
+
+.bss.csd        0x40000710       0x10 load address 0x00009f34
+ .bss.csd       0x40000710       0x10 drivers_mthomas/diskio.o
+
+.bss.sd_status  0x40000720       0x10 load address 0x00009f44
+ .bss.sd_status
+                0x40000720       0x10 drivers_mthomas/diskio.o
+
+.bss.MCI_DataErrorProcess_count
+                0x40000730        0x4 load address 0x00009f54
+ .bss.MCI_DataErrorProcess_count
+                0x40000730        0x4 drivers_nxp/mci.o
+                0x40000730                MCI_DataErrorProcess_count
+
+.bss.MCI_DATA_END_InterruptService_count
+                0x40000734        0x4 load address 0x00009f58
+ .bss.MCI_DATA_END_InterruptService_count
+                0x40000734        0x4 drivers_nxp/mci.o
+                0x40000734                MCI_DATA_END_InterruptService_count
+
+.bss.MCI_FIFOInterruptService_count
+                0x40000738        0x4 load address 0x00009f5c
+ .bss.MCI_FIFOInterruptService_count
+                0x40000738        0x4 drivers_nxp/mci.o
+                0x40000738                MCI_FIFOInterruptService_count
+
+.bss.MCI_CmdProcess_count
+                0x4000073c        0x4 load address 0x00009f60
+ .bss.MCI_CmdProcess_count
+                0x4000073c        0x4 drivers_nxp/mci.o
+                0x4000073c                MCI_CmdProcess_count
+
+.bss.CmdCRCErrCount
+                0x40000740        0x4 load address 0x00009f64
+ .bss.CmdCRCErrCount
+                0x40000740        0x4 drivers_nxp/mci.o
+                0x40000740                CmdCRCErrCount
+
+.bss.CmdTimeoutErrCount
+                0x40000744        0x4 load address 0x00009f68
+ .bss.CmdTimeoutErrCount
+                0x40000744        0x4 drivers_nxp/mci.o
+                0x40000744                CmdTimeoutErrCount
+
+.bss.CmdRespEndCount
+                0x40000748        0x4 load address 0x00009f6c
+ .bss.CmdRespEndCount
+                0x40000748        0x4 drivers_nxp/mci.o
+                0x40000748                CmdRespEndCount
+
+.bss.CmdSentCount
+                0x4000074c        0x4 load address 0x00009f70
+ .bss.CmdSentCount
+                0x4000074c        0x4 drivers_nxp/mci.o
+                0x4000074c                CmdSentCount
+
+.bss.CmdActiveCount
+                0x40000750        0x4 load address 0x00009f74
+ .bss.CmdActiveCount
+                0x40000750        0x4 drivers_nxp/mci.o
+                0x40000750                CmdActiveCount
+
+.bss.DataCRCErrCount
+                0x40000754        0x4 load address 0x00009f78
+ .bss.DataCRCErrCount
+                0x40000754        0x4 drivers_nxp/mci.o
+                0x40000754                DataCRCErrCount
+
+.bss.DataTimeoutErrCount
+                0x40000758        0x4 load address 0x00009f7c
+ .bss.DataTimeoutErrCount
+                0x40000758        0x4 drivers_nxp/mci.o
+                0x40000758                DataTimeoutErrCount
+
+.bss.DataTxUnderrunErrCount
+                0x4000075c        0x4 load address 0x00009f80
+ .bss.DataTxUnderrunErrCount
+                0x4000075c        0x4 drivers_nxp/mci.o
+                0x4000075c                DataTxUnderrunErrCount
+
+.bss.DataRxOverrunErrCount
+                0x40000760        0x4 load address 0x00009f84
+ .bss.DataRxOverrunErrCount
+                0x40000760        0x4 drivers_nxp/mci.o
+                0x40000760                DataRxOverrunErrCount
+
+.bss.DataStartbitErrCount
+                0x40000764        0x4 load address 0x00009f88
+ .bss.DataStartbitErrCount
+                0x40000764        0x4 drivers_nxp/mci.o
+                0x40000764                DataStartbitErrCount
+
+.bss.DataEndCount
+                0x40000768        0x4 load address 0x00009f8c
+ .bss.DataEndCount
+                0x40000768        0x4 drivers_nxp/mci.o
+                0x40000768                DataEndCount
+
+.bss.DataBlockEndCount
+                0x4000076c        0x4 load address 0x00009f90
+ .bss.DataBlockEndCount
+                0x4000076c        0x4 drivers_nxp/mci.o
+                0x4000076c                DataBlockEndCount
+
+.bss.MCI_Block_End_Flag
+                0x40000770        0x4 load address 0x00009f94
+ .bss.MCI_Block_End_Flag
+                0x40000770        0x4 drivers_nxp/mci.o
+                0x40000770                MCI_Block_End_Flag
+
+.bss.DataTxActiveCount
+                0x40000774        0x4 load address 0x00009f98
+ .bss.DataTxActiveCount
+                0x40000774        0x4 drivers_nxp/mci.o
+                0x40000774                DataTxActiveCount
+
+.bss.DataRxActiveCount
+                0x40000778        0x4 load address 0x00009f9c
+ .bss.DataRxActiveCount
+                0x40000778        0x4 drivers_nxp/mci.o
+                0x40000778                DataRxActiveCount
+
+.bss.DataFIFOCount
+                0x4000077c        0x4 load address 0x00009fa0
+ .bss.DataFIFOCount
+                0x4000077c        0x4 drivers_nxp/mci.o
+                0x4000077c                DataFIFOCount
+
+.bss.SDStatRead
+                0x40000780        0x4 load address 0x00009fa4
+ .bss.SDStatRead
+                0x40000780        0x4 drivers_nxp/mci.o
+                0x40000780                SDStatRead
+
+.bss.DMAErrCount.1312
+                0x40000784        0x4 load address 0x00009fa8
+ .bss.DMAErrCount.1312
+                0x40000784        0x4 drivers_nxp/dma.o
+
+.bss.DMATCCount.1311
+                0x40000788        0x4 load address 0x00009fac
+ .bss.DMATCCount.1311
+                0x40000788        0x4 drivers_nxp/dma.o
+
+.bss.TxCounter  0x4000078c        0x4 load address 0x00009fb0
+ .bss.TxCounter
+                0x4000078c        0x4 spi.o
+                0x4000078c                TxCounter
+
+.bss.recvI      0x40000790        0x4 load address 0x00009fb4
+ .bss.recvI     0x40000790        0x4 spi.o
+                0x40000790                recvI
+
+.bss.AckCounter
+                0x40000794        0x1 load address 0x00009fb8
+ .bss.AckCounter
+                0x40000794        0x1 spitest.o
+                0x40000794                AckCounter
+
+.bss.global     0x40000798        0x4 load address 0x00009fbc
+ .bss.global    0x40000798        0x4 spitest.o
+                0x40000798                global
+                0x4000079c                . = ALIGN (0x4)
+                0x4000079c                __bss_end__ = .
+                0x4000079c                PROVIDE (__bss_end, .)
+
+.stack          0x40000800      0x800 load address 0x0000a024
+                0x40001000                . = (. + STACK_SIZE)
+ *fill*         0x40000800      0x800 00
+                0x40001000                PROVIDE (_stack, .)
+                0x40001000                _end = .
+                0x40001000                PROVIDE (end, .)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x00000000      0x17a
+ *(.comment)
+ .comment       0x00000000       0x12 fat_mci_demo.o
+ .comment       0x00000012       0x12 monitor.o
+ .comment       0x00000024       0x12 sysinit.o
+ .comment       0x00000036       0x12 uart.o
+ .comment       0x00000048       0x12 common_nxp/src/irq.o
+ .comment       0x0000005a       0x12 common_nxp/src/target.o
+ .comment       0x0000006c       0x12 common_nxp/src/timer.o
+ .comment       0x0000007e       0x12 drivers_nxp/rtc.o
+ .comment       0x00000090       0x12 ffat_chan/ff.o
+ .comment       0x000000a2       0x12 drivers_mthomas/comm.o
+ .comment       0x000000b4       0x12 drivers_mthomas/diskio.o
+ .comment       0x000000c6       0x12 drivers_mthomas/gettime_lpcrtc.o
+ .comment       0x000000d8       0x12 drivers_nxp/mci.o
+ .comment       0x000000ea       0x12 drivers_nxp/dma.o
+ .comment       0x000000fc       0x12 FAT.o
+ .comment       0x0000010e       0x12 spi.o
+ .comment       0x00000120       0x12 spitest.o
+ .comment       0x00000132       0x12 extint.o
+ .comment       0x00000144       0x12 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .comment       0x00000156       0x12 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .comment       0x00000168       0x12 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000      0x7a0
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 crt0.o
+ .debug_aranges
+                0x00000020       0x20 readfifo_gnu.o
+ .debug_aranges
+                0x00000040       0x48 fat_mci_demo.o
+ .debug_aranges
+                0x00000088       0x48 monitor.o
+ .debug_aranges
+                0x000000d0       0x20 sysinit.o
+ .debug_aranges
+                0x000000f0       0x70 uart.o
+ .debug_aranges
+                0x00000160       0x30 common_nxp/src/irq.o
+ .debug_aranges
+                0x00000190       0x30 common_nxp/src/target.o
+ .debug_aranges
+                0x000001c0       0x58 common_nxp/src/timer.o
+ .debug_aranges
+                0x00000218       0x60 drivers_nxp/rtc.o
+ .debug_aranges
+                0x00000278      0x120 ffat_chan/ff.o
+ .debug_aranges
+                0x00000398       0x90 drivers_mthomas/diskio.o
+ .debug_aranges
+                0x00000428       0x20 drivers_mthomas/gettime_lpcrtc.o
+ .debug_aranges
+                0x00000448      0x140 drivers_nxp/mci.o
+ .debug_aranges
+                0x00000588       0x30 drivers_nxp/dma.o
+ .debug_aranges
+                0x000005b8       0x38 FAT.o
+ .debug_aranges
+                0x000005f0       0x40 spi.o
+ .debug_aranges
+                0x00000630       0x70 spitest.o
+ .debug_aranges
+                0x000006a0       0x40 extint.o
+ .debug_aranges
+                0x000006e0       0x20 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .debug_aranges
+                0x00000700       0x20 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .debug_aranges
+                0x00000720       0x20 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .debug_aranges
+                0x00000740       0x20 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x00000760       0x20 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .debug_aranges
+                0x00000780       0x20 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+
+.debug_pubnames
+                0x00000000      0xd1e
+ *(.debug_pubnames)
+ .debug_pubnames
+                0x00000000       0x5e fat_mci_demo.o
+ .debug_pubnames
+                0x0000005e       0x56 monitor.o
+ .debug_pubnames
+                0x000000b4       0x21 sysinit.o
+ .debug_pubnames
+                0x000000d5       0xc6 uart.o
+ .debug_pubnames
+                0x0000019b       0x3f common_nxp/src/irq.o
+ .debug_pubnames
+                0x000001da       0x46 common_nxp/src/target.o
+ .debug_pubnames
+                0x00000220       0xfb common_nxp/src/timer.o
+ .debug_pubnames
+                0x0000031b       0xa6 drivers_nxp/rtc.o
+ .debug_pubnames
+                0x000003c1       0xf0 ffat_chan/ff.o
+ .debug_pubnames
+                0x000004b1       0x75 drivers_mthomas/diskio.o
+ .debug_pubnames
+                0x00000526       0x22 drivers_mthomas/gettime_lpcrtc.o
+ .debug_pubnames
+                0x00000548      0x47b drivers_nxp/mci.o
+ .debug_pubnames
+                0x000009c3       0x3b drivers_nxp/dma.o
+ .debug_pubnames
+                0x000009fe       0x71 FAT.o
+ .debug_pubnames
+                0x00000a6f       0x8c spi.o
+ .debug_pubnames
+                0x00000afb      0x19b spitest.o
+ .debug_pubnames
+                0x00000c96       0x31 extint.o
+ .debug_pubnames
+                0x00000cc7       0x1d c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .debug_pubnames
+                0x00000ce4       0x1d c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .debug_pubnames
+                0x00000d01       0x1d c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+
+.debug_info     0x00000000     0x4dc7
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x00000000       0x62 crt0.o
+ .debug_info    0x00000062       0x6a readfifo_gnu.o
+ .debug_info    0x000000cc      0x175 fat_mci_demo.o
+ .debug_info    0x00000241      0x325 monitor.o
+ .debug_info    0x00000566       0x3f sysinit.o
+ .debug_info    0x000005a5      0x324 uart.o
+ .debug_info    0x000008c9      0x12e common_nxp/src/irq.o
+ .debug_info    0x000009f7       0xf2 common_nxp/src/target.o
+ .debug_info    0x00000ae9      0x44b common_nxp/src/timer.o
+ .debug_info    0x00000f34      0x369 drivers_nxp/rtc.o
+ .debug_info    0x0000129d     0x154f ffat_chan/ff.o
+ .debug_info    0x000027ec        0x0 drivers_mthomas/comm.o
+ .debug_info    0x000027ec      0x514 drivers_mthomas/diskio.o
+ .debug_info    0x00002d00      0x133 drivers_mthomas/gettime_lpcrtc.o
+ .debug_info    0x00002e33      0xdc4 drivers_nxp/mci.o
+ .debug_info    0x00003bf7      0x117 drivers_nxp/dma.o
+ .debug_info    0x00003d0e      0x466 FAT.o
+ .debug_info    0x00004174      0x1dd spi.o
+ .debug_info    0x00004351      0x3b9 spitest.o
+ .debug_info    0x0000470a      0x19b extint.o
+ .debug_info    0x000048a5      0x10f c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .debug_info    0x000049b4      0x142 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .debug_info    0x00004af6      0x115 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .debug_info    0x00004c0b       0x94 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .debug_info    0x00004c9f       0x94 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .debug_info    0x00004d33       0x94 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x00000000     0x140b
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000       0x14 crt0.o
+ .debug_abbrev  0x00000014       0x14 readfifo_gnu.o
+ .debug_abbrev  0x00000028       0xda fat_mci_demo.o
+ .debug_abbrev  0x00000102       0xf3 monitor.o
+ .debug_abbrev  0x000001f5       0x2b sysinit.o
+ .debug_abbrev  0x00000220      0x1bc uart.o
+ .debug_abbrev  0x000003dc       0xc6 common_nxp/src/irq.o
+ .debug_abbrev  0x000004a2       0xa5 common_nxp/src/target.o
+ .debug_abbrev  0x00000547      0x164 common_nxp/src/timer.o
+ .debug_abbrev  0x000006ab      0x148 drivers_nxp/rtc.o
+ .debug_abbrev  0x000007f3      0x1c2 ffat_chan/ff.o
+ .debug_abbrev  0x000009b5        0x1 drivers_mthomas/comm.o
+ .debug_abbrev  0x000009b6      0x188 drivers_mthomas/diskio.o
+ .debug_abbrev  0x00000b3e       0x7b drivers_mthomas/gettime_lpcrtc.o
+ .debug_abbrev  0x00000bb9      0x164 drivers_nxp/mci.o
+ .debug_abbrev  0x00000d1d       0xad drivers_nxp/dma.o
+ .debug_abbrev  0x00000dca      0x147 FAT.o
+ .debug_abbrev  0x00000f11       0xf8 spi.o
+ .debug_abbrev  0x00001009      0x113 spitest.o
+ .debug_abbrev  0x0000111c       0xda extint.o
+ .debug_abbrev  0x000011f6       0x94 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .debug_abbrev  0x0000128a       0xa2 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .debug_abbrev  0x0000132c       0xa3 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .debug_abbrev  0x000013cf       0x14 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x000013e3       0x14 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .debug_abbrev  0x000013f7       0x14 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+
+.debug_line     0x00000000     0x2215
+ *(.debug_line)
+ .debug_line    0x00000000       0x7d crt0.o
+ .debug_line    0x0000007d       0x51 readfifo_gnu.o
+ .debug_line    0x000000ce      0x111 fat_mci_demo.o
+ .debug_line    0x000001df      0x16b monitor.o
+ .debug_line    0x0000034a       0x59 sysinit.o
+ .debug_line    0x000003a3      0x1a8 uart.o
+ .debug_line    0x0000054b       0xa3 common_nxp/src/irq.o
+ .debug_line    0x000005ee       0xe3 common_nxp/src/target.o
+ .debug_line    0x000006d1      0x1ba common_nxp/src/timer.o
+ .debug_line    0x0000088b      0x18f drivers_nxp/rtc.o
+ .debug_line    0x00000a1a      0x6ea ffat_chan/ff.o
+ .debug_line    0x00001104        0x0 drivers_mthomas/comm.o
+ .debug_line    0x00001104      0x226 drivers_mthomas/diskio.o
+ .debug_line    0x0000132a       0x86 drivers_mthomas/gettime_lpcrtc.o
+ .debug_line    0x000013b0      0x534 drivers_nxp/mci.o
+ .debug_line    0x000018e4       0xc5 drivers_nxp/dma.o
+ .debug_line    0x000019a9       0x9b FAT.o
+ .debug_line    0x00001a44       0xc6 spi.o
+ .debug_line    0x00001b0a      0x1a3 spitest.o
+ .debug_line    0x00001cad      0x117 extint.o
+ .debug_line    0x00001dc4       0xe1 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .debug_line    0x00001ea5       0xf8 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .debug_line    0x00001f9d       0xf9 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .debug_line    0x00002096       0x96 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .debug_line    0x0000212c       0x7f c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .debug_line    0x000021ab       0x6a c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x00000000     0x166c
+ *(.debug_frame)
+ .debug_frame   0x00000000       0xd0 fat_mci_demo.o
+ .debug_frame   0x000000d0       0xd8 monitor.o
+ .debug_frame   0x000001a8       0x30 sysinit.o
+ .debug_frame   0x000001d8      0x174 uart.o
+ .debug_frame   0x0000034c       0x74 common_nxp/src/irq.o
+ .debug_frame   0x000003c0       0x70 common_nxp/src/target.o
+ .debug_frame   0x00000430      0x124 common_nxp/src/timer.o
+ .debug_frame   0x00000554      0x144 drivers_nxp/rtc.o
+ .debug_frame   0x00000698      0x430 ffat_chan/ff.o
+ .debug_frame   0x00000ac8      0x1f0 drivers_mthomas/diskio.o
+ .debug_frame   0x00000cb8       0x30 drivers_mthomas/gettime_lpcrtc.o
+ .debug_frame   0x00000ce8      0x4b8 drivers_nxp/mci.o
+ .debug_frame   0x000011a0       0x78 drivers_nxp/dma.o
+ .debug_frame   0x00001218       0x90 FAT.o
+ .debug_frame   0x000012a8       0xb0 spi.o
+ .debug_frame   0x00001358      0x188 spitest.o
+ .debug_frame   0x000014e0       0xb8 extint.o
+ .debug_frame   0x00001598       0x2c c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .debug_frame   0x000015c4       0x2c c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .debug_frame   0x000015f0       0x2c c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .debug_frame   0x0000161c       0x28 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .debug_frame   0x00001644       0x28 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+
+.debug_str      0x00000000     0x1476
+ *(.debug_str)
+ .debug_str     0x00000000      0x11f fat_mci_demo.o
+                                0x15d (size before relaxing)
+ .debug_str     0x0000011f       0x68 monitor.o
+                                0x145 (size before relaxing)
+ .debug_str     0x00000187       0x48 sysinit.o
+                                 0x54 (size before relaxing)
+ .debug_str     0x000001cf       0xb1 uart.o
+                                0x18a (size before relaxing)
+ .debug_str     0x00000280       0x69 common_nxp/src/irq.o
+                                0x132 (size before relaxing)
+ .debug_str     0x000002e9       0x5c common_nxp/src/target.o
+                                0x125 (size before relaxing)
+ .debug_str     0x00000345      0x129 common_nxp/src/timer.o
+                                0x236 (size before relaxing)
+ .debug_str     0x0000046e       0xd5 drivers_nxp/rtc.o
+                                0x204 (size before relaxing)
+ .debug_str     0x00000543      0x4da ffat_chan/ff.o
+                                0x612 (size before relaxing)
+ .debug_str     0x00000a1d      0x142 drivers_mthomas/diskio.o
+                                0x29d (size before relaxing)
+ .debug_str     0x00000b5f       0x70 drivers_mthomas/gettime_lpcrtc.o
+                                0x153 (size before relaxing)
+ .debug_str     0x00000bcf      0x533 drivers_nxp/mci.o
+                                0x67f (size before relaxing)
+ .debug_str     0x00001102       0x59 drivers_nxp/dma.o
+                                0x129 (size before relaxing)
+ .debug_str     0x0000115b       0x3c FAT.o
+                                0x2ec (size before relaxing)
+ .debug_str     0x00001197       0x65 spi.o
+                                0x147 (size before relaxing)
+ .debug_str     0x000011fc      0x11e spitest.o
+                                0x200 (size before relaxing)
+ .debug_str     0x0000131a       0x20 extint.o
+                                0x160 (size before relaxing)
+ .debug_str     0x0000133a       0x88 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+                                0x11d (size before relaxing)
+ .debug_str     0x000013c2       0x67 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+                                0x144 (size before relaxing)
+ .debug_str     0x00001429       0x4d c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+                                0x131 (size before relaxing)
+
+.debug_loc      0x00000000     0x1fb1
+ *(.debug_loc)
+ .debug_loc     0x00000000       0xfc fat_mci_demo.o
+ .debug_loc     0x000000fc       0xfc monitor.o
+ .debug_loc     0x000001f8       0x2a sysinit.o
+ .debug_loc     0x00000222      0x225 uart.o
+ .debug_loc     0x00000447       0x91 common_nxp/src/irq.o
+ .debug_loc     0x000004d8       0xa4 common_nxp/src/target.o
+ .debug_loc     0x0000057c      0x23d common_nxp/src/timer.o
+ .debug_loc     0x000007b9      0x1a0 drivers_nxp/rtc.o
+ .debug_loc     0x00000959      0x56a ffat_chan/ff.o
+ .debug_loc     0x00000ec3      0x276 drivers_mthomas/diskio.o
+ .debug_loc     0x00001139       0x2a drivers_mthomas/gettime_lpcrtc.o
+ .debug_loc     0x00001163      0x612 drivers_nxp/mci.o
+ .debug_loc     0x00001775       0x9c drivers_nxp/dma.o
+ .debug_loc     0x00001811       0xa8 FAT.o
+ .debug_loc     0x000018b9       0xd2 spi.o
+ .debug_loc     0x0000198b      0x1ce spitest.o
+ .debug_loc     0x00001b59       0xd2 extint.o
+ .debug_loc     0x00001c2b      0x102 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .debug_loc     0x00001d2d      0x130 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .debug_loc     0x00001e5d      0x154 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+OUTPUT(fat_mci_demo.elf elf32-littlearm)
+
+.ARM.attributes
+                0x00000000       0x10
+ .ARM.attributes
+                0x00000000       0x10 crt0.o
+ .ARM.attributes
+                0x00000010       0x10 readfifo_gnu.o
+ .ARM.attributes
+                0x00000020       0x10 fat_mci_demo.o
+ .ARM.attributes
+                0x00000030       0x10 monitor.o
+ .ARM.attributes
+                0x00000040       0x10 sysinit.o
+ .ARM.attributes
+                0x00000050       0x10 uart.o
+ .ARM.attributes
+                0x00000060       0x10 common_nxp/src/irq.o
+ .ARM.attributes
+                0x00000070       0x10 common_nxp/src/target.o
+ .ARM.attributes
+                0x00000080       0x10 common_nxp/src/timer.o
+ .ARM.attributes
+                0x00000090       0x10 drivers_nxp/rtc.o
+ .ARM.attributes
+                0x000000a0       0x10 ffat_chan/ff.o
+ .ARM.attributes
+                0x000000b0       0x10 drivers_mthomas/comm.o
+ .ARM.attributes
+                0x000000c0       0x10 drivers_mthomas/diskio.o
+ .ARM.attributes
+                0x000000d0       0x10 drivers_mthomas/gettime_lpcrtc.o
+ .ARM.attributes
+                0x000000e0       0x10 drivers_nxp/mci.o
+ .ARM.attributes
+                0x000000f0       0x10 drivers_nxp/dma.o
+ .ARM.attributes
+                0x00000100       0x10 FAT.o
+ .ARM.attributes
+                0x00000110       0x10 spi.o
+ .ARM.attributes
+                0x00000120       0x10 spitest.o
+ .ARM.attributes
+                0x00000130       0x10 extint.o
+ .ARM.attributes
+                0x00000140       0x10 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+ .ARM.attributes
+                0x00000150       0x10 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+ .ARM.attributes
+                0x00000160       0x10 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+ .ARM.attributes
+                0x00000170       0x10 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x00000180       0x10 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+ .ARM.attributes
+                0x00000190       0x10 c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+
+.debug_ranges   0x00000000      0x678
+ .debug_ranges  0x00000000       0x40 fat_mci_demo.o
+ .debug_ranges  0x00000040       0x40 monitor.o
+ .debug_ranges  0x00000080       0x18 sysinit.o
+ .debug_ranges  0x00000098       0xb0 uart.o
+ .debug_ranges  0x00000148       0x28 common_nxp/src/irq.o
+ .debug_ranges  0x00000170       0x40 common_nxp/src/target.o
+ .debug_ranges  0x000001b0       0x50 common_nxp/src/timer.o
+ .debug_ranges  0x00000200       0x58 drivers_nxp/rtc.o
+ .debug_ranges  0x00000258      0x118 ffat_chan/ff.o
+ .debug_ranges  0x00000370       0x88 drivers_mthomas/diskio.o
+ .debug_ranges  0x000003f8       0x18 drivers_mthomas/gettime_lpcrtc.o
+ .debug_ranges  0x00000410      0x138 drivers_nxp/mci.o
+ .debug_ranges  0x00000548       0x28 drivers_nxp/dma.o
+ .debug_ranges  0x00000570       0x30 FAT.o
+ .debug_ranges  0x000005a0       0x38 spi.o
+ .debug_ranges  0x000005d8       0x68 spitest.o
+ .debug_ranges  0x00000640       0x38 extint.o
+
+Cross Reference Table
+
+Symbol                                            File
+AckCounter                                        spitest.o
+CardRCA                                           drivers_nxp/mci.o
+CmdActiveCount                                    drivers_nxp/mci.o
+CmdCRCErrCount                                    drivers_nxp/mci.o
+CmdRespEndCount                                   drivers_nxp/mci.o
+CmdSentCount                                      drivers_nxp/mci.o
+CmdTimeoutErrCount                                drivers_nxp/mci.o
+ConfigurePLL                                      common_nxp/src/target.o
+DMAHandler                                        drivers_nxp/dma.o
+DMA_Init                                          drivers_nxp/dma.o
+                                                  drivers_mthomas/diskio.o
+DMA_Move                                          drivers_nxp/dma.o
+                                                  drivers_nxp/mci.o
+DataBlockEndCount                                 drivers_nxp/mci.o
+DataCRCErrCount                                   drivers_nxp/mci.o
+DataEndCount                                      drivers_nxp/mci.o
+DataFIFOCount                                     drivers_nxp/mci.o
+DataRxActiveCount                                 drivers_nxp/mci.o
+DataRxFIFOCount                                   drivers_nxp/mci.o
+DataRxOverrunErrCount                             drivers_nxp/mci.o
+DataStartbitErrCount                              drivers_nxp/mci.o
+DataTimeoutErrCount                               drivers_nxp/mci.o
+DataTxActiveCount                                 drivers_nxp/mci.o
+DataTxFIFOCount                                   drivers_nxp/mci.o
+DataTxUnderrunErrCount                            drivers_nxp/mci.o
+EINT3_Handler                                     extint.o
+EINTInit                                          extint.o
+                                                  fat_mci_demo.o
+FIQ_Handler                                       common_nxp/src/irq.o
+MCI_Block_End_Flag                                drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_CardInit                                      drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_CardType                                      drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_CheckStatus                                   drivers_nxp/mci.o
+MCI_Check_CID                                     drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_CmdProcess_count                              drivers_nxp/mci.o
+MCI_DATA_END_InterruptService_count               drivers_nxp/mci.o
+MCI_DataErrorProcess_count                        drivers_nxp/mci.o
+MCI_FIFOInterruptService_count                    drivers_nxp/mci.o
+MCI_GetCmdResp                                    drivers_nxp/mci.o
+MCI_Go_Idle_State                                 drivers_nxp/mci.o
+MCI_IRQHandler                                    drivers_nxp/mci.o
+MCI_Init                                          drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Power_Off                                     drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_RXDisable                                     drivers_nxp/mci.o
+MCI_RXEnable                                      drivers_nxp/mci.o
+MCI_ReadFifo                                      readfifo_gnu.o
+MCI_Read_Block                                    drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Sd_Status                                     drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Select_Card                                   drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_SendCmd                                       drivers_nxp/mci.o
+MCI_Send_ACMD_Bus_Width                           drivers_nxp/mci.o
+MCI_Send_CSD                                      drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Send_Status                                   drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Send_Stop                                     drivers_nxp/mci.o
+MCI_Set_Address                                   drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Set_BlockLen                                  drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Set_MCIClock                                  drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_TXDisable                                     drivers_nxp/mci.o
+MCI_TXEnable                                      drivers_nxp/mci.o
+MCI_WriteFifo                                     readfifo_gnu.o
+MCI_Write_Block                                   drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+MCI_Write_Multiple_Block                          drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+RTCGetTime                                        drivers_nxp/rtc.o
+                                                  drivers_mthomas/gettime_lpcrtc.o
+RTCHandler                                        drivers_nxp/rtc.o
+RTCInit                                           drivers_nxp/rtc.o
+RTCSetAlarm                                       drivers_nxp/rtc.o
+RTCSetAlarmMask                                   drivers_nxp/rtc.o
+RTCSetTime                                        drivers_nxp/rtc.o
+RTCStart                                          drivers_nxp/rtc.o
+RTCStop                                           drivers_nxp/rtc.o
+RTC_CTCReset                                      drivers_nxp/rtc.o
+RXBlockCounter                                    drivers_nxp/mci.o
+ReadBlock                                         drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+SDStatRead                                        drivers_nxp/mci.o
+SD_Set_BusWidth                                   drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+SPI0Handler                                       spi.o
+SPI0Status                                        spi.o
+SPICmd                                            spitest.o
+SPIInit                                           spi.o
+                                                  fat_mci_demo.o
+SPIRDData                                         spitest.o
+SPIReceive                                        spi.o
+                                                  spitest.o
+SPIReceiveByte                                    spi.o
+SPISend                                           spi.o
+                                                  spitest.o
+SPIWRData                                         spitest.o
+SRAMInit                                          fat_mci_demo.o
+TXBlockCounter                                    drivers_nxp/mci.o
+TargetInit                                        common_nxp/src/target.o
+TargetResetInit                                   common_nxp/src/target.o
+Timer0Handler                                     common_nxp/src/timer.o
+Timer1Handler                                     common_nxp/src/timer.o
+TxCounter                                         spi.o
+WriteBlock                                        drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+__aeabi_idiv0                                     c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+__aeabi_ldiv0                                     c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+__aeabi_uidiv                                     c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+__aeabi_uidivmod                                  c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+__bss_end__                                       crt0.o
+__bss_start                                       crt0.o
+__ctors_end__                                     crt0.o
+__ctors_start__                                   crt0.o
+__div0                                            c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_dvmd_tls.o)
+                                                  c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+                                                  c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+__udivsi3                                         c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_udivsi3.o)
+                                                  ffat_chan/ff.o
+                                                  monitor.o
+__umodsi3                                         c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3\libgcc.a(_umodsi3.o)
+                                                  monitor.o
+_boot                                             crt0.o
+_data                                             crt0.o
+_edata                                            crt0.o
+_etext                                            crt0.o
+_mainCRTStartup                                   crt0.o
+_reset                                            crt0.o
+_stack                                            crt0.o
+_start                                            crt0.o
+abort                                             crt0.o
+ack                                               spitest.o
+ackimgqual                                        spitest.o
+ackinit                                           spitest.o
+ackreset                                          spitest.o
+acksnap                                           spitest.o
+acksync                                           spitest.o
+alarm_on                                          drivers_nxp/rtc.o
+camInit                                           spitest.o
+closeFile                                         FAT.o
+                                                  spitest.o
+delayMs                                           common_nxp/src/timer.o
+disable_timer                                     common_nxp/src/timer.o
+disk_initialize                                   drivers_mthomas/diskio.o
+                                                  ffat_chan/ff.o
+disk_ioctl                                        drivers_mthomas/diskio.o
+                                                  ffat_chan/ff.o
+disk_read                                         drivers_mthomas/diskio.o
+                                                  ffat_chan/ff.o
+disk_status                                       drivers_mthomas/diskio.o
+                                                  ffat_chan/ff.o
+disk_timerproc                                    drivers_mthomas/diskio.o
+disk_write                                        drivers_mthomas/diskio.o
+                                                  ffat_chan/ff.o
+enable_timer                                      common_nxp/src/timer.o
+exit                                              crt0.o
+f_chmod                                           ffat_chan/ff.o
+f_close                                           ffat_chan/ff.o
+                                                  FAT.o
+f_getfree                                         ffat_chan/ff.o
+f_lseek                                           ffat_chan/ff.o
+f_mkdir                                           ffat_chan/ff.o
+f_mkfs                                            ffat_chan/ff.o
+f_mount                                           ffat_chan/ff.o
+                                                  FAT.o
+f_open                                            ffat_chan/ff.o
+                                                  FAT.o
+f_opendir                                         ffat_chan/ff.o
+f_read                                            ffat_chan/ff.o
+f_readdir                                         ffat_chan/ff.o
+f_rename                                          ffat_chan/ff.o
+f_stat                                            ffat_chan/ff.o
+f_sync                                            ffat_chan/ff.o
+f_truncate                                        ffat_chan/ff.o
+f_unlink                                          ffat_chan/ff.o
+                                                  FAT.o
+f_utime                                           ffat_chan/ff.o
+f_write                                           ffat_chan/ff.o
+                                                  FAT.o
+fatfs                                             FAT.o
+file1                                             FAT.o
+file2                                             FAT.o
+getImageQuality                                   spitest.o
+getInit                                           spitest.o
+getPic                                            spitest.o
+getPicture                                        spitest.o
+getSnapshot                                       spitest.o
+get_fattime                                       drivers_mthomas/gettime_lpcrtc.o
+                                                  ffat_chan/ff.o
+get_line                                          monitor.o
+global                                            spitest.o
+global_counter                                    uart.o
+initSDCard                                        FAT.o
+                                                  fat_mci_demo.o
+init_VIC                                          common_nxp/src/irq.o
+                                                  common_nxp/src/target.o
+                                                  fat_mci_demo.o
+init_timer                                        common_nxp/src/timer.o
+install_irq                                       common_nxp/src/irq.o
+                                                  extint.o
+                                                  drivers_nxp/dma.o
+                                                  drivers_nxp/mci.o
+                                                  common_nxp/src/timer.o
+isAck                                             spitest.o
+main                                              fat_mci_demo.o
+                                                  crt0.o
+memcmp                                            c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcmp.o)
+                                                  ffat_chan/ff.o
+memcpy                                            c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memcpy.o)
+                                                  drivers_nxp/mci.o
+                                                  drivers_mthomas/diskio.o
+                                                  ffat_chan/ff.o
+memset                                            c:/yagarto/bin/../lib/gcc/arm-elf/4.3.3/../../../../arm-elf/lib\libc.a(lib_a-memset.o)
+                                                  ffat_chan/ff.o
+picQuality                                        spitest.o
+powerOff                                          spitest.o
+put_dump                                          monitor.o
+put_rc                                            FAT.o
+record                                            spitest.o
+                                                  fat_mci_demo.o
+recv                                              spi.o
+recvI                                             spi.o
+registercallback_timer                            common_nxp/src/timer.o
+reset                                             crt0.o
+resetCam                                          spitest.o
+resetCmd                                          spitest.o
+reset_timer                                       common_nxp/src/timer.o
+resetcamera                                       spitest.o
+s2                                                FAT.o
+sendSync                                          spitest.o
+sendchar                                          uart.o
+setupCamera                                       spitest.o
+                                                  fat_mci_demo.o
+snapshot                                          spitest.o
+start                                             crt0.o
+startRecording                                    fat_mci_demo.o
+                                                  extint.o
+stopRec                                           spitest.o
+                                                  fat_mci_demo.o
+stopRecording                                     fat_mci_demo.o
+                                                  extint.o
+sync                                              spitest.o
+systemInit                                        sysinit.o
+                                                  fat_mci_demo.o
+takePicture                                       spitest.o
+                                                  fat_mci_demo.o
+takeSnapshot                                      fat_mci_demo.o
+                                                  extint.o
+timer0CallbackFunction                            common_nxp/src/timer.o
+timer0_counter                                    common_nxp/src/timer.o
+timer1CallbackFunction                            common_nxp/src/timer.o
+timer1_counter                                    common_nxp/src/timer.o
+uart0Getch                                        uart.o
+uart0GetchW                                       uart.o
+uart0Init                                         uart.o
+                                                  fat_mci_demo.o
+uart0Putch                                        uart.o
+uart0Puts                                         uart.o
+                                                  extint.o
+uart0TxEmpty                                      uart.o
+uart0TxFlush                                      uart.o
+uart_get                                          uart.o
+                                                  monitor.o
+uart_put                                          uart.o
+                                                  monitor.o
+uart_test                                         uart.o
+writeToSDCard                                     FAT.o
+                                                  spitest.o
+xatoi                                             monitor.o
+xitoa                                             monitor.o
+xprintf                                           monitor.o
+                                                  spitest.o
+                                                  FAT.o
+xputs                                             monitor.o
